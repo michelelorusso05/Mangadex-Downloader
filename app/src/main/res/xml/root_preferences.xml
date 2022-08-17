@@ -1,0 +1,66 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory app:title="@string/settingsChapterCategory">
+
+        <SwitchPreferenceCompat
+            app:key="chapterDuplicate"
+            app:summary="@string/settingsChapterShowSameChapterDes"
+            app:title="@string/settingsChapterShowSameChapter"
+            app:icon="@drawable/ic_baseline_allow_duplicate_24"
+            app:defaultValue="true"/>
+        <ListPreference
+            app:key="chapterLanguages"
+            app:title="@string/settingsChapterLanguageTitle"
+            app:icon="@drawable/ic_baseline_translate_24"
+            app:useSimpleSummaryProvider="true"
+            app:entries="@array/languageEntries"
+            app:entryValues="@array/languageValues"
+            app:defaultValue="en"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/settingsDownloadCategory">
+
+        <SwitchPreferenceCompat
+            app:key="dataSaver"
+            app:summaryOff="@string/settingsDownloadDataSaverOff"
+            app:summaryOn="@string/settingsDownloadDataSaverOn"
+            app:title="@string/settingsDownloadDataSaver"
+            app:icon="@drawable/ic_baseline_data_saver_on_24" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/settingsCoverCategory">
+
+        <SwitchPreferenceCompat
+            app:key="lowQualityCovers"
+            app:summaryOff="@string/settingsLowQualityCoversOff"
+            app:summaryOn="@string/settingsLowQualityCoversOn"
+            app:title="@string/settingsLowQualityCovers"
+            app:icon="@drawable/ic_baseline_photo_size_select_large_24" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/about">
+
+        <Preference
+            app:key="info"
+            app:title="@string/about"
+            app:summary="@string/aboutDescription"
+            app:icon="@drawable/ic_baseline_info_24" />
+
+        <Preference
+            app:key="webpage"
+            app:title="@string/infoOtherProjects"
+            app:summary="@string/infoOtherProjectsDescription"
+            app:icon="@drawable/ic_baseline_public_24"
+            >
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://micheleprojects.altervista.org/projects/"
+                />
+        </Preference>
+    </PreferenceCategory>
+
+</PreferenceScreen>

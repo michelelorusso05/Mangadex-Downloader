@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ChapterDownloaderActivity">
+
+    <TextView
+        android:id="@+id/mangaTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:autoSizeMaxTextSize="18sp"
+        android:autoSizeMinTextSize="10sp"
+        android:autoSizeTextType="uniform"
+        android:text="@string/noMangaSelected"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:autoSizeMaxTextSize="36dp"
+        app:autoSizeMinTextSize="10dp"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_max="160dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/cover"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/authorView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/cover"
+        app:layout_constraintTop_toBottomOf="@+id/mangaTitle" />
+
+    <TextView
+        android:id="@+id/mangaDescription"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="16dp"
+        android:fadingEdge="vertical"
+        android:fadingEdgeLength="32dp"
+        android:isScrollContainer="true"
+        android:overScrollMode="ifContentScrolls"
+        android:requiresFadingEdge="vertical"
+        android:scrollbars="vertical"
+        android:text="@string/defaultDescription"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/dividerView2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/dividerView" />
+
+    <Spinner
+        android:id="@+id/chapterSelection"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/buttonDownload"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+    <View
+        android:id="@+id/dividerView"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="10dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cover" />
+
+    <View
+        android:id="@+id/dividerView2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="16dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintBottom_toTopOf="@+id/chapterSelection"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/buttonDownload"
+        android:layout_width="0dp"
+        android:layout_height="46dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="32dp"
+        android:enabled="false"
+        android:onClick="downloadChapter"
+        android:text="@string/startDownload"
+        android:textSize="12sp"
+        app:icon="@drawable/ic_baseline_save_alt_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/buttonRead"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/buttonRead"
+        android:layout_width="0dp"
+        android:layout_height="46dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="32dp"
+        android:enabled="false"
+        android:onClick="readChapter"
+        android:text="@string/read"
+        android:textSize="12sp"
+        app:icon="@drawable/ic_baseline_auto_stories_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/buttonDownload" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/cover"
+        android:layout_width="0dp"
+        android:layout_height="192dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:adjustViewBounds="false"
+        android:scaleType="centerCrop"
+        app:layout_constraintDimensionRatio="W,2:3"
+        app:layout_constraintEnd_toStartOf="@+id/mangaTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/roundedImageView"
+        app:srcCompat="@mipmap/ic_launcher_foreground" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

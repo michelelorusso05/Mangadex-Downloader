@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fileLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/cardBackgroundColor"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical">
+
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:cardCornerRadius="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/rowLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/downloadedItemColor"
+            android:foreground="?attr/selectableItemBackground"
+            android:longClickable="true">
+
+
+            <TextView
+                android:id="@+id/chapterName"
+                android:layout_width="0dp"
+                android:layout_height="32dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:gravity="center_vertical|start"
+                android:text="Chapter name"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:autoSizeMaxTextSize="20sp"
+                app:autoSizeMinTextSize="12sp"
+                app:autoSizeTextType="uniform"
+                app:layout_constraintBottom_toTopOf="@id/fileSize"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/fileSize"
+                android:layout_width="64dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="16dp"
+                android:alpha="0.5"
+                android:gravity="center_vertical"
+                android:text="688.43 KB"
+                app:autoSizeTextType="uniform"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/chapterName" />
+
+            <ImageView
+                android:id="@+id/hqIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.5"
+                app:layout_constraintStart_toEndOf="@+id/fileSize"
+                app:layout_constraintTop_toBottomOf="@+id/chapterName"
+                app:srcCompat="@drawable/ic_baseline_high_quality_24"
+                app:tint="?attr/colorControlNormal" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

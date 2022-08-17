@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="languageEntries">
+        <item>Bahasa Indonesia</item>
+        <item>Català</item>
+        <item>Dansk</item>
+        <item>Deutsch</item>
+        <item>English</item>
+        <item>Español (Es)</item>
+        <item>Español (Latin Americas)</item>
+        <item>Français</item>
+        <item>Italiano</item>
+        <item>Lietuvių</item>
+        <item>Magyar</item>
+        <item>Nederlands</item>
+        <item>Norsk</item>
+        <item>Português (BR)</item>
+        <item>Português (PT)</item>
+        <item>Română</item>
+        <item>Suomi</item>
+        <item>Svenska</item>
+        <item>Tiếng Việt Nam</item>
+        <item>Türkçe</item>
+        <item>Wikang Filipino</item>
+        <item>polski</item>
+        <item>srpskohrvatski</item>
+        <item>Český Jazyk</item>
+        <item>Ελληνικά</item>
+        <item>Монгол Хэл</item>
+        <item>Русский</item>
+        <item>Українська</item>
+        <item>български език</item>
+        <item>עברית</item>
+        <item>العربية</item>
+        <item>بهاس ملايو</item>
+        <item>فارسی</item>
+        <item>हिन्दी</item>
+        <item>বাংলা</item>
+        <item>ภาษาไทย</item>
+        <item>မြန်မာစာ</item>
+        <item>古文</item>
+        <item>汉语</item>
+        <item>日本語</item>
+        <item>조선말</item>
+    </string-array>
+    <string-array name="languageValues">
+        <item>id</item>
+        <item>ca</item>
+        <item>da</item>
+        <item>de</item>
+        <item>en</item>
+        <item>es</item>
+        <item>es-la</item>
+        <item>fr</item>
+        <item>it</item>
+        <item>lt</item>
+        <item>hu</item>
+        <item>nl</item>
+        <item>no</item>
+        <item>pt-br</item>
+        <item>pt</item>
+        <item>ro</item>
+        <item>fi</item>
+        <item>sv</item>
+        <item>vi</item>
+        <item>tr</item>
+        <item>tl</item>
+        <item>pl</item>
+        <item>sh</item>
+        <item>cs</item>
+        <item>el</item>
+        <item>mn</item>
+        <item>ru</item>
+        <item>uk</item>
+        <item>bg</item>
+        <item>he</item>
+        <item>ar</item>
+        <item>ms</item>
+        <item>fa</item>
+        <item>hi</item>
+        <item>bn</item>
+        <item>th</item>
+        <item>my</item>
+        <item>zh-hk</item>
+        <item>zh</item>
+        <item>ja</item>
+        <item>ko</item>
+    </string-array>
+</resources>
