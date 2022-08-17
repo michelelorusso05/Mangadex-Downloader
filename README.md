@@ -1,5 +1,5 @@
 # Mangadex-Downloader
-[App icon](https://github.com/michelelorusso05/Mangadex-Downloader/blob/main/Icon.png)
+![App icon](https://github.com/michelelorusso05/Mangadex-Downloader/blob/main/Icon.png)
 A free and open source downloader and reader app for [Mangadex](mangadex.org). 
 
 ### Features
