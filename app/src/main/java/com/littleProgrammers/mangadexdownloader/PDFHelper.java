@@ -3,6 +3,8 @@ package com.littleProgrammers.mangadexdownloader;
 import android.os.Environment;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.geom.PageSize;
@@ -26,16 +28,21 @@ public class PDFHelper {
         // Horray...?
     }
 
+    // Set the file name
     public void SetPDFName (String name) {
         pdfName = name;
     }
 
+    // Set the source folder (the one with the images)
     public void SetSourcePath (String filePath)
     {
         fileLocation = filePath;
     }
+    // Set destination folder
     public void SetDestinationPath (String filePath) { pdfDestination = filePath; }
 
+    // Create a PDF given the parameters
+    // Returns true if and only if the PDF was generated successfully
     public boolean CreatePDF() throws FileNotFoundException, MalformedURLException {
         // Initialize a new PDF document
         // Create a new PDF file at the specified path
@@ -85,6 +92,7 @@ public class PDFHelper {
         return true;
     }
 
+    // Returns the complete path to the last generated PDF
     public File getDownloadedPDFFilePath()
     {
         if (pdfName.equals(""))
@@ -92,7 +100,7 @@ public class PDFHelper {
         return new File(pdfDestination + "/" + pdfName + ".pdf");
     }
 
-    private File[] GetFilesInPath(File dirPath)
+    private File[] GetFilesInPath(@NonNull File dirPath)
     {
         File[] files = dirPath.listFiles();
         assert files != null;

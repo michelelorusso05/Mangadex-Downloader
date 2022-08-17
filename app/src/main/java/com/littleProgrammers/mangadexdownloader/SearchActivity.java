@@ -118,7 +118,7 @@ public class SearchActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar, menu);
+        getMenuInflater().inflate(R.menu.search_toolbar, menu);
         return true;
     }
 

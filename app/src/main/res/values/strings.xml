@@ -73,6 +73,7 @@
     <string name="stopDownload">Stop download</string>
     <string name="infoOtherProjects">Check out my other projects!</string>
     <string name="infoOtherProjectsDescription">They\'re not so bad, I promise.</string>
+    <string name="shareAsPDF">Share as PDF</string>
 
     <!-- Preference Titles -->
 

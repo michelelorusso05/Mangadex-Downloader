@@ -71,4 +71,5 @@
     <string name="stopDownload">Interrompi download</string>
     <string name="infoOtherProjects">Dai un\'occhiata ai miei altri progetti!</string>
     <string name="infoOtherProjectsDescription">Non sono così male, te lo prometto.</string>
+    <string name="shareAsPDF">Condividi come PDF</string>
 </resources>

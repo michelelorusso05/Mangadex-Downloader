@@ -1,21 +1,33 @@
 package com.littleProgrammers.mangadexdownloader;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ShareCompat;
+import androidx.core.content.FileProvider;
 
 import com.michelelorusso.dnsclient.DNSClient;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.MalformedURLException;
 
 public class ReaderActivity extends AppCompatActivity {
     private String baseUrl;
@@ -34,6 +46,8 @@ public class ReaderActivity extends AppCompatActivity {
 
     // Bitmap configuration (applies to this class, all methods)
     final BitmapFactory.Options opt = new BitmapFactory.Options();
+
+    ActivityResultLauncher<Intent> launchShareForResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +76,18 @@ public class ReaderActivity extends AppCompatActivity {
 
         if (!offlineReading)
             client = new DNSClient(DNSClient.PresetDNS.GOOGLE, this, true, 3);
+        else {
+            launchShareForResult = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Log.d("PDF share", "Shared");
+                    } else {
+                        Log.d("PDF share", "Canceled");
+                    }
+                    FolderUtilities.DeleteFolder(new File(getExternalFilesDir(null), "exportedPDFs"));
+                });
+        }
 
         previous.setOnClickListener((View v) -> previousPage());
         next.setOnClickListener((View v) -> nextPage());
@@ -82,12 +108,45 @@ public class ReaderActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.reader_toolbar, menu);
+        return offlineReading;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;
         }
+        else if (item.getItemId() == R.id.action_sharePDF) {
+            new Thread(this::CreateAndSharePDF).start();
+        }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void CreateAndSharePDF() {
+        PDFHelper helper = new PDFHelper();
+        File currentDir = new File(baseUrl);
+        helper.SetPDFName(currentDir.getName().substring(0, currentDir.getName().length() - 3));
+        helper.SetSourcePath(baseUrl);
+        helper.SetDestinationPath(new File(getExternalFilesDir(null), "exportedPDFs").getAbsolutePath());
+
+        try {
+            helper.CreatePDF();
+        } catch (FileNotFoundException | MalformedURLException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        File createdPDF = helper.getDownloadedPDFFilePath();
+        Intent intentShareFile = new ShareCompat.IntentBuilder(this)
+                        .setType("application/pdf")
+                        .setStream(FileProvider.getUriForFile(this, "com.littleProgrammers.mangadexdownloader.provider", createdPDF))
+                        .setChooserTitle(R.string.shareAsPDF)
+                        .createChooserIntent();
+
+        launchShareForResult.launch(intentShareFile);
     }
 
     @Override
