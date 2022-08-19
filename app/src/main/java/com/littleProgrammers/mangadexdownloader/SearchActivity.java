@@ -117,7 +117,7 @@ public class SearchActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         getMenuInflater().inflate(R.menu.search_toolbar, menu);
         return true;
     }
@@ -167,6 +167,7 @@ public class SearchActivity extends AppCompatActivity
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
+                Log.d("failURL", call.request().url().toString());
                 SearchActivity.this.runOnUiThread(() -> {
                     status.setText(getString(R.string.errNoConnection));
                     SetStatus(StatusType.NAY_RESULTS);
