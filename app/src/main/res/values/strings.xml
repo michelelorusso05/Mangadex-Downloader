@@ -64,8 +64,8 @@
     <string name="cat">cat</string>
     <string name="read">Read</string>
     <string name="readerActivityTitle">Read a chapter</string>
-    <string name="pageIndicator" translatable="false">%1$d/%2$d </string>
-    <string name="doublePageIndicator" translatable="false">%1$d-%2$d/%3$d </string>
+    <string name="pageIndicator" translatable="false">%1$d</string>
+    <string name="doublePageIndicator" translatable="false">%1$d-%2$d</string>
     <string name="errAlreadyDownloading">You are already downloading this chapter</string>
     <string name="originalLanguage">Original language: %1$s (%2$s)</string>
     <string name="wait">Hold on tight…</string>

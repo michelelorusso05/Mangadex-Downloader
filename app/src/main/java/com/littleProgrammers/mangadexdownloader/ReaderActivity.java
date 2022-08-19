@@ -11,8 +11,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.SimpleAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -20,6 +24,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.FileProvider;
 
@@ -37,12 +42,10 @@ public class ReaderActivity extends AppCompatActivity {
 
     DNSClient client;
 
-    TextView progress;
-    ImageButton previous, next;
+    Spinner progress;
+    ImageButton previous, next, first, last;
     ImageView display;
     View pBar;
-
-    int currentPage = 0;
 
     // Bitmap configuration (applies to this class, all methods)
     final BitmapFactory.Options opt = new BitmapFactory.Options();
@@ -68,11 +71,20 @@ public class ReaderActivity extends AppCompatActivity {
 
         previous = findViewById(R.id.previousButton);
         next = findViewById(R.id.nextButton);
+        first = findViewById(R.id.firstButton);
+        last = findViewById(R.id.lastButton);
 
         Bundle extras = getIntent().getExtras();
         baseUrl = extras.getString("baseUrl");
         urls = extras.getStringArray("urls");
         offlineReading = extras.getBoolean("sourceIsStorage", false);
+
+        // Cancel notification if reader was launched via notification click
+        int optionalNotificationToCancel = extras.getInt("notificationToCancel");
+        if (optionalNotificationToCancel != 0) {
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+            notificationManager.cancel(optionalNotificationToCancel);
+        }
 
         if (!offlineReading)
             client = new DNSClient(DNSClient.PresetDNS.GOOGLE, this, true, 3);
@@ -91,20 +103,36 @@ public class ReaderActivity extends AppCompatActivity {
 
         previous.setOnClickListener((View v) -> previousPage());
         next.setOnClickListener((View v) -> nextPage());
+        first.setOnClickListener((View v) -> firstPage());
+        last.setOnClickListener((View v) -> lastPage());
 
+        int l = (int) Math.ceil((float) urls.length / pageStep());
+        String[] pages = new String[l];
+        for (int i = 0; i < l; i++)
+            pages[i] = UpdatePageIndicator(i * pageStep());
+        progress.setAdapter(new ArrayAdapter<>(this, R.layout.page_indicator_spinner_item, pages));
         if (savedInstanceState == null)
-            turnPage(0);
+            progress.setSelection(0);
         else {
             int savedPage = savedInstanceState.getInt("currentPage", 0);
             if (savedPage % 2 != 0) savedPage--;
-            turnPage(savedPage);
+            progress.setSelection(savedPage);
         }
+
+        progress.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                turnPage(position * pageStep());
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt("currentPage", currentPage);
+        outState.putInt("currentPage", progress.getSelectedItemPosition());
     }
 
     @Override
@@ -155,21 +183,19 @@ public class ReaderActivity extends AppCompatActivity {
         finish();
     }
 
-    private void UpdatePageIndicator() {
-        if (landscape && currentPage < urls.length - 1) {
-            progress.setText(getString(R.string.doublePageIndicator, currentPage + 1, currentPage + 2, urls.length));
-        }
-        else
-            progress.setText(getString(R.string.pageIndicator, currentPage + 1, urls.length));
+    private String UpdatePageIndicator(int index) {
+        if (landscape && index < urls.length - 1)
+            return getString(R.string.doublePageIndicator, index + 1, index + 2);
+        return getString(R.string.pageIndicator, index + 1);
     }
 
     public void turnPage(int index) {
-        currentPage = index;
-        UpdatePageIndicator();
         display.setVisibility(View.INVISIBLE);
         pBar.setVisibility(View.VISIBLE);
-        previous.setEnabled(currentPage > 0);
-        next.setEnabled(currentPage < urls.length - pageStep());
+        previous.setEnabled(index > 0);
+        first.setEnabled(previous.isEnabled());
+        next.setEnabled(index < urls.length - pageStep());
+        last.setEnabled(next.isEnabled());
 
         if (!offlineReading) {
             client.CancelAllPendingRequests();
@@ -183,7 +209,7 @@ public class ReaderActivity extends AppCompatActivity {
             else {
                 final boolean[] isWorkDone = new boolean[1];
                 final Bitmap[] images = new Bitmap[2];
-                if (currentPage < urls.length - 1) {
+                if (index < urls.length - 1) {
                     client.GetImageBitmapAsync(baseUrl + "/" + urls[index + 1], bm -> {
                         images[1] = bm;
                         if (isWorkDone[0]) BitmapRetrieveDone(images[0], images[1]);
@@ -258,9 +284,15 @@ public class ReaderActivity extends AppCompatActivity {
     }
 
     public void nextPage() {
-        turnPage(currentPage + pageStep());
+        progress.setSelection(progress.getSelectedItemPosition() + 1);
     }
     public void previousPage() {
-        turnPage(currentPage - pageStep());
+        progress.setSelection(progress.getSelectedItemPosition() - 1);
+    }
+    public void firstPage() {
+        progress.setSelection(0);
+    }
+    public void lastPage() {
+        progress.setSelection(progress.getCount() - 1);
     }
 }

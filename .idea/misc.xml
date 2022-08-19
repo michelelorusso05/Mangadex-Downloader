@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/miche/AppData/Local/Android/Sdk/platforms/android-31/data/res/layout/simple_list_item_1.xml" value="0.17760416666666667" />
+        <entry key="..\:/Users/miche/AppData/Local/Android/Sdk/platforms/android-31/data/res/layout/simple_spinner_dropdown_item.xml" value="0.24230072463768115" />
         <entry key="..\:/Users/miche/AppData/Local/Android/Sdk/platforms/android-31/data/res/layout/simple_spinner_item.xml" value="0.17916666666666667" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/drawable-anydpi/cat.xml" value="0.2375" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/drawable-anydpi/distressed.xml" value="0.2375" />
@@ -37,6 +38,7 @@
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/downloaded_file.xml" value="0.9" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/downloaded_manga.xml" value="0.33" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/manga_result_row.xml" value="0.22" />
+        <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/page_indicator_spinner_item.xml" value="0.24230072463768115" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/settings_activity.xml" value="0.25729166666666664" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/menu/reader_toolbar.xml" value="0.12552083333333333" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/menu/toolbar.xml" value="0.18802083333333333" />

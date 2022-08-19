@@ -10,6 +10,7 @@
         android:id="@+id/chapterTitle"
         android:layout_width="match_parent"
         android:layout_height="24dp"
+        android:ellipsize="end"
         android:gravity="center_vertical"
         android:textAlignment="gravity"
         android:textSize="20sp"
@@ -20,5 +21,6 @@
         android:layout_width="match_parent"
         android:layout_height="20dp"
         android:alpha="0.6"
+        android:ellipsize="end"
         app:autoSizeTextType="uniform" />
 </LinearLayout>

@@ -253,6 +253,7 @@ public class ChapterDownloadWorker extends Worker {
         intent.putExtra("baseUrl", targetFolder.getAbsolutePath());
         intent.putExtra("urls", images);
         intent.putExtra("sourceIsStorage", true);
+        intent.putExtra("notificationToCancel", uniqueID);
 
         @SuppressLint("UnspecifiedImmutableFlag")
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
