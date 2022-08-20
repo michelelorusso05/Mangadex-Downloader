@@ -15,9 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.SimpleAdapter;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -101,10 +99,10 @@ public class ReaderActivity extends AppCompatActivity {
                 });
         }
 
-        previous.setOnClickListener((View v) -> previousPage());
-        next.setOnClickListener((View v) -> nextPage());
-        first.setOnClickListener((View v) -> firstPage());
-        last.setOnClickListener((View v) -> lastPage());
+        previous.setOnClickListener(this::previousPage);
+        next.setOnClickListener(this::nextPage);
+        first.setOnClickListener(this::firstPage);
+        last.setOnClickListener(this::lastPage);
 
         int l = (int) Math.ceil((float) urls.length / pageStep());
         String[] pages = new String[l];
@@ -136,7 +134,7 @@ public class ReaderActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         getMenuInflater().inflate(R.menu.reader_toolbar, menu);
         return offlineReading;
     }
@@ -283,16 +281,16 @@ public class ReaderActivity extends AppCompatActivity {
         return landscape ? 2 : 1;
     }
 
-    public void nextPage() {
+    public void nextPage(View v) {
         progress.setSelection(progress.getSelectedItemPosition() + 1);
     }
-    public void previousPage() {
+    public void previousPage(View v) {
         progress.setSelection(progress.getSelectedItemPosition() - 1);
     }
-    public void firstPage() {
+    public void firstPage(View v) {
         progress.setSelection(0);
     }
-    public void lastPage() {
+    public void lastPage(View v) {
         progress.setSelection(progress.getCount() - 1);
     }
 }

@@ -15,7 +15,8 @@
     <string name="downloadCompleted">Download completed</string>
     <string name="searchDefault">You can search for a random manga with the button above.</string>
     <string name="searchLoading">Searching…</string>
-    <string name="searchFound">%1$d results found</string>
+    <string name="searchFound">Showing results from %1$d to %2$d out of %3$d</string>
+    <string name="searchFoundEmpty">No results found…</string>
     <string name="activityDownloadName">Download a manga</string>
     <string name="mangaNoEntries">There are no chapters in the selected language.</string>
     <string name="cantDownload">Wait for the server to respond before attempting to download</string>
@@ -74,6 +75,8 @@
     <string name="infoOtherProjects">Check out my other projects!</string>
     <string name="infoOtherProjectsDescription">They\'re not so bad, I promise.</string>
     <string name="shareAsPDF">Share as PDF</string>
+    <string name="buttonSearch">Search</string>
+    <string name="buttonRandom">Random</string>
 
     <!-- Preference Titles -->
 

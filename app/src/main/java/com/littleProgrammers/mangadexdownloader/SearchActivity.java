@@ -2,6 +2,7 @@ package com.littleProgrammers.mangadexdownloader;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -9,8 +10,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -51,6 +52,8 @@ public class SearchActivity extends AppCompatActivity
     ImageView emptyViewImage;
     TextView emptyViewDescription;
 
+    Button searchButton, randomButton;
+
     DNSClient client = new DNSClient(DNSClient.PresetDNS.GOOGLE);
     private ObjectMapper mapper;
 
@@ -74,10 +77,16 @@ public class SearchActivity extends AppCompatActivity
         emptyView = findViewById(R.id.emptyView);
         emptyViewImage = findViewById(R.id.emptyViewImage);
         emptyViewDescription = findViewById(R.id.emptyViewText);
+        searchButton = findViewById(R.id.searchButton);
+        randomButton = findViewById(R.id.randomButton);
+
+        searchButton.setOnClickListener(this::getResults);
+        randomButton.setOnClickListener(this::getRandomManga);
 
         recyclerView.setAdapter(new MangaAdapter(this));
-        recyclerView.setLayoutManager(new GridLayoutManager(SearchActivity.this, 2));
-
+        boolean landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+        int columns = landscape ? 4 : 2;
+        recyclerView.setLayoutManager(new GridLayoutManager(SearchActivity.this, columns));
 
         SetStatus(StatusType.BEGIN);
 
@@ -155,7 +164,6 @@ public class SearchActivity extends AppCompatActivity
     }
 
     public void getResults(View view) {
-        ImageButton searchButton = findViewById(R.id.searchButton);
         searchButton.setEnabled(false);
 
         String urlString = "https://api.mangadex.org/manga?title=" + searchBar.getText().toString().trim() + "&limit=20&includes[]=cover_art&includes[]=author";
@@ -197,13 +205,17 @@ public class SearchActivity extends AppCompatActivity
                 runOnUiThread(() -> {
                     int resultsLength = mResults.getData().length;
                     status.setText(R.string.searchLoading);
-                    if (resultsLength == 0) SetStatus(StatusType.NAY_RESULTS);
-                    else SetStatus(StatusType.YAY_RESULTS);
-                    status.setText(getString(R.string.searchFound, resultsLength));
+                    if (resultsLength == 0) {
+                        SetStatus(StatusType.NAY_RESULTS);
+                        status.setText(getString(R.string.searchFoundEmpty));
+                    }
+                    else {
+                        SetStatus(StatusType.YAY_RESULTS);
+                        status.setText(getString(R.string.searchFound, mResults.getOffset() + 1, resultsLength, mResults.getTotal()));
+                    }
                     MangaAdapter adapter = new MangaAdapter(SearchActivity.this, mResults.getData());
                     recyclerView.setAdapter(adapter);
 
-                    ImageButton searchButton = findViewById(R.id.searchButton);
                     searchButton.setEnabled(true);
                 });
                 response.close();
@@ -212,8 +224,7 @@ public class SearchActivity extends AppCompatActivity
     }
 
     public void getRandomManga(View view) {
-        TextView status = findViewById(R.id.status);
-        ImageButton randomButton = findViewById(R.id.randomButton);
+        TextView status = findViewById(R.id.status);;
         randomButton.setEnabled(false);
 
         String urlString = "https://api.mangadex.org/manga/random/?includes[]=author&includes[]=cover_art";

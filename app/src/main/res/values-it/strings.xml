@@ -15,7 +15,8 @@
     <string name="downloadCompleted">Download completato</string>
     <string name="searchDefault">Puoi cercare un manga a caso usando il pulsante sopra.</string>
     <string name="searchLoading">Sto cercando…</string>
-    <string name="searchFound">%1$d risultati trovati</string>
+    <string name="searchFound">Risultati da %1$d a %2$d su un totale di %3$d</string>
+    <string name="searchFoundEmpty">Nessun risultato trovato…</string>
     <string name="activityDownloadName">Scarica un manga</string>
     <string name="mangaNoEntries">Non ci sono capitoli nella lingua selezionata.</string>
     <string name="cantDownload">Aspetta la risposta dal server prima di provare a scaricare</string>
@@ -72,4 +73,6 @@
     <string name="infoOtherProjects">Dai un\'occhiata ai miei altri progetti!</string>
     <string name="infoOtherProjectsDescription">Non sono così male, te lo prometto.</string>
     <string name="shareAsPDF">Condividi come PDF</string>
+    <string name="buttonSearch">Cerca</string>
+    <string name="buttonRandom">A caso</string>
 </resources>
