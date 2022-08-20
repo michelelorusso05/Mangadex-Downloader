@@ -132,6 +132,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/buttonDownload" />
 
+    <ProgressBar
+        android:id="@+id/coverPlaceholder"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/cover"
+        app:layout_constraintEnd_toEndOf="@+id/cover"
+        app:layout_constraintStart_toStartOf="@+id/cover"
+        app:layout_constraintTop_toTopOf="@+id/cover" />
+
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/cover"
         android:layout_width="0dp"
@@ -145,8 +155,7 @@
         app:layout_constraintEnd_toStartOf="@+id/mangaTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearanceOverlay="@style/roundedImageView"
-        app:srcCompat="@mipmap/ic_launcher_foreground" />
+        app:shapeAppearanceOverlay="@style/roundedImageView" />
 
     <ProgressBar
         android:id="@+id/readLoadingBar"
