@@ -135,6 +135,7 @@ public class ChapterDownloadWorker extends Worker {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 mutex.release();
+                OnDownloadFail();
             }
 
             @Override
@@ -143,7 +144,10 @@ public class ChapterDownloadWorker extends Worker {
                     response.close();
                     return;
                 }
-
+                if (!response.isSuccessful()) {
+                    mutex.release();
+                    OnDownloadFail();
+                }
                 AtHomeResults hResults = mapper.readValue(Objects.requireNonNull(response.body()).string(), AtHomeResults.class);
 
                 // Clean temporary directory
@@ -250,6 +254,7 @@ public class ChapterDownloadWorker extends Worker {
         Arrays.sort(images);
 
         Intent intent = new Intent(context, ReaderActivity.class);
+        intent.setAction("com.littleProgrammers.mangadexdownloader_open_".concat(String.valueOf(uniqueID)));
         intent.putExtra("baseUrl", targetFolder.getAbsolutePath());
         intent.putExtra("urls", images);
         intent.putExtra("sourceIsStorage", true);
