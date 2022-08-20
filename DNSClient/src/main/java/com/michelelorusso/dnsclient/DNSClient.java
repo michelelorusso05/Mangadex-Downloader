@@ -90,7 +90,7 @@ public class DNSClient {
             OkHttpClient.Builder builder = bootstrapClient.newBuilder().dns(DNS).dispatcher(dispatcher)
                     .connectionPool(new ConnectionPool(100, 15000, TimeUnit.MILLISECONDS))
                     .protocols(Collections.singletonList(Protocol.HTTP_1_1))
-                    .connectTimeout(15, TimeUnit.SECONDS)
+                    .connectTimeout(30, TimeUnit.SECONDS)
                     .readTimeout(0, TimeUnit.SECONDS);
 
             if (cached && ctx != null) {

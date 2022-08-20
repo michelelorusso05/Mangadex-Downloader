@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -53,6 +54,9 @@ public class SearchActivity extends AppCompatActivity
     TextView emptyViewDescription;
 
     Button searchButton, randomButton;
+    View controlsContainer;
+    ImageButton nextButton, previousButton;
+    private int searchOffset = 0;
 
     DNSClient client = new DNSClient(DNSClient.PresetDNS.GOOGLE);
     private ObjectMapper mapper;
@@ -79,9 +83,18 @@ public class SearchActivity extends AppCompatActivity
         emptyViewDescription = findViewById(R.id.emptyViewText);
         searchButton = findViewById(R.id.searchButton);
         randomButton = findViewById(R.id.randomButton);
+        nextButton = findViewById(R.id.nextButton);
+        previousButton = findViewById(R.id.previousButton);
+        controlsContainer = findViewById(R.id.controlsContainer);
 
-        searchButton.setOnClickListener(this::getResults);
+        searchButton.setOnClickListener((View v) -> {
+            controlsContainer.setVisibility(View.INVISIBLE);
+            searchOffset = 0;
+            getResults(v);
+        });
         randomButton.setOnClickListener(this::getRandomManga);
+        nextButton.setOnClickListener(this::QueryNext);
+        previousButton.setOnClickListener(this::QueryPrevious);
 
         recyclerView.setAdapter(new MangaAdapter(this));
         boolean landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
@@ -122,6 +135,7 @@ public class SearchActivity extends AppCompatActivity
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putString("searchQuery", searchBar.getText().toString());
+        outState.putInt("searchOffset", searchOffset);
         super.onSaveInstanceState(outState);
     }
 
@@ -166,7 +180,7 @@ public class SearchActivity extends AppCompatActivity
     public void getResults(View view) {
         searchButton.setEnabled(false);
 
-        String urlString = "https://api.mangadex.org/manga?title=" + searchBar.getText().toString().trim() + "&limit=20&includes[]=cover_art&includes[]=author";
+        String urlString = "https://api.mangadex.org/manga?title=" + searchBar.getText().toString().trim() + "&limit=20&offset=" + searchOffset + "&includes[]=cover_art&includes[]=author";
 
         status.setText(R.string.searchLoading);
         SetStatus(StatusType.SEARCHING);
@@ -190,6 +204,12 @@ public class SearchActivity extends AppCompatActivity
 
                 final MangaResults mResults = mapper.readValue(bodyString, MangaResults.class);
 
+                runOnUiThread(() -> {
+                    // Update button state
+                    previousButton.setEnabled(mResults.getOffset() > 0);
+                    nextButton.setEnabled(mResults.getTotal() > mResults.getOffset() + mResults.getData().length);
+                });
+
                 for (Manga manga : mResults.getData()) {
                     for (Relationship relationship : manga.getRelationships()) {
                         if (relationship.getType().equals("author")) {
@@ -211,7 +231,7 @@ public class SearchActivity extends AppCompatActivity
                     }
                     else {
                         SetStatus(StatusType.YAY_RESULTS);
-                        status.setText(getString(R.string.searchFound, mResults.getOffset() + 1, resultsLength, mResults.getTotal()));
+                        status.setText(getString(R.string.searchFound, mResults.getOffset() + 1, mResults.getOffset() + resultsLength, mResults.getTotal()));
                     }
                     MangaAdapter adapter = new MangaAdapter(SearchActivity.this, mResults.getData());
                     recyclerView.setAdapter(adapter);
@@ -222,9 +242,17 @@ public class SearchActivity extends AppCompatActivity
             }
         });
     }
+    public void QueryNext(View view) {
+        searchOffset += 20;
+        getResults(view);
+    }
+    public void QueryPrevious(View view) {
+        searchOffset -= 20;
+        getResults(view);
+    }
 
     public void getRandomManga(View view) {
-        TextView status = findViewById(R.id.status);;
+        TextView status = findViewById(R.id.status);
         randomButton.setEnabled(false);
 
         String urlString = "https://api.mangadex.org/manga/random/?includes[]=author&includes[]=cover_art";
@@ -300,6 +328,7 @@ public class SearchActivity extends AppCompatActivity
                 recyclerView.setVisibility(View.INVISIBLE);
                 emptyViewImage.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.smiling));
                 emptyViewDescription.setText(R.string.searchBegin);
+                controlsContainer.setVisibility(View.INVISIBLE);
                 break;
             case NAY_RESULTS:
                 pBar.setVisibility(View.GONE);
@@ -307,16 +336,20 @@ public class SearchActivity extends AppCompatActivity
                 recyclerView.setVisibility(View.INVISIBLE);
                 emptyViewImage.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.distressed));
                 emptyViewDescription.setText(R.string.emptyList);
+                controlsContainer.setVisibility(View.INVISIBLE);
                 break;
             case YAY_RESULTS:
                 recyclerView.setVisibility(View.VISIBLE);
                 pBar.setVisibility(View.GONE);
                 emptyView.setVisibility(View.GONE);
+                controlsContainer.setVisibility(View.VISIBLE);
                 break;
             case SEARCHING:
                 pBar.setVisibility(View.VISIBLE);
                 recyclerView.setVisibility(View.INVISIBLE);
                 emptyView.setVisibility(View.GONE);
+                nextButton.setEnabled(false);
+                previousButton.setEnabled(false);
                 break;
         }
         if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("cat", false))
