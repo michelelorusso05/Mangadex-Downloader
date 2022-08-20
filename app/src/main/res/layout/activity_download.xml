@@ -106,13 +106,13 @@
         android:layout_height="46dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="4dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="8dp"
         android:enabled="false"
         android:onClick="downloadChapter"
         android:text="@string/startDownload"
         android:textSize="12sp"
         app:icon="@drawable/ic_baseline_save_alt_24"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/readLoadingBar"
         app:layout_constraintEnd_toStartOf="@+id/buttonRead"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -122,13 +122,13 @@
         android:layout_height="46dp"
         android:layout_marginStart="4dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="8dp"
         android:enabled="false"
         android:onClick="readChapter"
         android:text="@string/read"
         android:textSize="12sp"
         app:icon="@drawable/ic_baseline_auto_stories_24"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/readLoadingBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/buttonDownload" />
 
@@ -147,5 +147,21 @@
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearanceOverlay="@style/roundedImageView"
         app:srcCompat="@mipmap/ic_launcher_foreground" />
+
+    <ProgressBar
+        android:id="@+id/readLoadingBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp"
+        android:indeterminate="true"
+        android:indeterminateBehavior="cycle"
+        android:indeterminateOnly="true"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

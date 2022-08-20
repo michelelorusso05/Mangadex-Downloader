@@ -67,6 +67,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
     Spinner chapterSelection;
 
     Button downloadButton, readButton;
+    View progressBar;
 
     DNSClient client = new DNSClient(DNSClient.PresetDNS.GOOGLE);
 
@@ -100,6 +101,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         chapterSelection = findViewById(R.id.chapterSelection);
         downloadButton = findViewById(R.id.buttonDownload);
         readButton = findViewById(R.id.buttonRead);
+        progressBar = findViewById(R.id.readLoadingBar);
 
         mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -306,10 +308,17 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         if (checkForNoPages(selectedChapter)) return;
 
         String chapterID = selectedChapter.getId();
+
+        readButton.setEnabled(false);
+        progressBar.setVisibility(View.VISIBLE);
         client.AsyncHttpRequest("https://api.mangadex.org/at-home/server/" + chapterID, new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), R.string.errNoConnection, Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> {
+                        Toast.makeText(getApplicationContext(), R.string.errNoConnection, Toast.LENGTH_SHORT).show();
+                        readButton.setEnabled(true);
+                        progressBar.setVisibility(View.INVISIBLE);
+                    });
                 }
 
                 @Override
@@ -335,6 +344,11 @@ public class ChapterDownloaderActivity extends AppCompatActivity
                     intent.putExtra("urls", images);
 
                     startActivity(intent);
+
+                    runOnUiThread(() -> {
+                        readButton.setEnabled(true);
+                        progressBar.setVisibility(View.INVISIBLE);
+                    });
                 }
         });
 
