@@ -108,15 +108,10 @@ public class ReaderActivity extends AppCompatActivity {
         String[] pages = new String[l];
         for (int i = 0; i < l; i++)
             pages[i] = UpdatePageIndicator(i * pageStep());
-        progress.setAdapter(new ArrayAdapter<>(this, R.layout.page_indicator_spinner_item, pages));
-        if (savedInstanceState == null)
-            progress.setSelection(0);
-        else {
-            int savedPage = savedInstanceState.getInt("currentPage", 0);
-            if (savedPage % 2 != 0) savedPage--;
-            progress.setSelection(savedPage);
-        }
 
+
+
+        progress.setAdapter(new ArrayAdapter<>(this, R.layout.page_indicator_spinner_item, pages));
         progress.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -125,12 +120,25 @@ public class ReaderActivity extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
+
+        if (savedInstanceState == null)
+            progress.setSelection(0);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        int savedPage = savedInstanceState.getInt("currentPage", 0);
+        progress.setSelection(savedPage);
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt("currentPage", progress.getSelectedItemPosition());
+        if (landscape)
+            outState.putInt("currentPage", progress.getSelectedItemPosition() * 2);
+        else
+            outState.putInt("currentPage", (int) Math.floor((float) progress.getSelectedItemPosition() / 2));
     }
 
     @Override
@@ -147,6 +155,7 @@ public class ReaderActivity extends AppCompatActivity {
         }
         else if (item.getItemId() == R.id.action_sharePDF) {
             new Thread(this::CreateAndSharePDF).start();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -277,8 +286,11 @@ public class ReaderActivity extends AppCompatActivity {
         }).start();
     }
 
+    private int pageStep(boolean inverted) {
+        return (landscape ^ inverted) ? 2 : 1;
+    }
     private int pageStep() {
-        return landscape ? 2 : 1;
+        return pageStep(false);
     }
 
     public void nextPage(View v) {

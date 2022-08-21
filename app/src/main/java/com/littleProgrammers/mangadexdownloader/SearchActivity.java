@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
@@ -36,6 +37,7 @@ import com.michelelorusso.dnsclient.DNSClient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.Set;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -53,13 +55,15 @@ public class SearchActivity extends AppCompatActivity
     ImageView emptyViewImage;
     TextView emptyViewDescription;
 
-    Button searchButton, randomButton;
+    Button searchButton, randomButton, favouriteButton;
     View controlsContainer;
     ImageButton nextButton, previousButton;
     private int searchOffset = 0;
 
     DNSClient client = new DNSClient(DNSClient.PresetDNS.GOOGLE);
     private ObjectMapper mapper;
+
+    private Set<String> customIDs;
 
     @Override
     protected void onResume() {
@@ -83,6 +87,7 @@ public class SearchActivity extends AppCompatActivity
         emptyViewDescription = findViewById(R.id.emptyViewText);
         searchButton = findViewById(R.id.searchButton);
         randomButton = findViewById(R.id.randomButton);
+        favouriteButton = findViewById(R.id.favouriteButton);
         nextButton = findViewById(R.id.nextButton);
         previousButton = findViewById(R.id.previousButton);
         controlsContainer = findViewById(R.id.controlsContainer);
@@ -90,11 +95,16 @@ public class SearchActivity extends AppCompatActivity
         searchButton.setOnClickListener((View v) -> {
             controlsContainer.setVisibility(View.INVISIBLE);
             searchOffset = 0;
-            getResults(v);
+            getResults();
         });
         randomButton.setOnClickListener(this::getRandomManga);
-        nextButton.setOnClickListener(this::QueryNext);
-        previousButton.setOnClickListener(this::QueryPrevious);
+        favouriteButton.setOnClickListener((View v) -> {
+            controlsContainer.setVisibility(View.INVISIBLE);
+            searchOffset = 0;
+            getResults(FavouriteManager.GetFavourites(this));
+        });
+        nextButton.setOnClickListener(v1 -> QueryNext());
+        previousButton.setOnClickListener(v1 -> QueryPrevious());
 
         recyclerView.setAdapter(new MangaAdapter(this));
         boolean landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
@@ -107,7 +117,8 @@ public class SearchActivity extends AppCompatActivity
         searchBar.setOnKeyListener((View v, int keyCode, KeyEvent event) -> {
             if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
                     (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                getResults(null);
+                searchOffset = 0;
+                getResults();
                 InputMethodManager in = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 in.hideSoftInputFromWindow(searchBar.getApplicationWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                 return true;
@@ -123,18 +134,47 @@ public class SearchActivity extends AppCompatActivity
 
         if (savedInstanceState != null) {
             String savedQuery = savedInstanceState.getString("searchQuery", "");
-            if (savedQuery.length() != 0) {
-                searchBar.setText(savedQuery);
+            if (savedQuery.equals("__fav")) {
+                controlsContainer.setVisibility(View.INVISIBLE);
+                searchOffset = 0;
+                getResults(FavouriteManager.GetFavourites(this));
+            }
+            else if (savedQuery.equals("__trn")) {
+                controlsContainer.setVisibility(View.INVISIBLE);
+                searchBar.setText("");
                 getResults(null);
+            }
+            else if (savedQuery.length() != 0) {
+                searchBar.setText(savedQuery);
+                getResults();
+            }
+        }
+        else {
+            String startPage = PreferenceManager.getDefaultSharedPreferences(this).getString("startupView", "__mty");
+            switch (startPage) {
+                case "__mty":
+                    break;
+                case "__trn":
+                    getResults(null);
+                    break;
+                case "__fav":
+                    getResults(FavouriteManager.GetFavourites(this));
+                    break;
             }
         }
 
-        warmupRequest();
+
+        // warmupRequest();
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
-        outState.putString("searchQuery", searchBar.getText().toString());
+        if (customIDs != null)
+            outState.putString("searchQuery", "__fav");
+        else if (emptyView.getVisibility() == View.GONE)
+            outState.putString("searchQuery", "__trn");
+        else
+            outState.putString("searchQuery", searchBar.getText().toString());
         outState.putInt("searchOffset", searchOffset);
         super.onSaveInstanceState(outState);
     }
@@ -177,15 +217,30 @@ public class SearchActivity extends AppCompatActivity
         });
     }
 
-    public void getResults(View view) {
-        searchButton.setEnabled(false);
+    public void getResults() { getResults(null); }
+    public void getResults(@Nullable final Set<String> customList) {
+        customIDs = customList;
 
-        String urlString = "https://api.mangadex.org/manga?title=" + searchBar.getText().toString().trim() + "&limit=20&offset=" + searchOffset + "&includes[]=cover_art&includes[]=author";
+        if (customList != null && customList.size() == 0) {
+            SetStatus(StatusType.FAVOURITE_EMPTY);
+            return;
+        }
+
+        searchButton.setEnabled(false);
+        favouriteButton.setEnabled(false);
+
+        StringBuilder urlString = new StringBuilder("https://api.mangadex.org/manga?&limit=20&offset=" + searchOffset + "&includes[]=cover_art&includes[]=author");
+        if (customIDs == null)
+            urlString.append("&title=").append(searchBar.getText().toString().trim());
+        else {
+            for (String id : customIDs)
+                urlString.append("&ids[]=").append(id);
+        }
 
         status.setText(R.string.searchLoading);
         SetStatus(StatusType.SEARCHING);
 
-        client.AsyncHttpRequest(urlString, new Callback() {
+        client.AsyncHttpRequest(urlString.toString(), new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
@@ -194,6 +249,7 @@ public class SearchActivity extends AppCompatActivity
                     status.setText(getString(R.string.errNoConnection));
                     SetStatus(StatusType.NAY_RESULTS);
                     searchButton.setEnabled(true);
+                    favouriteButton.setEnabled(true);
                 });
             }
 
@@ -237,18 +293,19 @@ public class SearchActivity extends AppCompatActivity
                     recyclerView.setAdapter(adapter);
 
                     searchButton.setEnabled(true);
+                    favouriteButton.setEnabled(true);
                 });
                 response.close();
             }
         });
     }
-    public void QueryNext(View view) {
+    public void QueryNext() {
         searchOffset += 20;
-        getResults(view);
+        getResults(customIDs);
     }
-    public void QueryPrevious(View view) {
+    public void QueryPrevious() {
         searchOffset -= 20;
-        getResults(view);
+        getResults(customIDs);
     }
 
     public void getRandomManga(View view) {
@@ -317,7 +374,8 @@ public class SearchActivity extends AppCompatActivity
         BEGIN,
         NAY_RESULTS,
         YAY_RESULTS,
-        SEARCHING
+        SEARCHING,
+        FAVOURITE_EMPTY
     }
 
     public void SetStatus(StatusType _status) {
@@ -350,6 +408,14 @@ public class SearchActivity extends AppCompatActivity
                 emptyView.setVisibility(View.GONE);
                 nextButton.setEnabled(false);
                 previousButton.setEnabled(false);
+                break;
+            case FAVOURITE_EMPTY:
+                pBar.setVisibility(View.GONE);
+                emptyView.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.INVISIBLE);
+                emptyViewImage.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.smiling));
+                emptyViewDescription.setText(R.string.addFavouritesHint);
+                controlsContainer.setVisibility(View.INVISIBLE);
                 break;
         }
         if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("cat", false))

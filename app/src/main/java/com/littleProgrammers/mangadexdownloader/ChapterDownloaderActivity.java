@@ -9,7 +9,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Pair;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -71,6 +74,8 @@ public class ChapterDownloaderActivity extends AppCompatActivity
 
     DNSClient client = new DNSClient(DNSClient.PresetDNS.GOOGLE);
 
+    boolean markedFavourite;
+
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -102,6 +107,24 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         downloadButton = findViewById(R.id.buttonDownload);
         readButton = findViewById(R.id.buttonRead);
         progressBar = findViewById(R.id.readLoadingBar);
+
+        ChapterSelectionAdapter adapter = new ChapterSelectionAdapter(ChapterDownloaderActivity.this,
+                new Pair<>(getString(R.string.fetchingString), getString(R.string.wait)));
+        chapterSelection.setAdapter(adapter);
+
+        chapterSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (mangaChapters.size() == 0) return;
+                if (mangaChapters.get(position).getAttributes().getExternalUrl() != null)
+                    downloadButton.setVisibility(View.GONE);
+                else
+                    downloadButton.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
 
         mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -153,6 +176,31 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
+        getMenuInflater().inflate(R.menu.chapter_download_toolbar, menu);
+        markedFavourite = FavouriteManager.IsFavourite(this, selectedManga.getId());
+        menu.getItem(0).setIcon(markedFavourite ? R.drawable.ic_baseline_bookmark_24 : R.drawable.ic_baseline_bookmark_disabled_24);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        else if (item.getItemId() == R.id.action_favourite) {
+            markedFavourite = !markedFavourite;
+            item.setIcon(markedFavourite ? R.drawable.ic_baseline_bookmark_24 : R.drawable.ic_baseline_bookmark_disabled_24);
+            if (markedFavourite)
+                FavouriteManager.AddFavourite(this, selectedManga.getId());
+            else
+                FavouriteManager.RemoveFavourite(this, selectedManga.getId());
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void getCover() throws JSONException {
         boolean lowQualityCover = PreferenceManager.getDefaultSharedPreferences(ChapterDownloaderActivity.this).getBoolean("lowQualityCovers", false);
         final String coverUrl = "https://uploads.mangadex.org/covers/" + selectedManga.getId() + "/" + selectedManga.getAttributes().getCoverUrl() + ((lowQualityCover) ? ".512.jpg" : "");
@@ -178,10 +226,6 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         }
 
         String mangaID = selectedManga.getId();
-
-        ChapterSelectionAdapter adapter = new ChapterSelectionAdapter(ChapterDownloaderActivity.this,
-                new Pair<>(getString(R.string.fetchingString), getString(R.string.wait)));
-        chapterSelection.setAdapter(adapter);
 
         String baseUrl = "https://api.mangadex.org/manga/" + mangaID + "/feed?translatedLanguage[]=" + lang + "&order%5Bvolume%5D=asc&order%5Bchapter%5D=asc&order%5BpublishAt%5D=asc&includes[]=scanlation_group";
         client.AsyncHttpRequest(baseUrl.concat("&limit=250"), new Callback() {
@@ -232,6 +276,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
 
     public void OnChapterRetrievingEnd() {
         boolean allowDuplicate = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("chapterDuplicate", true);
+        boolean hideExternal = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("hideExternal", false);
 
         Chapter previous;
         Chapter current = null;
@@ -243,9 +288,11 @@ public class ChapterDownloaderActivity extends AppCompatActivity
             // Format title
             String currentChapter = current.getAttributes().getChapter();
 
+            if (hideExternal && current.getAttributes().getExternalUrl() != null)
+                iterator.remove();
             // Add chapter if it's the first one in the list, if allowDuplicate is set to true, if currentChapter is null (it means that the current chapter is a oneshot) or if it's different from the last one
-            if (currentChapter == null || allowDuplicate || previous == null ||
-                    !currentChapter.equals(previous.getAttributes().getChapter())) {
+            else if (currentChapter == null || allowDuplicate ||
+                    previous == null || !currentChapter.equals(previous.getAttributes().getChapter())) {
                 String currentTitle = formatTitle(current.getAttributes().getTitle());
                 String fName = formatChapter(currentChapter) + currentTitle;
                 current.getAttributes().setFormattedName(fName);
@@ -260,6 +307,12 @@ public class ChapterDownloaderActivity extends AppCompatActivity
             }
             else
                 iterator.remove();
+        }
+
+        if (mangaChapters.size() == 0) {
+            runOnUiThread(() -> chapterSelection.setAdapter(new ChapterSelectionAdapter(ChapterDownloaderActivity.this,
+                    new Pair<>(getString(R.string.mangaNoEntriesFilter), getString(R.string.mangaNoEntriesSubtext)))));
+            return;
         }
 
         // Move the oneshots at the beginning of the array

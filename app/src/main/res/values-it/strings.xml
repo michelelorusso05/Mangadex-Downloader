@@ -75,4 +75,18 @@
     <string name="shareAsPDF">Condividi come PDF</string>
     <string name="buttonSearch">Cerca</string>
     <string name="buttonRandom">A caso</string>
+    <string name="settingsHideExternal">Nascondi capitoli esterni</string>
+    <string name="settingsHideExternalDescription">Si applica ai capitoli non presenti su Mangadex (Bilibili, MangaPlus, …).</string>
+    <string name="mangaNoEntriesFilter">Non ci sono capitoli per i filtri attuali.</string>
+    <string name="favourite">Preferito</string>
+    <string name="buttonFavourites">Preferiti</string>
+    <string name="addFavouritesHint">I tuoi manga preferiti saranno mostrati qui. Per aggiungerne uno, clicca sull\'icona del segnalibro nella pagina di un manga.</string>
+    <string name="settingsShowAtStart">Pagina iniziale</string>
+
+    <string-array name="settingsShowAtStartupStrings">
+        <item>Niente</item>
+        <item>Consigliati di Mangadex</item>
+        <item>I tuoi preferiti</item>
+    </string-array>
+    <string name="settingsChooseWhatToShow">Scegli schermata di default</string>
 </resources>

@@ -19,6 +19,7 @@
     <string name="searchFoundEmpty">No results found…</string>
     <string name="activityDownloadName">Download a manga</string>
     <string name="mangaNoEntries">There are no chapters in the selected language.</string>
+    <string name="mangaNoEntriesFilter">There are no chapters for the current filters.</string>
     <string name="cantDownload">Wait for the server to respond before attempting to download</string>
     <string name="storageAccessDenied">The app can\'t download the mangas without the storage write permission</string>
     <string name="noPages">The selected chapter has no pages to download</string>
@@ -77,10 +78,17 @@
     <string name="shareAsPDF">Share as PDF</string>
     <string name="buttonSearch">Search</string>
     <string name="buttonRandom">Random</string>
+    <string name="settingsHideExternal">Hide external chapters</string>
+    <string name="settingsHideExternalDescription">This applies to all chapters that are not hosted on Mangadex (Bilibili, MangaPlus, …).</string>
+    <string name="favourite">Favourite</string>
+    <string name="buttonFavourites">Favourites</string>
+    <string name="addFavouritesHint">Your favourite mangas will be shown here. To add one, simply tap on the bookmark icon in a manga page.</string>
+    <string name="settingsShowAtStart">Startup page</string>
 
-    <!-- Preference Titles -->
-
-    <!-- Messages Preferences -->
-
-    <!-- Sync Preferences -->
+    <string-array name="settingsShowAtStartupStrings">
+        <item>Nothing</item>
+        <item>Mangadex Recommended</item>
+        <item>Your favourites</item>
+    </string-array>
+    <string name="settingsChooseWhatToShow">Choose default screen</string>
 </resources>

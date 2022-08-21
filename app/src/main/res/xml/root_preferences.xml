@@ -1,6 +1,18 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <PreferenceCategory app:title="@string/settingsShowAtStart">
+
+        <ListPreference
+            app:key="startupView"
+            app:title="@string/settingsChooseWhatToShow"
+            app:icon="@drawable/ic_baseline_home_24"
+            app:defaultValue="__mty"
+            app:entryValues="@array/settingsShowAtStartupValues"
+            app:entries="@array/settingsShowAtStartupStrings"
+            app:useSimpleSummaryProvider="true"/>
+    </PreferenceCategory>
+
     <PreferenceCategory app:title="@string/settingsChapterCategory">
 
         <SwitchPreferenceCompat
@@ -9,6 +21,12 @@
             app:title="@string/settingsChapterShowSameChapter"
             app:icon="@drawable/ic_baseline_allow_duplicate_24"
             app:defaultValue="true"/>
+        <SwitchPreferenceCompat
+            app:key="hideExternal"
+            app:title="@string/settingsHideExternal"
+            app:summary="@string/settingsHideExternalDescription"
+            app:icon="@drawable/ic_baseline_link_off_24"
+            />
         <ListPreference
             app:key="chapterLanguages"
             app:title="@string/settingsChapterLanguageTitle"
