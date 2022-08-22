@@ -270,7 +270,14 @@ public class SearchActivity extends AppCompatActivity
                     for (Relationship relationship : manga.getRelationships()) {
                         if (relationship.getType().equals("author")) {
                             String author = relationship.getAttributes().get("name").textValue();
-                            manga.getAttributes().setAuthorString(author);
+                            if (manga.getAttributes().getAuthorString() == null)
+                                manga.getAttributes().setAuthorString(author);
+                            else {
+                                String a = manga.getAttributes().getAuthorString()
+                                        .concat(", ")
+                                        .concat(relationship.getAttributes().get("name").textValue());
+                                manga.getAttributes().setAuthorString(a);
+                            }
                         }
                         else if (relationship.getType().equals("cover_art")) {
                             String coverUrl = relationship.getAttributes().get("fileName").textValue();

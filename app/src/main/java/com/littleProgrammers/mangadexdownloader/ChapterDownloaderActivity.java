@@ -72,7 +72,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
     Button downloadButton, readButton;
     View progressBar;
 
-    DNSClient client = new DNSClient(DNSClient.PresetDNS.GOOGLE);
+    DNSClient client;
 
     boolean markedFavourite;
 
@@ -97,6 +97,8 @@ public class ChapterDownloaderActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_download);
+
+        client = new DNSClient(DNSClient.PresetDNS.GOOGLE, this, true);
 
         // UI binding
         title = findViewById(R.id.mangaTitle);
@@ -151,6 +153,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
 
         try {
             author.setText(selectedManga.getAttributes().getAuthorString());
+            author.setMovementMethod(new ScrollingMovementMethod());
             title.setText(FormattingUtilities.FormatFromHtml(selectedManga.getAttributes().getTitleS()));
             String descriptionString = selectedManga.getAttributes().getDescriptionS();
             if (!descriptionString.isEmpty())
@@ -205,7 +208,14 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         boolean lowQualityCover = PreferenceManager.getDefaultSharedPreferences(ChapterDownloaderActivity.this).getBoolean("lowQualityCovers", false);
         final String coverUrl = "https://uploads.mangadex.org/covers/" + selectedManga.getId() + "/" + selectedManga.getAttributes().getCoverUrl() + ((lowQualityCover) ? ".512.jpg" : "");
 
-        client.ImageIntoViewAsync(coverUrl, cover, ChapterDownloaderActivity.this);
+        client.GetImageBitmapAsync(coverUrl, (bm) -> {
+            runOnUiThread(() -> {
+                cover.setImageBitmap(bm);
+                ImageView background = findViewById(R.id.coverBackground);
+                if (background != null)
+                    background.setImageBitmap(bm);
+            });
+        });
     }
 
     @NonNull

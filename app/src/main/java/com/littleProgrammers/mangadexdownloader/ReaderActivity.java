@@ -30,7 +30,13 @@ import com.michelelorusso.dnsclient.DNSClient;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Objects;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class ReaderActivity extends AppCompatActivity {
     private String baseUrl;
@@ -85,7 +91,7 @@ public class ReaderActivity extends AppCompatActivity {
         }
 
         if (!offlineReading)
-            client = new DNSClient(DNSClient.PresetDNS.GOOGLE, this, true, 3);
+            client = new DNSClient(DNSClient.PresetDNS.GOOGLE, this, true, 5);
         else {
             launchShareForResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -109,8 +115,6 @@ public class ReaderActivity extends AppCompatActivity {
         for (int i = 0; i < l; i++)
             pages[i] = UpdatePageIndicator(i * pageStep());
 
-
-
         progress.setAdapter(new ArrayAdapter<>(this, R.layout.page_indicator_spinner_item, pages));
         progress.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -121,8 +125,10 @@ public class ReaderActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        if (savedInstanceState == null)
+        if (savedInstanceState == null) {
             progress.setSelection(0);
+            FolderUtilities.DeleteFolderContents(getExternalCacheDir());
+        }
     }
 
     @Override
@@ -212,6 +218,22 @@ public class ReaderActivity extends AppCompatActivity {
                     display.setVisibility(View.VISIBLE);
                     pBar.setVisibility(View.GONE);
                 }), opt);
+                // Preloading
+                if (index < urls.length - 1)
+                    client.AsyncHttpRequest(baseUrl + "/" + urls[index + 1], new Callback() {
+                    @Override
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {}
+
+                    @Override
+                    public void onResponse(@NonNull Call call, @NonNull Response response) {
+                        try {
+                            Objects.requireNonNull(response.body()).bytes();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        response.close();
+                    }
+                    });
             }
             else {
                 final boolean[] isWorkDone = new boolean[1];
@@ -232,6 +254,38 @@ public class ReaderActivity extends AppCompatActivity {
                     if (isWorkDone[0]) BitmapRetrieveDone(images[0], images[1]);
                     else isWorkDone[0] = true;
                 }, opt);
+
+                // Preload
+                if (index < urls.length - 2)
+                    client.AsyncHttpRequest(baseUrl + "/" + urls[index + 2], new Callback() {
+                        @Override
+                        public void onFailure(@NonNull Call call, @NonNull IOException e) {}
+
+                        @Override
+                        public void onResponse(@NonNull Call call, @NonNull Response response) {
+                            try {
+                                Objects.requireNonNull(response.body()).bytes();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            response.close();
+                        }
+                    });
+                if (index < urls.length - 3)
+                    client.AsyncHttpRequest(baseUrl + "/" + urls[index + 3], new Callback() {
+                        @Override
+                        public void onFailure(@NonNull Call call, @NonNull IOException e) {}
+
+                        @Override
+                        public void onResponse(@NonNull Call call, @NonNull Response response) {
+                            try {
+                                Objects.requireNonNull(response.body()).bytes();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            response.close();
+                        }
+                    });
             }
         }
         // Read image from internal storage
@@ -286,11 +340,8 @@ public class ReaderActivity extends AppCompatActivity {
         }).start();
     }
 
-    private int pageStep(boolean inverted) {
-        return (landscape ^ inverted) ? 2 : 1;
-    }
     private int pageStep() {
-        return pageStep(false);
+        return landscape ? 2 : 1;
     }
 
     public void nextPage(View v) {

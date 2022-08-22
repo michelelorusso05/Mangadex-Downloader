@@ -95,7 +95,7 @@ public class DNSClient {
 
             if (cached && ctx != null) {
                 File httpCacheDirectory = new File(ctx.getExternalCacheDir(), "http-cache");
-                int cacheSize = 10 * 1024 * 1024; // 10 MiB
+                int cacheSize = 50 * 1024 * 1024; // 10 MiB
                 Cache cache = new Cache(httpCacheDirectory, cacheSize);
                 builder
                         .addNetworkInterceptor(new CacheInterceptor())
@@ -143,9 +143,6 @@ public class DNSClient {
 
                 HandshakeCertificates certificates = new HandshakeCertificates.Builder()
                         .addTrustedCertificate((X509Certificate) isgCertificate)
-                        // Uncomment to allow connection to any site generally, but could possibly cause
-                        // noticeable memory pressure in Android apps.
-//              .addPlatformTrustedCertificates()
                         .build();
                 builder.sslSocketFactory(certificates.sslSocketFactory(), certificates.trustManager());
             }
@@ -171,7 +168,7 @@ public class DNSClient {
 
         return client.newCall(request).execute();
     }
-    public void AsyncHttpRequest(String url, Callback callback) {
+    public void AsyncHttpRequest(String url, @NonNull Callback callback) {
         Request request = new Request.Builder()
                 .url(url)
                 .build();

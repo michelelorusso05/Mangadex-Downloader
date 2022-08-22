@@ -7,27 +7,6 @@
     tools:context=".ChapterDownloaderActivity">
 
 
-    <TextView
-        android:id="@+id/mangaTitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:autoSizeMaxTextSize="18sp"
-        android:autoSizeMinTextSize="10sp"
-        android:autoSizeTextType="uniform"
-        android:text="@string/noMangaSelected"
-        android:textAlignment="center"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:autoSizeMaxTextSize="36dp"
-        app:autoSizeMinTextSize="10dp"
-        app:autoSizeTextType="uniform"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/dividerView"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <ProgressBar
         android:id="@+id/coverPlaceholder"
         style="?android:attr/progressBarStyle"
@@ -54,39 +33,63 @@
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearanceOverlay="@style/roundedImageView" />
 
-    <TextView
-        android:id="@+id/authorView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/dividerView"
-        app:layout_constraintTop_toBottomOf="@+id/mangaTitle" />
-
-    <TextView
-        android:id="@+id/mangaDescription"
+    <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:fadingEdge="vertical"
-        android:fadingEdgeLength="32dp"
-        android:isScrollContainer="true"
-        android:overScrollMode="ifContentScrolls"
-        android:requiresFadingEdge="vertical"
-        android:scrollbars="vertical"
-        android:text="@string/defaultDescription"
-        android:textAlignment="center"
-        android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/chapterSelection"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/dividerView"
-        app:layout_constraintTop_toBottomOf="@+id/authorView" />
+        app:layout_constraintStart_toEndOf="@id/dividerView"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/mangaTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="18sp"
+                android:autoSizeMinTextSize="10sp"
+                android:autoSizeTextType="uniform"
+                android:gravity="bottom|start"
+                android:maxLines="2"
+                android:text="@string/noMangaSelected"
+                android:textAlignment="gravity"
+                android:textSize="48sp"
+                android:textStyle="bold"
+                app:autoSizeMinTextSize="10sp"
+                app:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/authorView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="viewStart"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/mangaDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:fadingEdge="vertical"
+                android:fadingEdgeLength="32dp"
+                android:isScrollContainer="false"
+                android:overScrollMode="never"
+                android:requiresFadingEdge="none"
+                android:scrollbars="vertical"
+                android:text="@string/defaultDescription"
+                android:textAlignment="viewStart"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+    </ScrollView>
 
     <Spinner
         android:id="@+id/chapterSelection"
@@ -150,7 +153,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@+id/readLoadingBar"
         app:layout_constraintEnd_toEndOf="parent"
@@ -190,7 +192,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
         android:indeterminate="true"
         android:indeterminateBehavior="cycle"
         android:indeterminateOnly="true"

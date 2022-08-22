@@ -28,6 +28,15 @@ public class FormattingUtilities {
         s = s.replace("[", "");
         s = s.replaceAll("][(].*[)]", "");
 
+        // Remove --- (horizontal lines are not supported)
+        s = s.replace("---", "");
+
+        // Bullet lists
+        s = s.replace("\n-", "\n&#8226;");
+
+        // Line breaks
+        s = s.replace("\n", "<br />");
+
         return s;
     }
     private static String SinglePatternToHTML(@NonNull String s, String singlePattern, String open, String close) {

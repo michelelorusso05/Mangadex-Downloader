@@ -11,7 +11,6 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:forceDarkAllowed="false"
-        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -21,9 +20,6 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/gradient"
-        android:backgroundTint="?attr/colorOnPrimary"
-        android:backgroundTintMode="src_in"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -41,18 +37,20 @@
 
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_marginBottom="32dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/gradient"
             android:gravity="center"
             android:orientation="horizontal"
+            android:paddingTop="96dp"
+            android:paddingBottom="32dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
             <ImageButton
                 android:id="@+id/firstButton"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="?android:selectableItemBackgroundBorderless"
                 android:contentDescription="First icon"
                 app:srcCompat="@drawable/ic_baseline_first_page_24"
@@ -60,8 +58,8 @@
 
             <ImageButton
                 android:id="@+id/previousButton"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="?android:selectableItemBackgroundBorderless"
                 android:contentDescription="Previous icon"
                 app:srcCompat="@drawable/ic_baseline_keyboard_arrow_left_24"
@@ -78,8 +76,8 @@
 
             <ImageButton
                 android:id="@+id/nextButton"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="?android:selectableItemBackgroundBorderless"
                 android:contentDescription="Next icon"
                 app:srcCompat="@drawable/ic_baseline_keyboard_arrow_right_24"
@@ -87,8 +85,8 @@
 
             <ImageButton
                 android:id="@+id/lastButton"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="?android:selectableItemBackgroundBorderless"
                 android:contentDescription="Last icon"
                 app:srcCompat="@drawable/ic_baseline_last_page_24"

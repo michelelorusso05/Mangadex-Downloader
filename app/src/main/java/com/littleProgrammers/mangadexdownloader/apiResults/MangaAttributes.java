@@ -10,7 +10,7 @@ public class MangaAttributes {
     String originalLanguage;
 
     String authorID;
-    String authorString;
+    String authorString = null;
     String coverUrl;
 
     public String getCoverUrl() {

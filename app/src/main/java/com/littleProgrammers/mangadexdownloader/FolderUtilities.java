@@ -26,17 +26,20 @@ public class FolderUtilities {
             }
         }
     }
-    public static void DeleteFolder(File f) {
+    public static void DeleteFolderContents(@NonNull File f) {
         if (f.isDirectory()) {
             for (String child : Objects.requireNonNull(f.list())) {
                 File cur = new File(f, child);
                 DeleteFolder(cur);
             }
         }
+    }
+    public static void DeleteFolder(@NonNull File f) {
+        DeleteFolderContents(f);
         if (!f.delete())
             Log.d("Error", "Unable to delete ".concat(f.getName()));
     }
-    public static long SizeOfFolder(File f) {
+    public static long SizeOfFolder(@NonNull File f) {
         long s = 0;
         if (f.isDirectory()) {
             for (String child : Objects.requireNonNull(f.list())) {
