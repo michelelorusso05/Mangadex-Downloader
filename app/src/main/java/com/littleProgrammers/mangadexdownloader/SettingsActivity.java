@@ -8,8 +8,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
-import java.util.Objects;
-
 public class SettingsActivity extends AppCompatActivity {
 
     String extraParameters;
@@ -60,7 +58,7 @@ public class SettingsActivity extends AppCompatActivity {
                             .setTitle(R.string.aboutRealTitle)
                             .setMessage(R.string.aboutRealParagraph)
 
-                            .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                            .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                             })
                             .show();
                 }
@@ -69,7 +67,7 @@ public class SettingsActivity extends AppCompatActivity {
                             .setTitle(R.string.about)
                             .setMessage(R.string.aboutParagraph)
 
-                            .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                            .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                             })
                             .show();
                 }

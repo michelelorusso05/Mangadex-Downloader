@@ -89,4 +89,5 @@
         <item>I tuoi preferiti</item>
     </string-array>
     <string name="settingsChooseWhatToShow">Scegli schermata di default</string>
+    <string name="controlsToggle">Mostra/Nascondi controlli</string>
 </resources>

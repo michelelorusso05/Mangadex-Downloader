@@ -3,7 +3,6 @@ package com.littleProgrammers.mangadexdownloader;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.text.HtmlCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -57,7 +57,7 @@ public class MangaAdapter extends RecyclerView.Adapter<MangaAdapter.viewHolder> 
     @Override
     public void onBindViewHolder(@NonNull viewHolder holder, int position) {
         Manga current = mangas[position];
-        holder.mangaTitle.setText(Html.fromHtml(current.getAttributes().getTitleS()));
+        holder.mangaTitle.setText(HtmlCompat.fromHtml(current.getAttributes().getTitleS(), HtmlCompat.FROM_HTML_MODE_LEGACY));
         holder.mangaAuthor.setText(current.getAttributes().getAuthorString());
         new Thread(() -> ct.runOnUiThread(() -> holder.cover.setImageBitmap(covers[position]))).start();
 

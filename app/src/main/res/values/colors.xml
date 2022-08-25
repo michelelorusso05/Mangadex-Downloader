@@ -13,4 +13,5 @@
     <color name="btn_enabled">#FFF17A0A</color>
     <color name="btn_disabled">#7FF17A0A</color>
     <attr name="downloadedItemColor" />
+    <attr name="customTranslucentToolbarColor" />
 </resources>

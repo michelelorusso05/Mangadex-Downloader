@@ -3,23 +3,17 @@ package com.littleProgrammers.mangadexdownloader;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresPermission;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
-import java.io.Reader;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,10 +60,9 @@ public class DownloadedChapterAdapter extends RecyclerView.Adapter<DownloadedCha
             files = (files != null ? files : new String[0]);
             Arrays.sort(files);
 
-            Intent intent = new Intent(ct, ReaderActivity.class);
+            Intent intent = new Intent(ct, OfflineReaderActivity.class);
             intent.putExtra("baseUrl", curFile.getAbsolutePath());
             intent.putExtra("urls", files);
-            intent.putExtra("sourceIsStorage", true);
             ct.startActivity(intent);
         });
         holder.rowLayout.setOnLongClickListener((View v) -> {
@@ -77,7 +70,7 @@ public class DownloadedChapterAdapter extends RecyclerView.Adapter<DownloadedCha
                     .setTitle(R.string.deleteChapter)
                     .setMessage(R.string.deleteChapterDescription)
 
-                    .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                         // Delete file
                         FolderUtilities.DeleteFolder(curFile);
 
@@ -89,7 +82,7 @@ public class DownloadedChapterAdapter extends RecyclerView.Adapter<DownloadedCha
                     })
 
                     // A null listener allows the button to dismiss the dialog and take no further action.
-                    .setNegativeButton(android.R.string.no, null)
+                    .setNegativeButton(android.R.string.cancel, null)
                     .show();
             return true;
         });

@@ -1,7 +1,5 @@
 package com.littleProgrammers.mangadexdownloader.apiResults;
 
-import android.text.Html;
-
 import java.util.HashMap;
 
 public class MangaAttributes {
@@ -79,19 +77,6 @@ public class MangaAttributes {
         return description;
     }
     public String getDescriptionS() { return (description.containsKey("en")) ? description.get("en") : description.entrySet().iterator().next().getValue(); }
-    public String formatDescription() {
-        String descriptionString = getDescriptionS();
-
-        // Format description (remove all tags)
-        while (descriptionString.contains("[")) {
-            int startIndex = descriptionString.indexOf('[');
-            int endIndex = descriptionString.indexOf(']');
-            String toBeReplaced = descriptionString.substring(startIndex , endIndex + 1);
-            descriptionString = descriptionString.replace(toBeReplaced, "");
-        }
-
-        return Html.fromHtml(descriptionString).toString();
-    }
     public void setDescription(HashMap<String, String> description) {
         if (description == null)
             this.description.put("en", "");

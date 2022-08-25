@@ -7,6 +7,34 @@
     tools:context=".ChapterDownloaderActivity">
 
 
+    <ImageView
+        android:id="@+id/coverBackground"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:alpha="0.6"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+    <ImageView
+        android:id="@+id/filter"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:scaleType="centerCrop"
+        android:tintMode="add"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHeight_percent="0.3"
+        app:srcCompat="@drawable/gradient" />
+
     <ProgressBar
         android:id="@+id/coverPlaceholder"
         style="?android:attr/progressBarStyle"
@@ -30,7 +58,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="H,3:2"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/home_toolbar"
         app:shapeAppearanceOverlay="@style/roundedImageView" />
 
     <ScrollView
@@ -43,7 +71,7 @@
         app:layout_constraintBottom_toTopOf="@+id/chapterSelection"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/dividerView"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/home_toolbar">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -52,6 +80,7 @@
 
             <TextView
                 android:id="@+id/mangaTitle"
+                style="@style/Widget.AppCompat.TextView.SpinnerItem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autoSizeMaxTextSize="18sp"
@@ -68,6 +97,7 @@
 
             <TextView
                 android:id="@+id/authorView"
+                style="@style/Widget.AppCompat.TextView.SpinnerItem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="viewStart"
@@ -80,12 +110,13 @@
                 android:layout_marginTop="24dp"
                 android:fadingEdge="vertical"
                 android:fadingEdgeLength="32dp"
+                android:gravity="start"
                 android:isScrollContainer="false"
                 android:overScrollMode="never"
                 android:requiresFadingEdge="none"
                 android:scrollbars="vertical"
                 android:text="@string/defaultDescription"
-                android:textAlignment="viewStart"
+                android:textAlignment="gravity"
                 android:textSize="18sp" />
 
         </LinearLayout>
@@ -199,5 +230,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/dividerView" />
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/home_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/customTranslucentToolbarColor"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

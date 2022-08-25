@@ -201,22 +201,6 @@ public class SearchActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    public void warmupRequest() {
-        client.AsyncHttpRequest("https://api.mangadex.org/", new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                e.printStackTrace();
-                Log.d("Smoke test", "Warmup request failed");
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) {
-                Log.d("Smoke test", "Warmup request succeded");
-                response.close();
-            }
-        });
-    }
-
     public void getResults() { getResults(null); }
     public void getResults(@Nullable final Set<String> customList) {
         customIDs = customList;
@@ -240,7 +224,7 @@ public class SearchActivity extends AppCompatActivity
         status.setText(R.string.searchLoading);
         SetStatus(StatusType.SEARCHING);
 
-        client.AsyncHttpRequest(urlString.toString(), new Callback() {
+        client.HttpRequestAsync(urlString.toString(), new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
@@ -324,7 +308,7 @@ public class SearchActivity extends AppCompatActivity
         status.setText(R.string.searchLoading);
         SetStatus(StatusType.SEARCHING);
 
-        client.AsyncHttpRequest(urlString, new Callback() {
+        client.HttpRequestAsync(urlString, new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 SearchActivity.this.runOnUiThread(() -> {

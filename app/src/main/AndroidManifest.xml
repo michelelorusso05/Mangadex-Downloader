@@ -13,10 +13,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MangadexDownloader">
         <activity
-            android:name=".ReaderActivity"
+            android:name=".OnlineReaderActivity"
             android:exported="false"
             android:label="@string/readerActivityTitle"
             android:parentActivityName=".ChapterDownloaderActivity"/>
+        <activity
+            android:name=".OfflineReaderActivity"
+            android:exported="false"
+            android:label="@string/readerActivityTitle"
+            android:parentActivityName=".DownloadedFiles"/>
         <activity
             android:name=".DownloadedFiles"
             android:exported="false"
@@ -39,7 +44,8 @@
         <activity
             android:name=".ChapterDownloaderActivity"
             android:label="@string/activityDownloadName"
-            android:parentActivityName=".SearchActivity" />
+            android:parentActivityName=".SearchActivity"
+            android:theme="@style/Theme.MangadexDownloader.NoActionBar"/>
         <activity
             android:name=".SettingsActivity"
             android:label="@string/settings"

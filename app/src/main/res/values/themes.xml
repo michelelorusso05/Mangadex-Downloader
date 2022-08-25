@@ -13,12 +13,18 @@
         <!-- Customize your theme here. -->
         <item name="cardBackgroundColor">#FFFFFFFF</item>
         <item name="downloadedItemColor">#FFF0F0F0</item>
-        <item name="android:navigationBarColor">?attr/colorOnPrimary</item>
+        <item name="android:navigationBarColor">?android:attr/colorBackground</item>
+        <item name="customTranslucentToolbarColor">#A0EFEFEF</item>
     </style>
 
     <style name="roundedImageView" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">8dp</item>
+    </style>
+
+    <style name="Theme.MangadexDownloader.NoActionBar" parent="Theme.MangadexDownloader">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
 </resources>

@@ -46,7 +46,17 @@ import okhttp3.tls.HandshakeCertificates;
 import okio.BufferedSink;
 import okio.Okio;
 
+/**
+ * A class for custom DNS presets.
+ */
 class DNSPreset {
+
+    /**
+     * Create a custom DNS Preset.
+     * @param _r Resolver URL
+     * @param _p Primary DNS
+     * @param _s Secondary DNS
+     */
     DNSPreset(String _r, String _p, String _s) {
         resolver = _r;
         primary = _p;
@@ -57,6 +67,10 @@ class DNSPreset {
     public String secondary;
 }
 
+
+/**
+ * A custom OkHttp client that implements DNS-over-HTTPS.
+ */
 public class DNSClient {
     private OkHttpClient client;
     private int status = 0;
@@ -70,6 +84,15 @@ public class DNSClient {
         new DNSPreset("https://cloudflare-dns.com/dns-query", "1.1.1.1", "1.0.0.1")
     };
 
+
+    /**
+     * Creates a DNSClient.
+     * @param dns The preset DNS to be used.
+     * @param ctx Used for caching. Must be non-null if parameter cached is set to true.
+     * @param cached Enable or disable caching.
+     * @param maxRequests Override max async requests in queue.
+     * @see DNSPreset
+     */
     public DNSClient(@NonNull PresetDNS dns, @Nullable Context ctx, boolean cached, int maxRequests) {
         Dispatcher dispatcher = new Dispatcher();
         dispatcher.setMaxRequests(maxRequests);
@@ -102,9 +125,8 @@ public class DNSClient {
                         .cache(cache);
             }
 
-            // Unfortunately, mangadex.org uses letsencrypt's R3 certificates. That means that
-            // the root CA certificates won't be accepted on Android versions prior to 7.1.1.
-            // Because of this, I have to patch the certificate manually.
+            // Manually patching the R3 certificate on Android 7.1.1 and lower, since it isn't
+            // supported by default.
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
                 String cert = "-----BEGIN CERTIFICATE-----\n" +
                         "MIIFazCCA1OgAwIBAgIRAIIQz7DSQONZRGPgu2OCiwAwDQYJKoZIhvcNAQELBQAw\n" +
@@ -154,13 +176,33 @@ public class DNSClient {
 
         Logger.getLogger(OkHttpClient.class.getName()).setLevel(Level.ALL);
     }
+
+    /**
+     * Creates a DNSClient.
+     * @param dns The preset DNS to be used.
+     * @param ctx Used for caching. Must be non-null if parameter cached is set to true.
+     * @param cached Enable or disable caching.
+     * @see DNSPreset
+     */
     public DNSClient(@NonNull PresetDNS dns, @Nullable Context ctx, boolean cached) {
         this(dns, ctx, cached, 100);
     }
+    /**
+     * Creates a DNSClient.
+     * @param dns The preset DNS to be used.
+     * @see DNSPreset
+     */
     public DNSClient(PresetDNS dns) {
         this(dns, null, false);
     }
 
+
+    /**
+     * Starts a synchronous, thread blocking HTTP GET request.
+     * @param url The target url for the request.
+     * @return The fethced response. Must be closed by calling response.close() after consuming.
+     * @throws IOException If the request could not be executed due to cancellation, a connectivity problem or timeout.
+     */
     public Response HttpRequest(String url) throws IOException {
         Request request = new Request.Builder()
                 .url(url)
@@ -168,7 +210,14 @@ public class DNSClient {
 
         return client.newCall(request).execute();
     }
-    public void AsyncHttpRequest(String url, @NonNull Callback callback) {
+
+    /**
+     * Enqueues an asynchronous request.
+     * @param url The target url for the request.
+     * @param callback The callback to be executed after the response was received.
+     * @see Callback
+     */
+    public void HttpRequestAsync(String url, @NonNull Callback callback) {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
@@ -176,17 +225,20 @@ public class DNSClient {
         client.newCall(request).enqueue(callback);
     }
 
-    public Bitmap ImageIntoView(String url) throws IOException {
-        Response response = HttpRequest(url);
-        ResponseBody body = Objects.requireNonNull(response.body());
-        return BitmapFactory.decodeByteArray(body.bytes(), 0, (int) body.contentLength());
-    }
 
     public interface GetImage {
         void Execute(Bitmap bm);
     }
+
+    /**
+     * Gets an image from an URL, and executes a callback after receiving in which the resulting Bitmap can be processed.
+     * @param url The image URL.
+     * @param action The action to be executed after the image was received. Can be replaced with a lambda: (Bitmap bm) -> {...}
+     * @param opts Custom options to be applied to the fetched Bitmap.
+     * @see BitmapFactory.Options
+     */
     public void GetImageBitmapAsync(String url, GetImage action, BitmapFactory.Options opts) {
-        AsyncHttpRequest(url, new Callback() {
+        HttpRequestAsync(url, new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
@@ -201,12 +253,39 @@ public class DNSClient {
             }
         });
     }
+    /**
+     * Gets an image from an URL, and executes a callback after receiving in which the resulting Bitmap can be processed.
+     * @param url The image URL.
+     * @param action The action to be executed after the image was received. Can be replaced with a lambda: (Bitmap bm) -> {...}
+     */
     public void GetImageBitmapAsync(String url, GetImage action) {
         GetImageBitmapAsync(url, action, null);
     }
 
+
+    /**
+     * Gets an image from a URL in a thread-blocking way.
+     * @param url The image URL.
+     * @return The requested image in a Bitmap object.
+     * @throws IOException If the request could not be completed.
+     */
+    public Bitmap GetImageBitmap(String url) throws IOException {
+        Response response = HttpRequest(url);
+        ResponseBody body = Objects.requireNonNull(response.body());
+        return BitmapFactory.decodeByteArray(body.bytes(), 0, (int) body.contentLength());
+    }
+
+
+    /**
+     * Gets an image from a URL and loads it in a ImageView.
+     * @param url The image URL.
+     * @param view The target ImageView.
+     * @param caller The Activity that manages the target view.
+     * @param callback Additional operations to be executed after the image fetching.
+     * @see Callback
+     */
     public void ImageIntoViewAsync(String url, ImageView view, Activity caller, Callback callback) {
-        AsyncHttpRequest(url, new Callback() {
+        HttpRequestAsync(url, new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 if (callback != null)
@@ -226,10 +305,14 @@ public class DNSClient {
             }
         });
     }
-    public void ImageIntoViewAsync(String url, ImageView view, Activity caller) {
-        ImageIntoViewAsync(url, view, caller, null);
-    }
 
+    /**
+     * Downloads a file in a thread-blocking way.
+     * @param url The file URL.
+     * @param destination The target destination as a File object.
+     * @throws IOException If the request could not be executed.
+     * @see File
+     */
     public void DownloadFile(String url, File destination) throws IOException {
         Response response = HttpRequest(url);
         ResponseBody body = Objects.requireNonNull(response.body());
@@ -240,8 +323,16 @@ public class DNSClient {
         response.close();
     }
 
+    /**
+     * Downloads a file in the background.
+     * @param url The file URL.
+     * @param destination The target destination as a File object.
+     * @param onDownloadEnd Custom actions to be executed after the download.
+     * @see File
+     * @see Callback
+     */
     public void DownloadFileAsync(String url, File destination, Callback onDownloadEnd) {
-        AsyncHttpRequest(url, new Callback() {
+        HttpRequestAsync(url, new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 onDownloadEnd.onFailure(call, e);
@@ -276,10 +367,19 @@ public class DNSClient {
         });
     }
 
+
+    /**
+     * Cancels any pending async request.
+     */
     public void CancelAllPendingRequests() {
         client.dispatcher().cancelAll();
     }
 
+
+    /**
+     * Checks if all the custom properties of the OkHttpClient were applied.
+     * @return -1 if something failed during the constructor call and the resulting DNSClient is just a simple OkHttpClient.
+     */
     public int GetStatus() { return status; }
 
     public static class CacheInterceptor implements Interceptor {

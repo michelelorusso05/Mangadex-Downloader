@@ -88,12 +88,12 @@ public class DownloadedMangaAdapter extends RecyclerView.Adapter<DownloadedManga
                     .setTitle(R.string.deleteManga)
                     .setMessage(R.string.deleteMangaDescription)
 
-                    .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                         DeleteMangaAtPos(viewHolder.getAdapterPosition(), false);
                         notifyItemRemoved(viewHolder.getAdapterPosition());
                     })
 
-                    .setNegativeButton(android.R.string.no, null)
+                    .setNegativeButton(android.R.string.cancel, null)
                     .show();
             return true;
         });

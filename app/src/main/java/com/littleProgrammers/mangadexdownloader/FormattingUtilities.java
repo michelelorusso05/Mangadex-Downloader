@@ -1,6 +1,5 @@
 package com.littleProgrammers.mangadexdownloader;
 
-import android.text.Spannable;
 import android.text.Spanned;
 
 import androidx.annotation.NonNull;

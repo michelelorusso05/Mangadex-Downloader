@@ -91,4 +91,5 @@
         <item>Your favourites</item>
     </string-array>
     <string name="settingsChooseWhatToShow">Choose default screen</string>
+    <string name="controlsToggle">Toggle controls</string>
 </resources>

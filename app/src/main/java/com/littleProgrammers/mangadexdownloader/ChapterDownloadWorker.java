@@ -131,7 +131,7 @@ public class ChapterDownloadWorker extends Worker {
         mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
         mapper.configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true);
 
-        client.AsyncHttpRequest("https://api.mangadex.org/at-home/server/" + selectedChapterID, new Callback() {
+        client.HttpRequestAsync("https://api.mangadex.org/at-home/server/" + selectedChapterID, new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 mutex.release();
@@ -253,11 +253,10 @@ public class ChapterDownloadWorker extends Worker {
         images = (images != null ? images : new String[0]);
         Arrays.sort(images);
 
-        Intent intent = new Intent(context, ReaderActivity.class);
+        Intent intent = new Intent(context, OfflineReaderActivity.class);
         intent.setAction("com.littleProgrammers.mangadexdownloader_open_".concat(String.valueOf(uniqueID)));
         intent.putExtra("baseUrl", targetFolder.getAbsolutePath());
         intent.putExtra("urls", images);
-        intent.putExtra("sourceIsStorage", true);
         intent.putExtra("notificationToCancel", uniqueID);
 
         @SuppressLint("UnspecifiedImmutableFlag")
