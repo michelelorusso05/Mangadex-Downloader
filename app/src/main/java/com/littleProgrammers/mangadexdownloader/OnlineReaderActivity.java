@@ -26,12 +26,15 @@ import okhttp3.Response;
 public class OnlineReaderActivity extends ReaderActivity {
     DNSClient client;
 
+    String mangaID;
     String[] chapterNames;
     String[] chapterIDs;
     ObjectMapper mapper;
 
     Spinner chapterSelection;
     ImageButton chapterNext, chapterPrevious;
+
+    boolean bookmarkingEnabled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +56,9 @@ public class OnlineReaderActivity extends ReaderActivity {
 
         chapterNames = getIntent().getStringArrayExtra("chapterNames");
         chapterIDs = getIntent().getStringArrayExtra("chapterIDs");
+        mangaID = getIntent().getStringExtra("mangaID");
+
+        bookmarkingEnabled = FavouriteManager.IsFavourite(this, mangaID);
 
         chapterSelection.setAdapter(new ChapterSelectionAdapter(this, chapterNames));
         chapterSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -88,6 +94,10 @@ public class OnlineReaderActivity extends ReaderActivity {
                             GeneratePageSelectionSpinnerAdapter();
                             progress.setSelection(0);
                         });
+                        if (bookmarkingEnabled) {
+                            int indexToBookmark = (position == chapterIDs.length - 1) ? position : position + 1;
+                            FavouriteManager.SetBookmarkForFavourite(OnlineReaderActivity.this, mangaID, chapterIDs[indexToBookmark]);
+                        }
                     }
                 });
             }

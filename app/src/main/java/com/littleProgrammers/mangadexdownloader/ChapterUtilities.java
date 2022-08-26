@@ -76,7 +76,8 @@ public class ChapterUtilities {
             }
             else {
                 while (Objects.equals(mangaChapters.get(keepChapterAtIndex).getAttributes().getChapter(),
-                        mangaChapters.get(keepChapterAtIndex + 1).getAttributes().getChapter()) && keepChapterAtIndex >= 0) {
+                        mangaChapters.get(keepChapterAtIndex + 1).getAttributes().getChapter())
+                        && keepChapterAtIndex >= 0 && !allowDuplicate) {
                     mangaChapters.remove(keepChapterAtIndex);
                     keepChapterAtIndex--;
                 }

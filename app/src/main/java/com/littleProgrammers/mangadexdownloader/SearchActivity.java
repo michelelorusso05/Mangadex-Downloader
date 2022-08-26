@@ -101,7 +101,7 @@ public class SearchActivity extends AppCompatActivity
         favouriteButton.setOnClickListener((View v) -> {
             controlsContainer.setVisibility(View.INVISIBLE);
             searchOffset = 0;
-            getResults(FavouriteManager.GetFavourites(this));
+            getResults(FavouriteManager.GetFavouritesIDs(this));
         });
         nextButton.setOnClickListener(v1 -> QueryNext());
         previousButton.setOnClickListener(v1 -> QueryPrevious());
@@ -137,7 +137,7 @@ public class SearchActivity extends AppCompatActivity
             if (savedQuery.equals("__fav")) {
                 controlsContainer.setVisibility(View.INVISIBLE);
                 searchOffset = 0;
-                getResults(FavouriteManager.GetFavourites(this));
+                getResults(FavouriteManager.GetFavouritesIDs(this));
             }
             else if (savedQuery.equals("__trn")) {
                 controlsContainer.setVisibility(View.INVISIBLE);
@@ -158,7 +158,7 @@ public class SearchActivity extends AppCompatActivity
                     getResults(null);
                     break;
                 case "__fav":
-                    getResults(FavouriteManager.GetFavourites(this));
+                    getResults(FavouriteManager.GetFavouritesIDs(this));
                     break;
             }
         }

@@ -69,10 +69,12 @@ public class ChapterDownloaderActivity extends AppCompatActivity
 
     Button downloadButton, readButton;
     View progressBar;
+    View continueReading;
 
     DNSClient client;
 
     boolean markedFavourite;
+    int bookmarkFavouriteIndex = -1;
 
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
@@ -107,6 +109,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         downloadButton = findViewById(R.id.buttonDownload);
         readButton = findViewById(R.id.buttonRead);
         progressBar = findViewById(R.id.readLoadingBar);
+        continueReading = findViewById(R.id.continueReading);
 
         Toolbar t = findViewById(R.id.home_toolbar);
         setSupportActionBar(t);
@@ -126,11 +129,16 @@ public class ChapterDownloaderActivity extends AppCompatActivity
                     downloadButton.setVisibility(View.GONE);
                 else
                     downloadButton.setVisibility(View.VISIBLE);
+                if (position != bookmarkFavouriteIndex)
+                    continueReading.setVisibility(View.INVISIBLE);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
+
+        downloadButton.setOnClickListener(this::downloadChapter);
+        readButton.setOnClickListener(this::readChapter);
 
         mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -208,6 +216,26 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mangaChapters.size() != 0) {
+            String bookmark = FavouriteManager.GetBookmarkForFavourite(this, selectedManga.getId());
+            for (int i = 0; i < mangaChapters.size(); i++) {
+                if (mangaChapters.get(i).getId().equals(bookmark)) {
+                    bookmarkFavouriteIndex = i;
+                    break;
+                }
+            }
+            if (bookmarkFavouriteIndex == -1)
+                chapterSelection.setSelection(chapterSelection.getCount() - 1);
+            else {
+                chapterSelection.setSelection(bookmarkFavouriteIndex);
+                continueReading.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
     private void getCover() throws JSONException {
         boolean lowQualityCover = PreferenceManager.getDefaultSharedPreferences(ChapterDownloaderActivity.this).getBoolean("lowQualityCovers", false);
         final String coverUrl = "https://uploads.mangadex.org/covers/" + selectedManga.getId() + "/" + selectedManga.getAttributes().getCoverUrl() + ((lowQualityCover) ? ".512.jpg" : "");
@@ -278,11 +306,16 @@ public class ChapterDownloaderActivity extends AppCompatActivity
     }
 
     public void OnChapterRetrievingEnd() {
+        String bookmark = FavouriteManager.GetBookmarkForFavourite(this, selectedManga.getId());
+
         int options = 0;
         options += PreferenceManager.getDefaultSharedPreferences(this).getBoolean("chapterDuplicate", true) ? 1 : 0;
         options += PreferenceManager.getDefaultSharedPreferences(this).getBoolean("hideExternal", false) ? 1 << 1 : 0;
 
-        ChapterUtilities.formatChapterList(ChapterDownloaderActivity.this, mangaChapters, options);
+        if (bookmark != null && bookmark.length() > 0)
+            ChapterUtilities.formatChapterList(ChapterDownloaderActivity.this, mangaChapters, options, bookmark);
+        else
+            ChapterUtilities.formatChapterList(ChapterDownloaderActivity.this, mangaChapters, options);
 
         if (mangaChapters.size() == 0) {
             runOnUiThread(() -> chapterSelection.setAdapter(new ChapterSelectionAdapter(ChapterDownloaderActivity.this,
@@ -299,10 +332,24 @@ public class ChapterDownloaderActivity extends AppCompatActivity
             currentIteration++;
         }
 
+        for (int i = 0; i < mangaChapters.size(); i++) {
+            if (mangaChapters.get(i).getId().equals(bookmark)) {
+                bookmarkFavouriteIndex = i;
+                break;
+            }
+        }
+
+        int index = bookmarkFavouriteIndex;
         ChapterDownloaderActivity.this.runOnUiThread(() -> {
             ChapterSelectionAdapter adapter = new ChapterSelectionAdapter(ChapterDownloaderActivity.this, mangaChapters.toArray(new Chapter[0]));
             chapterSelection.setAdapter(adapter);
-            chapterSelection.setSelection(mangaChapters.size() - 1);
+            if (index == -1)
+                chapterSelection.setSelection(chapterSelection.getCount() - 1);
+            else {
+                chapterSelection.setSelection(index);
+                continueReading.setVisibility(View.VISIBLE);
+            }
+
             findViewById(R.id.buttonDownload).setEnabled(true);
             findViewById(R.id.buttonRead).setEnabled(true);
         });
@@ -350,6 +397,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         intent.putExtra("chapterNames", chapterNames);
         intent.putExtra("chapterIDs", chapterIDs);
         intent.putExtra("targetChapter", selectedChapter.getId());
+        intent.putExtra("mangaID", selectedManga.getId());
 
         startActivity(intent);
     }

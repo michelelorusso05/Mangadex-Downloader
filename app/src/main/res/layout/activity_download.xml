@@ -18,7 +18,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/backgrounds/scenic" />
+        tools:srcCompat="@tools:sample/backgrounds/scenic"
+        tools:ignore="ContentDescription" />
 
     <ImageView
         android:id="@+id/filter"
@@ -32,7 +33,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/gradient" />
+        app:srcCompat="@drawable/gradient"
+        tools:ignore="ContentDescription" />
 
     <ProgressBar
         android:id="@+id/coverPlaceholder"
@@ -55,7 +57,8 @@
         app:layout_constraintDimensionRatio="W,2:3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/home_toolbar"
-        app:shapeAppearanceOverlay="@style/roundedImageView" />
+        app:shapeAppearanceOverlay="@style/roundedImageView"
+        tools:ignore="ImageContrastCheck" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -80,7 +83,7 @@
             android:autoSizeMinTextSize="10sp"
             android:autoSizeTextType="uniform"
             android:gravity="bottom|start"
-            android:maxLines="3"
+            app:maxLines="3"
             android:text="@string/noMangaSelected"
             android:textAlignment="gravity"
             android:textSize="34sp"
@@ -126,16 +129,33 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/dividerView" />
 
-    <Spinner
-        android:id="@+id/chapterSelection"
+    <TextView
+        android:id="@+id/continueReading"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
+        android:alpha="0.5"
+        android:text="@string/continueFromBookmark"
+        android:textSize="16sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/chapterSelection"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="TextContrastCheck" />
+
+    <Spinner
+        android:id="@+id/chapterSelection"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
+        android:gravity="center_vertical"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="SpeakableTextPresentCheck" />
 
 
     <View
@@ -158,10 +178,10 @@
         android:layout_height="1dp"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="8dp"
         android:alpha="0.3"
         android:background="@android:color/darker_gray"
-        app:layout_constraintBottom_toTopOf="@+id/chapterSelection"
+        app:layout_constraintBottom_toTopOf="@+id/continueReading"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent" />
@@ -181,28 +201,28 @@
         <Button
             android:id="@+id/buttonDownload"
             android:layout_width="0dp"
-            android:layout_height="46dp"
+            android:layout_height="48dp"
             android:layout_marginStart="2dp"
             android:layout_marginEnd="2dp"
             android:layout_weight="1"
             android:enabled="false"
-            android:onClick="downloadChapter"
             android:text="@string/startDownload"
             android:textSize="12sp"
-            app:icon="@drawable/ic_baseline_save_alt_24" />
+            app:icon="@drawable/ic_baseline_save_alt_24"
+            tools:ignore="ButtonStyle" />
 
         <Button
             android:id="@+id/buttonRead"
             android:layout_width="0dp"
-            android:layout_height="46dp"
+            android:layout_height="48dp"
             android:layout_marginStart="2dp"
             android:layout_marginEnd="2dp"
             android:layout_weight="1"
             android:enabled="false"
-            android:onClick="readChapter"
             android:text="@string/read"
             android:textSize="12sp"
-            app:icon="@drawable/ic_baseline_auto_stories_24" />
+            app:icon="@drawable/ic_baseline_auto_stories_24"
+            tools:ignore="ButtonStyle" />
     </LinearLayout>
 
     <ProgressBar

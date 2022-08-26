@@ -90,4 +90,5 @@
     </string-array>
     <string name="settingsChooseWhatToShow">Scegli schermata di default</string>
     <string name="controlsToggle">Mostra/Nascondi controlli</string>
+    <string name="continueFromBookmark">Continua a leggere</string>
 </resources>

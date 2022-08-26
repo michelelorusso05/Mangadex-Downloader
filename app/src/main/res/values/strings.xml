@@ -92,4 +92,5 @@
     </string-array>
     <string name="settingsChooseWhatToShow">Choose default screen</string>
     <string name="controlsToggle">Toggle controls</string>
+    <string name="continueFromBookmark">Continue reading</string>
 </resources>
