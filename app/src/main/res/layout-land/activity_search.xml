@@ -10,46 +10,6 @@
     android:focusable="false"
     android:focusableInTouchMode="false">
 
-    <!--EditText
-        android:id="@+id/searchBar"
-        android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="4dp"
-        android:ems="10"
-        android:hint="@string/mangaSearchHint"
-        android:imeOptions="actionSearch"
-        android:inputType="textPersonName"
-        android:maxLines="1"
-        app:layout_constraintEnd_toStartOf="@+id/searchButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/searchButton"
-        android:layout_width="142dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="4dp"
-        android:contentDescription="@string/buttonSearch"
-        android:text="@string/buttonSearch"
-        app:icon="@drawable/ic_baseline_search_24"
-        app:layout_constraintEnd_toStartOf="@+id/randomButton"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/randomButton"
-        android:layout_width="142dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:contentDescription="@string/buttonRandom"
-        android:text="@string/buttonRandom"
-        app:icon="@drawable/ic_baseline_shuffle_24"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" /-->
-
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="0dp"
@@ -72,7 +32,8 @@
             android:hint="@string/mangaSearchHint"
             android:imeOptions="actionSearch"
             android:inputType="textPersonName"
-            android:maxLines="1" />
+            android:maxLines="1"
+            tools:ignore="Autofill" />
 
         <Button
             android:id="@+id/searchButton"
@@ -155,21 +116,20 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?android:selectableItemBackgroundBorderless"
-            android:contentDescription="Previous icon"
+            android:contentDescription="@string/btndescriptionPrevious"
             app:srcCompat="@drawable/ic_baseline_keyboard_arrow_left_24"
             app:tint="?attr/colorControlNormal" />
 
         <Space
             android:layout_width="16dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0" />
+            android:layout_height="wrap_content"/>
 
         <ImageButton
             android:id="@+id/nextButton"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?android:selectableItemBackgroundBorderless"
-            android:contentDescription="Next icon"
+            android:contentDescription="@string/btndescriptionNext"
             app:srcCompat="@drawable/ic_baseline_keyboard_arrow_right_24"
             app:tint="?attr/colorControlNormal" />
 
@@ -213,7 +173,8 @@
             android:alpha="1"
             android:scaleType="centerInside"
             app:srcCompat="@drawable/smiling"
-            app:tint="?attr/colorControlNormal" />
+            app:tint="?attr/colorControlNormal"
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:id="@+id/emptyViewText"

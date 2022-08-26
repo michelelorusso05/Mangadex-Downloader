@@ -32,7 +32,8 @@
             android:hint="@string/mangaSearchHint"
             android:imeOptions="actionSearch"
             android:inputType="textPersonName"
-            android:maxLines="1" />
+            android:maxLines="1"
+            tools:ignore="Autofill" />
 
         <Button
             android:id="@+id/searchButton"
@@ -112,7 +113,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?android:selectableItemBackgroundBorderless"
-            android:contentDescription="Previous icon"
+            android:contentDescription="@string/btndescriptionPrevious"
             app:srcCompat="@drawable/ic_baseline_keyboard_arrow_left_24"
             app:tint="?attr/colorControlNormal" />
 
@@ -125,7 +126,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?android:selectableItemBackgroundBorderless"
-            android:contentDescription="Next icon"
+            android:contentDescription="@string/btndescriptionNext"
             app:srcCompat="@drawable/ic_baseline_keyboard_arrow_right_24"
             app:tint="?attr/colorControlNormal" />
 
@@ -160,19 +161,20 @@
         <ImageView
             android:id="@+id/emptyViewImage"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="0dp"
             android:layout_marginTop="8dp"
             android:layout_weight="1"
             android:alpha="1"
             android:scaleType="centerInside"
             app:srcCompat="@drawable/smiling"
-            app:tint="?attr/colorControlNormal" />
+            app:tint="?attr/colorControlNormal"
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:id="@+id/emptyViewText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="È vuoto qui..."
+            android:text="@string/emptyList"
             android:textAlignment="center" />
     </LinearLayout>
 

@@ -93,4 +93,8 @@
     <string name="settingsChooseWhatToShow">Choose default screen</string>
     <string name="controlsToggle">Toggle controls</string>
     <string name="continueFromBookmark">Continue reading</string>
+    <string name="btndescriptionPrevious">Previous</string>
+    <string name="btndescriptionNext">Next</string>
+    <string name="btndescriptionFirst">First page</string>
+    <string name="btndescriptionLast">Last page</string>
 </resources>

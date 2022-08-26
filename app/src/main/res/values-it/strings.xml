@@ -91,4 +91,8 @@
     <string name="settingsChooseWhatToShow">Scegli schermata di default</string>
     <string name="controlsToggle">Mostra/Nascondi controlli</string>
     <string name="continueFromBookmark">Continua a leggere</string>
+    <string name="btndescriptionPrevious">Precedente</string>
+    <string name="btndescriptionNext">Successivo</string>
+    <string name="btndescriptionFirst">Prima pagina</string>
+    <string name="btndescriptionLast">Ultima pagina</string>
 </resources>

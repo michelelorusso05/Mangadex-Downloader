@@ -44,7 +44,7 @@
                     android:ellipsize="end"
                     android:gravity="center_vertical"
                     android:maxLines="1"
-                    android:text="Siummino"
+                    android:text=""
                     android:textAlignment="gravity"
                     android:textSize="24sp"
                     android:textStyle="bold"
@@ -58,7 +58,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    app:srcCompat="@drawable/ic_baseline_arrow_drop_down_24" />
+                    app:srcCompat="@drawable/ic_baseline_arrow_drop_down_24"
+                    tools:ignore="ContentDescription" />
             </LinearLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout

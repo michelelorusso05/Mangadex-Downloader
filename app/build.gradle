@@ -5,19 +5,19 @@ plugins {
 android {
     signingConfigs {
         debug {
-            storeFile file('C:\\Users\\miche\\Desktop\\Programmazione\\Progetti\\AndroidStudioProjects\\MangadexDownloader\\key3.jks')
+            storeFile file('key3.jks')
             storePassword 'mikbros2005'
             keyAlias 'Play Store Key'
             keyPassword 'mikbros2005'
         }
     }
-    compileSdkVersion 33
+    compileSdkVersion 32
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.littleProgrammers.mangadexdownloader"
         minSdkVersion 22
-        targetSdkVersion 33
+        targetSdkVersion 32
         versionCode 5
         versionName "5.7"
 

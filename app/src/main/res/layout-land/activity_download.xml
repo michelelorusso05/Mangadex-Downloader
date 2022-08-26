@@ -19,7 +19,8 @@
         app:layout_constraintHeight_percent="0.3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/backgrounds/scenic" />
+        tools:srcCompat="@tools:sample/backgrounds/scenic"
+        tools:ignore="ContentDescription" />
 
     <ImageView
         android:id="@+id/filter"
@@ -33,7 +34,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintHeight_percent="0.3"
-        app:srcCompat="@drawable/gradient" />
+        app:srcCompat="@drawable/gradient"
+        tools:ignore="ContentDescription" />
 
     <ProgressBar
         android:id="@+id/coverPlaceholder"
@@ -59,7 +61,8 @@
         app:layout_constraintDimensionRatio="H,3:2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/home_toolbar"
-        app:shapeAppearanceOverlay="@style/roundedImageView" />
+        app:shapeAppearanceOverlay="@style/roundedImageView"
+        tools:ignore="ImageContrastCheck" />
 
     <ScrollView
         android:layout_width="0dp"
@@ -85,9 +88,6 @@
                 style="@style/Widget.AppCompat.TextView.SpinnerItem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autoSizeMaxTextSize="18sp"
-                android:autoSizeMinTextSize="10sp"
-                android:autoSizeTextType="uniform"
                 android:gravity="bottom|start"
                 android:maxLines="2"
                 android:text="@string/noMangaSelected"
@@ -149,7 +149,8 @@
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/dividerView" />
+        app:layout_constraintStart_toEndOf="@+id/dividerView"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <View
         android:id="@+id/dividerView"
@@ -164,37 +165,6 @@
         app:layout_constraintStart_toEndOf="@id/cover"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!--Button
-        android:id="@+id/buttonDownload"
-        android:layout_width="0dp"
-        android:layout_height="46dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginBottom="8dp"
-        android:enabled="false"
-        android:onClick="downloadChapter"
-        android:text="@string/startDownload"
-        android:textSize="12sp"
-        app:icon="@drawable/ic_baseline_save_alt_24"
-        app:layout_constraintBottom_toTopOf="@+id/readLoadingBar"
-        app:layout_constraintEnd_toStartOf="@+id/buttonRead"
-        app:layout_constraintStart_toEndOf="@+id/dividerView" />
-
-    <Button
-        android:id="@+id/buttonRead"
-        android:layout_width="0dp"
-        android:layout_height="46dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
-        android:enabled="false"
-        android:onClick="readChapter"
-        android:text="@string/read"
-        android:textSize="12sp"
-        app:icon="@drawable/ic_baseline_auto_stories_24"
-        app:layout_constraintBottom_toTopOf="@+id/readLoadingBar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/buttonDownload" /-->
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="0dp"
@@ -216,7 +186,8 @@
             android:enabled="false"
             android:text="@string/startDownload"
             android:textSize="12sp"
-            app:icon="@drawable/ic_baseline_save_alt_24" />
+            app:icon="@drawable/ic_baseline_save_alt_24"
+            tools:ignore="ButtonStyle" />
 
         <Button
             android:id="@+id/buttonRead"
@@ -228,7 +199,8 @@
             android:enabled="false"
             android:text="@string/read"
             android:textSize="12sp"
-            app:icon="@drawable/ic_baseline_auto_stories_24" />
+            app:icon="@drawable/ic_baseline_auto_stories_24"
+            tools:ignore="ButtonStyle" />
     </LinearLayout>
 
     <ProgressBar

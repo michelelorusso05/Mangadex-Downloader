@@ -27,7 +27,8 @@
             android:layout_height="wrap_content"
             android:background="?attr/downloadedItemColor"
             android:foreground="?attr/selectableItemBackground"
-            android:longClickable="true">
+            android:longClickable="true"
+            tools:ignore="UnusedAttribute">
 
 
             <TextView
@@ -40,7 +41,6 @@
                 android:ellipsize="end"
                 android:gravity="center_vertical|start"
                 android:maxLines="1"
-                android:text="Chapter name"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:autoSizeMaxTextSize="20sp"
@@ -59,7 +59,6 @@
                 android:layout_marginBottom="16dp"
                 android:alpha="0.5"
                 android:gravity="center_vertical"
-                android:text="688.43 KB"
                 app:autoSizeTextType="uniform"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -73,7 +72,8 @@
                 app:layout_constraintStart_toEndOf="@+id/fileSize"
                 app:layout_constraintTop_toBottomOf="@+id/chapterName"
                 app:srcCompat="@drawable/ic_baseline_high_quality_24"
-                app:tint="?attr/colorControlNormal" />
+                app:tint="?attr/colorControlNormal"
+                tools:ignore="ContentDescription" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
