@@ -1,5 +1,5 @@
 ext {
-    var = 'key3.jks'
+    var = '..\\key3.jks'
 }// Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {

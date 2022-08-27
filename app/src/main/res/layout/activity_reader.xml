@@ -16,7 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@null"
-        tools:ignore="UnusedAttribute" />
+        tools:ignore="UnusedAttribute,ImageContrastCheck" />
 
     <ProgressBar
         android:id="@+id/loadingImage"
@@ -93,6 +93,7 @@
             android:paddingBottom="32dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent">
 
             <ImageButton
@@ -119,7 +120,8 @@
                 android:layout_height="match_parent"
                 android:background="@null"
                 android:gravity="center"
-                android:spinnerMode="dropdown" />
+                android:spinnerMode="dropdown"
+                tools:ignore="SpeakableTextPresentCheck" />
 
             <ImageButton
                 android:id="@+id/nextButton"
@@ -141,5 +143,18 @@
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ProgressBar
+        android:id="@+id/pageProgress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="-8dp"
+        android:indeterminate="true"
+        android:indeterminateBehavior="cycle"
+        android:max="100"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

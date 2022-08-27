@@ -22,6 +22,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -222,7 +223,18 @@ public class DNSClient {
                 .url(url)
                 .build();
 
-        client.newCall(request).enqueue(callback);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                callback.onFailure(call, e);
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                callback.onResponse(call, response);
+                response.close();
+            }
+        });
     }
 
 
@@ -241,7 +253,7 @@ public class DNSClient {
         HttpRequestAsync(url, new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                e.printStackTrace();
+                Log.d("GetImageBitmapAsync", "Failed to fetch image " + call.request().url());
             }
 
             @Override
@@ -272,7 +284,9 @@ public class DNSClient {
     public Bitmap GetImageBitmap(String url) throws IOException {
         Response response = HttpRequest(url);
         ResponseBody body = Objects.requireNonNull(response.body());
-        return BitmapFactory.decodeByteArray(body.bytes(), 0, (int) body.contentLength());
+        Bitmap b = BitmapFactory.decodeByteArray(body.bytes(), 0, (int) body.contentLength());
+        response.close();
+        return b;
     }
 
 
@@ -381,6 +395,12 @@ public class DNSClient {
      * @return -1 if something failed during the constructor call and the resulting DNSClient is just a simple OkHttpClient.
      */
     public int GetStatus() { return status; }
+    public List<Call> GetRunningRequests() {
+        return client.dispatcher().runningCalls();
+    }
+    public List<Call> GetQueuedRequests() {
+        return client.dispatcher().queuedCalls();
+    }
 
     public static class CacheInterceptor implements Interceptor {
         @NonNull

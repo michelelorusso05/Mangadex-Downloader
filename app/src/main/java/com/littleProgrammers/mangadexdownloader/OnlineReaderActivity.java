@@ -35,6 +35,7 @@ public class OnlineReaderActivity extends ReaderActivity {
     ImageButton chapterNext, chapterPrevious;
 
     boolean bookmarkingEnabled;
+    int indexToBookmark;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +49,7 @@ public class OnlineReaderActivity extends ReaderActivity {
 
         findViewById(R.id.chapterNavigation).setVisibility(View.VISIBLE);
 
-        client = new DNSClient(DNSClient.PresetDNS.GOOGLE, this, true, 5);
+        client = new DNSClient(DNSClient.PresetDNS.GOOGLE, this, true);
         mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
@@ -64,14 +65,27 @@ public class OnlineReaderActivity extends ReaderActivity {
         chapterSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                chapterNext.setEnabled(position < chapterSelection.getCount() - 1);
-                chapterPrevious.setEnabled(position > 0);
+                SetChapterControlsEnabled(false);
+                pageProgressIndicator.setIndeterminate(true);
                 client.HttpRequestAsync("https://api.mangadex.org/at-home/server/" + chapterIDs[position], new Callback() {
                     @Override
                     public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        runOnUiThread(() -> {
+                            SetChapterControlsEnabled(true);
+                            chapterNext.setEnabled(position < chapterSelection.getCount() - 1);
+                            chapterPrevious.setEnabled(position > 0);
+                            pageProgressIndicator.setIndeterminate(false);
+                        });
                     }
                     @Override
                     public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                        runOnUiThread(() -> {
+                            SetChapterControlsEnabled(true);
+                            chapterNext.setEnabled(position < chapterSelection.getCount() - 1);
+                            chapterPrevious.setEnabled(position > 0);
+                            pageProgressIndicator.setIndeterminate(false);
+                        });
+
                         AtHomeResults hResults = mapper.readValue(Objects.requireNonNull(response.body()).string(), AtHomeResults.class);
 
                         String _baseUrl;
@@ -90,13 +104,14 @@ public class OnlineReaderActivity extends ReaderActivity {
                         _baseUrl += hResults.getChapter().getHash();
                         baseUrl = _baseUrl;
                         urls = _images;
+                        response.close();
                         runOnUiThread(() -> {
                             GeneratePageSelectionSpinnerAdapter();
-                            progress.setSelection(0);
+                            pageSelection.setSelection(0);
                         });
                         if (bookmarkingEnabled) {
-                            int indexToBookmark = (position == chapterIDs.length - 1) ? position : position + 1;
-                            FavouriteManager.SetBookmarkForFavourite(OnlineReaderActivity.this, mangaID, chapterIDs[indexToBookmark]);
+                            indexToBookmark = position;
+                            FavouriteManager.SetBookmarkForFavourite(OnlineReaderActivity.this, mangaID, chapterIDs[position]);
                         }
                     }
                 });
@@ -118,9 +133,15 @@ public class OnlineReaderActivity extends ReaderActivity {
         }
 
         GeneratePageSelectionSpinnerAdapter();
-        progress.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        pageSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                turnPage(position * pageStep());
+                if (bookmarkingEnabled && position >= pageSelection.getCount() - 2) {
+                    FavouriteManager.SetBookmarkForFavourite(OnlineReaderActivity.this, mangaID, chapterIDs[indexToBookmark == chapterSelection.getCount() - 1 ? indexToBookmark : indexToBookmark + 1]);
+                }
+                pageProgressIndicator.setIndeterminate(false);
+                pageProgressIndicator.setProgress((int) ((position + 1f) / pageSelection.getCount() * 100f));
                 turnPage(position * pageStep());
             }
             @Override
@@ -128,12 +149,18 @@ public class OnlineReaderActivity extends ReaderActivity {
         });
 
         if (savedInstanceState == null) {
-            progress.setSelection(0);
+            pageSelection.setSelection(0);
             FolderUtilities.DeleteFolderContents(getExternalCacheDir());
         }
     }
 
-    public void turnPage(int index) {
+    private void SetChapterControlsEnabled(boolean e) {
+        chapterSelection.setEnabled(e);
+        chapterNext.setEnabled(e);
+        chapterPrevious.setEnabled(e);
+    }
+
+    public void turnPage(final int index) {
         if (index >= urls.length) return;
 
         display.setVisibility(View.INVISIBLE);
@@ -143,13 +170,8 @@ public class OnlineReaderActivity extends ReaderActivity {
         next.setEnabled(index < urls.length - pageStep());
         last.setEnabled(next.isEnabled());
 
-        client.CancelAllPendingRequests();
         if (!landscape) {
-            client.GetImageBitmapAsync(baseUrl + "/" + urls[index], bm -> runOnUiThread(() -> {
-                display.setImageBitmap(bm);
-                display.setVisibility(View.VISIBLE);
-                pBar.setVisibility(View.GONE);
-            }), opt);
+            client.GetImageBitmapAsync(baseUrl + "/" + urls[index], bm -> runOnUiThread(() -> BitmapRetrieveDone(bm, null, index)), opt);
             // Preload
             if (index < urls.length - 1)
                 PreloadImage(baseUrl + "/" + urls[index + 1]);
@@ -160,7 +182,7 @@ public class OnlineReaderActivity extends ReaderActivity {
             if (index < urls.length - 1) {
                 client.GetImageBitmapAsync(baseUrl + "/" + urls[index + 1], bm -> {
                     images[1] = bm;
-                    if (isWorkDone[0]) BitmapRetrieveDone(images[0], images[1]);
+                    if (isWorkDone[0]) BitmapRetrieveDone(images[0], images[1], index);
                     else isWorkDone[0] = true;
                 }, opt);
             }
@@ -170,7 +192,7 @@ public class OnlineReaderActivity extends ReaderActivity {
             }
             client.GetImageBitmapAsync(baseUrl + "/" + urls[index], bm -> {
                 images[0] = bm;
-                if (isWorkDone[0]) BitmapRetrieveDone(images[0], images[1]);
+                if (isWorkDone[0]) BitmapRetrieveDone(images[0], images[1], index);
                 else isWorkDone[0] = true;
             }, opt);
 
@@ -180,6 +202,11 @@ public class OnlineReaderActivity extends ReaderActivity {
             if (index < urls.length - 3)
                 PreloadImage(baseUrl + "/" + urls[index + 3]);
         }
+    }
+
+    protected void BitmapRetrieveDone(Bitmap b1, Bitmap b2, int i) {
+        if (i == GetCurIndex())
+            super.BitmapRetrieveDone(b1, b2);
     }
 
     private void PreloadImage(String url) {

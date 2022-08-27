@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 
 public class OfflineReaderActivity extends ReaderActivity {
     ActivityResultLauncher<Intent> launchShareForResult;
+    private boolean pdfShareEnqueued;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,12 +51,15 @@ public class OfflineReaderActivity extends ReaderActivity {
                         Log.d("PDF share", "Canceled");
                     }
                     FolderUtilities.DeleteFolder(new File(getExternalFilesDir(null), "exportedPDFs"));
+                    pdfShareEnqueued = false;
                 });
 
         GeneratePageSelectionSpinnerAdapter();
-        progress.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        pageSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                pageProgressIndicator.setIndeterminate(false);
+                pageProgressIndicator.setProgress((int) ((position + 1f) / pageSelection.getCount() * 100f));
                 turnPage(position * pageStep());
             }
             @Override
@@ -63,7 +67,7 @@ public class OfflineReaderActivity extends ReaderActivity {
         });
 
         if (savedInstanceState == null) {
-            progress.setSelection(0);
+            pageSelection.setSelection(0);
             FolderUtilities.DeleteFolderContents(getExternalCacheDir());
         }
     }
@@ -76,7 +80,8 @@ public class OfflineReaderActivity extends ReaderActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_sharePDF) {
+        if (item.getItemId() == R.id.action_sharePDF && !pdfShareEnqueued) {
+            pdfShareEnqueued = true;
             new Thread(this::CreateAndSharePDF).start();
             return true;
         }
@@ -118,12 +123,18 @@ public class OfflineReaderActivity extends ReaderActivity {
         next.setEnabled(index < urls.length - pageStep());
         last.setEnabled(next.isEnabled());
 
+        final int fIndex = index;
         new Thread(() -> {
             Bitmap b1 = BitmapFactory.decodeFile(baseUrl + "/" + urls[index], opt);
             Bitmap b2 = null;
             if (landscape && index < urls.length - 1)
                 b2 = BitmapFactory.decodeFile(baseUrl + "/" + urls[index + 1], opt);
-            BitmapRetrieveDone(b1, b2);
+            BitmapRetrieveDone(b1, b2, fIndex);
         }).start();
+    }
+
+    protected void BitmapRetrieveDone(Bitmap b1, Bitmap b2, int i) {
+        if (i == GetCurIndex())
+            super.BitmapRetrieveDone(b1, b2);
     }
 }

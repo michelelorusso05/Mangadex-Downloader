@@ -12,6 +12,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
@@ -25,10 +26,11 @@ public class ReaderActivity extends AppCompatActivity {
     protected boolean landscape;
     protected boolean showControls = true;
 
-    protected Spinner progress;
+    protected Spinner pageSelection;
     protected ImageButton previous, next, first, last;
     protected ZoomageView display;
     protected View pBar;
+    protected ProgressBar pageProgressIndicator;
 
     // Bitmap configuration (applies to this class, all methods)
     protected final BitmapFactory.Options opt = new BitmapFactory.Options();
@@ -54,8 +56,9 @@ public class ReaderActivity extends AppCompatActivity {
 
         landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 
-        progress = findViewById(R.id.progressView);
+        pageSelection = findViewById(R.id.progressView);
         pBar = findViewById(R.id.loadingImage);
+        pageProgressIndicator = findViewById(R.id.pageProgress);
 
         previous = findViewById(R.id.previousButton);
         next = findViewById(R.id.nextButton);
@@ -72,16 +75,16 @@ public class ReaderActivity extends AppCompatActivity {
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         int savedPage = savedInstanceState.getInt("currentPage", 0);
-        progress.setSelection(savedPage);
+        pageSelection.setSelection(savedPage);
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         if (landscape)
-            outState.putInt("currentPage", progress.getSelectedItemPosition() * 2);
+            outState.putInt("currentPage", pageSelection.getSelectedItemPosition() * 2);
         else
-            outState.putInt("currentPage", (int) Math.floor((float) progress.getSelectedItemPosition() / 2));
+            outState.putInt("currentPage", (int) Math.floor((float) pageSelection.getSelectedItemPosition() / 2));
     }
 
     @Override
@@ -113,7 +116,7 @@ public class ReaderActivity extends AppCompatActivity {
         for (int i = 0; i < l; i++)
             pages[i] = UpdatePageIndicator(i * pageStep());
 
-        progress.setAdapter(new ArrayAdapter<>(this, R.layout.page_indicator_spinner_item, pages));
+        pageSelection.setAdapter(new ArrayAdapter<>(this, R.layout.page_indicator_spinner_item, pages));
     }
 
     @Override
@@ -143,22 +146,27 @@ public class ReaderActivity extends AppCompatActivity {
         }).start();
     }
 
+    protected int GetCurIndex() {
+        return pageSelection.getSelectedItemPosition() * pageStep();
+    }
+
+
     protected int pageStep() {
         return landscape ? 2 : 1;
     }
 
     public void nextPage(View v) {
-        if (progress.getSelectedItemPosition() < progress.getCount() - 1)
-            progress.setSelection(progress.getSelectedItemPosition() + 1);
+        if (pageSelection.getSelectedItemPosition() < pageSelection.getCount() - 1)
+            pageSelection.setSelection(pageSelection.getSelectedItemPosition() + 1);
     }
     public void previousPage(View v) {
-        if (progress.getSelectedItemPosition() > 0)
-            progress.setSelection(progress.getSelectedItemPosition() - 1);
+        if (pageSelection.getSelectedItemPosition() > 0)
+            pageSelection.setSelection(pageSelection.getSelectedItemPosition() - 1);
     }
     public void firstPage(View v) {
-        progress.setSelection(0);
+        pageSelection.setSelection(0);
     }
     public void lastPage(View v) {
-        progress.setSelection(progress.getCount() - 1);
+        pageSelection.setSelection(pageSelection.getCount() - 1);
     }
 }

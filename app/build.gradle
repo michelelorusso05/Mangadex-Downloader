@@ -4,8 +4,14 @@ plugins {
 
 android {
     signingConfigs {
+        release {
+            storeFile file('..\\key3.jks')
+            storePassword 'mikbros2005'
+            keyAlias 'Play Store Key'
+            keyPassword 'mikbros2005'
+        }
         debug {
-            storeFile file('key3.jks')
+            storeFile file('..\\key3.jks')
             storePassword 'mikbros2005'
             keyAlias 'Play Store Key'
             keyPassword 'mikbros2005'
@@ -30,11 +36,19 @@ android {
     }
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
-            debuggable true
+            // Enables code shrinking, obfuscation, and optimization for only
+            // your project's release build type.
+            minifyEnabled true
+
+            // Enables resource shrinking, which is performed by the
+            // Android Gradle plugin.
+            shrinkResources true
+            signingConfig signingConfigs.release
+            debuggable false
         }
         debug {
             signingConfig signingConfigs.debug
+            debuggable true
         }
     }
 }
