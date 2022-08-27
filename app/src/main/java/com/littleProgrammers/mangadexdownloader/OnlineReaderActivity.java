@@ -37,6 +37,8 @@ public class OnlineReaderActivity extends ReaderActivity {
     boolean bookmarkingEnabled;
     int indexToBookmark;
 
+    boolean setLastPage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,56 +67,7 @@ public class OnlineReaderActivity extends ReaderActivity {
         chapterSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                SetChapterControlsEnabled(false);
-                pageProgressIndicator.setIndeterminate(true);
-                client.HttpRequestAsync("https://api.mangadex.org/at-home/server/" + chapterIDs[position], new Callback() {
-                    @Override
-                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                        runOnUiThread(() -> {
-                            SetChapterControlsEnabled(true);
-                            chapterNext.setEnabled(position < chapterSelection.getCount() - 1);
-                            chapterPrevious.setEnabled(position > 0);
-                            pageProgressIndicator.setIndeterminate(false);
-                        });
-                    }
-                    @Override
-                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                        runOnUiThread(() -> {
-                            SetChapterControlsEnabled(true);
-                            chapterNext.setEnabled(position < chapterSelection.getCount() - 1);
-                            chapterPrevious.setEnabled(position > 0);
-                            pageProgressIndicator.setIndeterminate(false);
-                        });
-
-                        AtHomeResults hResults = mapper.readValue(Objects.requireNonNull(response.body()).string(), AtHomeResults.class);
-
-                        String _baseUrl;
-                        String[] _images;
-
-                        boolean HQ = !PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("dataSaver", false);
-                        if (HQ) {
-                            _baseUrl = hResults.getBaseUrl() + "/data/";
-                            _images = hResults.getChapter().getData();
-                        }
-                        else {
-                            _baseUrl = hResults.getBaseUrl() + "/data-saver/";
-                            _images = hResults.getChapter().getDataSaver();
-                        }
-
-                        _baseUrl += hResults.getChapter().getHash();
-                        baseUrl = _baseUrl;
-                        urls = _images;
-                        response.close();
-                        runOnUiThread(() -> {
-                            GeneratePageSelectionSpinnerAdapter();
-                            pageSelection.setSelection(0);
-                        });
-                        if (bookmarkingEnabled) {
-                            indexToBookmark = position;
-                            FavouriteManager.SetBookmarkForFavourite(OnlineReaderActivity.this, mangaID, chapterIDs[position]);
-                        }
-                    }
-                });
+                FetchAtHome(position);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
@@ -154,10 +107,85 @@ public class OnlineReaderActivity extends ReaderActivity {
         }
     }
 
+    private void FetchAtHome(int position) {
+        SetChapterControlsEnabled(false);
+        SetPageControlsEnabled(false);
+        pageProgressIndicator.setIndeterminate(true);
+        client.HttpRequestAsync("https://api.mangadex.org/at-home/server/" + chapterIDs[position], new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                runOnUiThread(() -> {
+                    SetChapterControlsEnabled(true);
+                    SetPageControlsEnabled(true);
+                    chapterNext.setEnabled(position < chapterSelection.getCount() - 1);
+                    chapterPrevious.setEnabled(position > 0);
+                    pageProgressIndicator.setIndeterminate(false);
+                });
+            }
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                runOnUiThread(() -> {
+                    SetChapterControlsEnabled(true);
+                    SetPageControlsEnabled(true);
+                    chapterNext.setEnabled(position < chapterSelection.getCount() - 1);
+                    chapterPrevious.setEnabled(position > 0);
+                    pageProgressIndicator.setIndeterminate(false);
+                });
+
+                AtHomeResults hResults = mapper.readValue(Objects.requireNonNull(response.body()).string(), AtHomeResults.class);
+
+                String _baseUrl;
+                String[] _images;
+
+                boolean HQ = !PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("dataSaver", false);
+                if (HQ) {
+                    _baseUrl = hResults.getBaseUrl() + "/data/";
+                    _images = hResults.getChapter().getData();
+                }
+                else {
+                    _baseUrl = hResults.getBaseUrl() + "/data-saver/";
+                    _images = hResults.getChapter().getDataSaver();
+                }
+
+                _baseUrl += hResults.getChapter().getHash();
+                baseUrl = _baseUrl;
+                urls = _images;
+                response.close();
+                runOnUiThread(() -> {
+                    GeneratePageSelectionSpinnerAdapter();
+                    if (setLastPage) {
+                        setLastPage = false;
+                        pageSelection.setSelection(pageSelection.getCount() - 1);
+                    }
+                    else
+                        pageSelection.setSelection(0);
+                });
+                if (bookmarkingEnabled) {
+                    indexToBookmark = position;
+                    FavouriteManager.SetBookmarkForFavourite(OnlineReaderActivity.this, mangaID, chapterIDs[position]);
+                }
+            }
+        });
+    }
+
     private void SetChapterControlsEnabled(boolean e) {
         chapterSelection.setEnabled(e);
         chapterNext.setEnabled(e);
         chapterPrevious.setEnabled(e);
+    }
+    private void SetPageControlsEnabled(boolean e) {
+        pageSelection.setEnabled(e);
+        next.setEnabled(e);
+        previous.setEnabled(e);
+        first.setEnabled(e);
+        last.setEnabled(e);
+    }
+
+    private void UpdateButtonsState(final int index) {
+        previous.setEnabled(chapterPrevious.isEnabled());
+        next.setEnabled(chapterNext.isEnabled());
+        first.setEnabled(index > 0);
+        last.setEnabled(index < urls.length - pageStep());
     }
 
     public void turnPage(final int index) {
@@ -165,10 +193,7 @@ public class OnlineReaderActivity extends ReaderActivity {
 
         display.setVisibility(View.INVISIBLE);
         pBar.setVisibility(View.VISIBLE);
-        previous.setEnabled(index > 0);
-        first.setEnabled(previous.isEnabled());
-        next.setEnabled(index < urls.length - pageStep());
-        last.setEnabled(next.isEnabled());
+        UpdateButtonsState(index);
 
         if (!landscape) {
             client.GetImageBitmapAsync(baseUrl + "/" + urls[index], bm -> runOnUiThread(() -> BitmapRetrieveDone(bm, null, index)), opt);
@@ -234,5 +259,22 @@ public class OnlineReaderActivity extends ReaderActivity {
     public void ChapterPrevious(View v) {
         if (chapterSelection.getSelectedItemPosition() > 0)
             chapterSelection.setSelection(chapterSelection.getSelectedItemPosition() - 1);
+    }
+
+    @Override
+    public void nextPage(View v) {
+        if (pageSelection.getSelectedItemPosition() < pageSelection.getCount() - 1)
+            pageSelection.setSelection(pageSelection.getSelectedItemPosition() + 1);
+        else
+            ChapterNext(v);
+    }
+    @Override
+    public void previousPage(View v) {
+        if (pageSelection.getSelectedItemPosition() > 0)
+            pageSelection.setSelection(pageSelection.getSelectedItemPosition() - 1);
+        else {
+            ChapterPrevious(v);
+            setLastPage = true;
+        }
     }
 }
