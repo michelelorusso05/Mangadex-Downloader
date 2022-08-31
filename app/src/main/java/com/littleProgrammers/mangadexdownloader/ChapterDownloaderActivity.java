@@ -308,14 +308,10 @@ public class ChapterDownloaderActivity extends AppCompatActivity
     public void OnChapterRetrievingEnd() {
         String bookmark = FavouriteManager.GetBookmarkForFavourite(this, selectedManga.getId());
 
-        int options = 0;
-        options += PreferenceManager.getDefaultSharedPreferences(this).getBoolean("chapterDuplicate", true) ? 1 : 0;
-        options += PreferenceManager.getDefaultSharedPreferences(this).getBoolean("hideExternal", false) ? 1 << 1 : 0;
-
-        if (bookmark != null && bookmark.length() > 0)
-            ChapterUtilities.formatChapterList(ChapterDownloaderActivity.this, mangaChapters, options, bookmark);
-        else
-            ChapterUtilities.formatChapterList(ChapterDownloaderActivity.this, mangaChapters, options);
+        ChapterUtilities.FormatChapterList(ChapterDownloaderActivity.this, mangaChapters, new ChapterUtilities.FormattingOptions(
+                PreferenceManager.getDefaultSharedPreferences(this).getBoolean("chapterDuplicate", true),
+                PreferenceManager.getDefaultSharedPreferences(this).getBoolean("hideExternal", true),
+                bookmark));
 
         if (mangaChapters.size() == 0) {
             runOnUiThread(() -> chapterSelection.setAdapter(new ChapterSelectionAdapter(ChapterDownloaderActivity.this,
@@ -339,12 +335,12 @@ public class ChapterDownloaderActivity extends AppCompatActivity
             }
         }
 
-        int index = bookmarkFavouriteIndex;
+        final int index = bookmarkFavouriteIndex;
         ChapterDownloaderActivity.this.runOnUiThread(() -> {
             ChapterSelectionAdapter adapter = new ChapterSelectionAdapter(ChapterDownloaderActivity.this, mangaChapters.toArray(new Chapter[0]));
             chapterSelection.setAdapter(adapter);
             if (index == -1)
-                chapterSelection.setSelection(chapterSelection.getCount() - 1);
+                chapterSelection.setSelection(0);
             else {
                 chapterSelection.setSelection(index);
                 continueReading.setVisibility(View.VISIBLE);
@@ -382,10 +378,12 @@ public class ChapterDownloaderActivity extends AppCompatActivity
 
         if (checkForNoPages(selectedChapter)) return;
 
-        // String chapterID = selectedChapter.getId();
-
         ArrayList<Chapter> dummyChapters = new ArrayList<>(mangaChapters);
-        ChapterUtilities.formatChapterList(this, dummyChapters, ChapterUtilities.OPTION_REMOVEEXTERNAL, selectedChapter.getId());
+        ChapterUtilities.FormatChapterList(this, dummyChapters, new ChapterUtilities.FormattingOptions(
+                false,
+                true,
+                selectedChapter.getId()
+        ));
         String[] chapterNames = new String[dummyChapters.size()];
         String[] chapterIDs = new String[dummyChapters.size()];
         for (int i = 0; i < dummyChapters.size(); i++) {

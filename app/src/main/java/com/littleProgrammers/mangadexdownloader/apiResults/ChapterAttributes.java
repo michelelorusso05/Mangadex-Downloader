@@ -7,6 +7,15 @@ public class ChapterAttributes {
     int pages;
     String translatedLanguage;
     String scanlationGroupString;
+    String scanlationGroupID;
+
+    public String getScanlationGroupID() {
+        return scanlationGroupID;
+    }
+
+    public void setScanlationGroupID(String scanlationGroupID) {
+        this.scanlationGroupID = scanlationGroupID;
+    }
 
     public String getScanlationGroupString() {
         return scanlationGroupString;

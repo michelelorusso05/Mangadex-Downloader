@@ -182,10 +182,11 @@ public class OnlineReaderActivity extends ReaderActivity {
     }
 
     private void UpdateButtonsState(final int index) {
-        previous.setEnabled(chapterPrevious.isEnabled());
-        next.setEnabled(chapterNext.isEnabled());
         first.setEnabled(index > 0);
         last.setEnabled(index < urls.length - pageStep());
+
+        previous.setEnabled(chapterPrevious.isEnabled() || first.isEnabled());
+        next.setEnabled(chapterNext.isEnabled() || last.isEnabled());
     }
 
     public void turnPage(final int index) {
