@@ -3,20 +3,6 @@ plugins {
 }
 
 android {
-    signingConfigs {
-        release {
-            storeFile file('..\\key3.jks')
-            storePassword 'mikbros2005'
-            keyAlias 'Play Store Key'
-            keyPassword 'mikbros2005'
-        }
-        debug {
-            storeFile file('..\\key3.jks')
-            storePassword 'mikbros2005'
-            keyAlias 'Play Store Key'
-            keyPassword 'mikbros2005'
-        }
-    }
     compileSdkVersion 32
     buildToolsVersion "30.0.3"
 
