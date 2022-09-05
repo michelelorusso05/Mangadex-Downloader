@@ -58,7 +58,22 @@ public class FolderUtilities {
         if (files == null || files.length == 0)
             return new File[0];
 
-        Arrays.sort(files);
+        Arrays.sort(files, (o1, o2) -> {
+            float n1 = ExtractNumberFromFilename(o1);
+            float n2 = ExtractNumberFromFilename(o2);
+            return Float.compare(n1, n2);
+        });
         return files;
+    }
+
+    public static float ExtractNumberFromFilename(@NonNull File f) {
+        float n;
+        try {
+            String s = f.getName().substring(0, f.getName().indexOf(" "));
+            n = Float.parseFloat(s);
+        } catch (IndexOutOfBoundsException | NumberFormatException e) {
+            n = -1;
+        }
+        return n;
     }
 }

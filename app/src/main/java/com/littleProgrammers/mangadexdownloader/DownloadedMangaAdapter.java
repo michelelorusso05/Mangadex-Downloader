@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class DownloadedMangaAdapter extends RecyclerView.Adapter<DownloadedMangaAdapter.ViewHolder> {
     Context ct;
@@ -22,6 +24,7 @@ public class DownloadedMangaAdapter extends RecyclerView.Adapter<DownloadedManga
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView mangaTitle;
+        TextView chaptersAndSizes;
         ImageButton button;
         RecyclerView rView;
         View touchArea;
@@ -35,10 +38,11 @@ public class DownloadedMangaAdapter extends RecyclerView.Adapter<DownloadedManga
             button = view.findViewById(R.id.dropdown);
             touchArea = view.findViewById(R.id.touchArea);
             expandableView = view.findViewById(R.id.expandableView);
+            chaptersAndSizes = view.findViewById(R.id.chaptersAndSizes);
         }
     }
 
-    public DownloadedMangaAdapter(Context _ct, File[] _downloadedFolders) {
+    public DownloadedMangaAdapter(Context _ct, @NonNull File[] _downloadedFolders) {
         ct = _ct;
         downloadedMangas = new ArrayList<>();
         for (File f : _downloadedFolders)
@@ -82,6 +86,9 @@ public class DownloadedMangaAdapter extends RecyclerView.Adapter<DownloadedManga
         viewHolder.touchArea.setOnClickListener(commonListener);
 
         File file = downloadedMangas.get(viewHolder.getAdapterPosition()).file;
+        String size = new DecimalFormat("#.##").format((double) FolderUtilities.SizeOfFolder(file) / (1024 * 1024));
+        int chapterNo = Objects.requireNonNull(file.list()).length;
+        viewHolder.chaptersAndSizes.setText(ct.getString((chapterNo == 1) ? R.string.chaptersAndSizesSingle : R.string.chaptersAndSizes, chapterNo, size));
 
         viewHolder.touchArea.setOnLongClickListener(v -> {
             new AlertDialog.Builder(ct)
@@ -104,13 +111,16 @@ public class DownloadedMangaAdapter extends RecyclerView.Adapter<DownloadedManga
                         DeleteMangaAtPos(viewHolder.getAdapterPosition(), false);
                         notifyItemRemoved(viewHolder.getAdapterPosition());
                     }
-                    else
+                    else {
+                        String _size = new DecimalFormat("#.##").format((double) FolderUtilities.SizeOfFolder(file) / (1024 * 1024));
+                        int _chapterNo = Objects.requireNonNull(file.list()).length;
+                        viewHolder.chaptersAndSizes.setText(ct.getString((chapterNo == 1) ? R.string.chaptersAndSizesSingle : R.string.chaptersAndSizes, _chapterNo, _size));
                         notifyItemChanged(viewHolder.getAdapterPosition());
+                    }
                 }));
         viewHolder.rView.setLayoutManager(new LinearLayoutManager(ct));
     }
 
-    // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
         return downloadedMangas.size();

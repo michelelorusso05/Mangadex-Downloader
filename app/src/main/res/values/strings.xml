@@ -97,4 +97,9 @@
     <string name="btndescriptionNext">Next</string>
     <string name="btndescriptionFirst">First page</string>
     <string name="btndescriptionLast">Last page</string>
+    <string name="chaptersAndSizesSingle">%1$d chapter - %2$s MB</string>
+    <string name="chaptersAndSizes">%1$d chapters - %2$s MB</string>
+    <string name="help">Help</string>
+    <string name="downloadedChaptersHelp">Here you\'ll find all the chapters you\'ve downloaded so far, neatly organized. \n\nYou can delete a chapter or an entire manga you downloaded by long tapping it.</string>
+    <string name="downloadedChaptersEmpty">What are you waiting for? Go download something!</string>
 </resources>
