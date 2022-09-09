@@ -60,14 +60,14 @@
         app:shapeAppearanceOverlay="@style/roundedImageView"
         tools:ignore="ImageContrastCheck" />
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/linearLayout3"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/dividerView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/cover"
@@ -76,33 +76,38 @@
         <TextView
             android:id="@+id/mangaTitle"
             style="@style/Widget.AppCompat.TextView.SpinnerItem"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="start|top"
-            android:maxHeight="116dp"
+            android:ellipsize="none"
+            android:gravity="start"
+            android:maxLines="3"
             android:text="@string/noMangaSelected"
-            android:textAlignment="gravity"
             android:textSize="34sp"
             android:textStyle="bold"
-            app:autoSizeMaxTextSize="36dp"
-            app:autoSizeMinTextSize="10dp"
+            app:autoSizeMaxTextSize="36sp"
+            app:autoSizeMinTextSize="10sp"
             app:autoSizeTextType="uniform"
-            app:maxLines="3" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/authorView"
             style="@style/Widget.AppCompat.TextView.SpinnerItem"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_weight="2"
             android:gravity="start|top"
             android:isScrollContainer="true"
             android:overScrollMode="ifContentScrolls"
             android:scrollbars="vertical"
             android:text="@string/noMangaSelected"
             android:textAlignment="gravity"
-            android:textSize="20sp" />
-    </LinearLayout>
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/mangaTitle"
+            app:layout_constraintTop_toBottomOf="@+id/mangaTitle" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
         android:id="@+id/mangaDescription"

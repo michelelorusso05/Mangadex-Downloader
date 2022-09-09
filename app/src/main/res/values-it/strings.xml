@@ -100,4 +100,5 @@
     <string name="help">Aiuto</string>
     <string name="downloadedChaptersHelp">Qua troverai tutti i capitoli che hai scaricato finora, organizzati per manga di provenienza. \n\nPuoi cancellare un capitolo oppure un intero manga scaricato facendo tap prolungato su quest\'ultimo.</string>
     <string name="downloadedChaptersEmpty">Che aspetti? Vai a scaricare qualcosa!</string>
+    <string name="serverManteinance">Il server sembra essere in manutenzione. Riprova più tardi.</string>
 </resources>

@@ -2,6 +2,7 @@ package com.littleProgrammers.mangadexdownloader;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,21 +26,22 @@ public class FavouriteManager {
         Set<String> savedIDs = GetFavourites(context);
         return Contains(savedIDs, id);
     }
+
     @Nullable
-    public static String GetBookmarkForFavourite(@NonNull Context context, String id) {
+    public static Pair<java.lang.String, Boolean> GetBookmarkForFavourite(@NonNull Context context, String id) {
         HashSet<String> savedIDs = GetFavourites(context);
         String s = GetFromID(savedIDs, id);
-        if (s != null) {
-            return s.substring(36);
+        if (s != null && s.length() > 36) {
+            return new Pair<>(s.substring(36, 72), s.length() > 72);
         }
         return null;
     }
-    public static void SetBookmarkForFavourite(@NonNull Context context, String id, String bookmark) {
+    public static void SetBookmarkForFavourite(@NonNull Context context, String id, String bookmark, boolean queueNext) {
         HashSet<String> savedIDs = GetFavourites(context);
         String s = GetFromID(savedIDs, id);
         if (s != null) {
             savedIDs.remove(s);
-            savedIDs.add(id.concat(bookmark));
+            savedIDs.add(id.concat(bookmark).concat(queueNext ? "_" : ""));
             SaveFavourites(context, savedIDs);
         }
     }

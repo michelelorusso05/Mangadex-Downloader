@@ -91,7 +91,9 @@ public class OnlineReaderActivity extends ReaderActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 turnPage(position * pageStep());
                 if (bookmarkingEnabled && position >= pageSelection.getCount() - 2) {
-                    FavouriteManager.SetBookmarkForFavourite(OnlineReaderActivity.this, mangaID, chapterIDs[indexToBookmark == chapterSelection.getCount() - 1 ? indexToBookmark : indexToBookmark + 1]);
+                    FavouriteManager.SetBookmarkForFavourite(OnlineReaderActivity.this, mangaID,
+                            chapterIDs[indexToBookmark == chapterSelection.getCount() - 1 ? indexToBookmark : indexToBookmark + 1],
+                            indexToBookmark == chapterSelection.getCount() - 1);
                 }
                 pageProgressIndicator.setIndeterminate(false);
                 pageProgressIndicator.setProgress((int) ((position + 1f) / pageSelection.getCount() * 100f));
@@ -162,7 +164,8 @@ public class OnlineReaderActivity extends ReaderActivity {
                 });
                 if (bookmarkingEnabled) {
                     indexToBookmark = position;
-                    FavouriteManager.SetBookmarkForFavourite(OnlineReaderActivity.this, mangaID, chapterIDs[position]);
+                    FavouriteManager.SetBookmarkForFavourite(OnlineReaderActivity.this, mangaID, chapterIDs[position],
+                            position == chapterIDs.length - 1);
                 }
             }
         });

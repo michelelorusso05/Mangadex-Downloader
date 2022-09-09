@@ -26,8 +26,10 @@ import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.littleProgrammers.mangadexdownloader.apiResults.Manga;
 import com.littleProgrammers.mangadexdownloader.apiResults.MangaResults;
@@ -242,7 +244,19 @@ public class SearchActivity extends AppCompatActivity
                 InputStream bodyString;
                 bodyString = Objects.requireNonNull(response.body()).byteStream();
 
-                final MangaResults mResults = mapper.readValue(bodyString, MangaResults.class);
+                MangaResults _mResults;
+                try {
+                    _mResults = mapper.readValue(bodyString, MangaResults.class);
+                } catch (JsonParseException | JsonMappingException e) {
+                    runOnUiThread(() -> {
+                        status.setText(getString(R.string.serverManteinance));
+                        SetStatus(StatusType.NAY_RESULTS);
+                        searchButton.setEnabled(true);
+                        favouriteButton.setEnabled(true);
+                    });
+                    return;
+                }
+                final MangaResults mResults = _mResults;
 
                 runOnUiThread(() -> {
                     // Update button state

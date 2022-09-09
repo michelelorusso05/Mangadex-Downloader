@@ -137,8 +137,8 @@ public class ChapterDownloaderActivity extends AppCompatActivity
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        downloadButton.setOnClickListener(this::downloadChapter);
-        readButton.setOnClickListener(this::readChapter);
+        downloadButton.setOnClickListener(this::DownloadChapter);
+        readButton.setOnClickListener(this::ReadChapter);
 
         mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -220,11 +220,18 @@ public class ChapterDownloaderActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         if (mangaChapters.size() != 0) {
-            String bookmark = FavouriteManager.GetBookmarkForFavourite(this, selectedManga.getId());
-            for (int i = 0; i < mangaChapters.size(); i++) {
-                if (mangaChapters.get(i).getId().equals(bookmark)) {
-                    bookmarkFavouriteIndex = i;
-                    break;
+            Pair<String, Boolean> savedBookmark = FavouriteManager.GetBookmarkForFavourite(this, selectedManga.getId());
+
+            if (savedBookmark != null) {
+                final boolean queueNext = savedBookmark.second;
+                for (int i = 0; i < mangaChapters.size(); i++) {
+                    if (mangaChapters.get(i).getId().equals(savedBookmark.first)) {
+                        if (queueNext && i < mangaChapters.size() - 1)
+                            bookmarkFavouriteIndex = i + 1;
+                        else
+                            bookmarkFavouriteIndex = i;
+                        break;
+                    }
                 }
             }
             if (bookmarkFavouriteIndex == -1)
@@ -306,7 +313,8 @@ public class ChapterDownloaderActivity extends AppCompatActivity
     }
 
     public void OnChapterRetrievingEnd() {
-        String bookmark = FavouriteManager.GetBookmarkForFavourite(this, selectedManga.getId());
+        Pair<String, Boolean> savedBookmark = FavouriteManager.GetBookmarkForFavourite(this, selectedManga.getId());
+        String bookmark = (savedBookmark != null) ? savedBookmark.first : null;
 
         ChapterUtilities.FormatChapterList(ChapterDownloaderActivity.this, mangaChapters, new ChapterUtilities.FormattingOptions(
                 PreferenceManager.getDefaultSharedPreferences(this).getBoolean("chapterDuplicate", true),
@@ -328,10 +336,16 @@ public class ChapterDownloaderActivity extends AppCompatActivity
             currentIteration++;
         }
 
-        for (int i = 0; i < mangaChapters.size(); i++) {
-            if (mangaChapters.get(i).getId().equals(bookmark)) {
-                bookmarkFavouriteIndex = i;
-                break;
+        if (savedBookmark != null) {
+            final boolean queueNext = savedBookmark.second;
+            for (int i = 0; i < mangaChapters.size(); i++) {
+                if (mangaChapters.get(i).getId().equals(savedBookmark.first)) {
+                    if (queueNext && i < mangaChapters.size() - 1)
+                        bookmarkFavouriteIndex = i + 1;
+                    else
+                        bookmarkFavouriteIndex = i;
+                    break;
+                }
             }
         }
 
@@ -351,7 +365,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         });
     }
 
-    public void downloadChapter (View view) {
+    public void DownloadChapter(View view) {
         Chapter selectedChapter = mangaChapters.get(chapterSelection.getSelectedItemPosition());
 
         if (checkForNoPages(selectedChapter)) return;
@@ -373,7 +387,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         wm.enqueueUniqueWork(chapterID, ExistingWorkPolicy.KEEP, downloadWorkRequest);
     }
 
-    public void readChapter (View view) {
+    public void ReadChapter(View view) {
         Chapter selectedChapter = mangaChapters.get(chapterSelection.getSelectedItemPosition());
 
         if (checkForNoPages(selectedChapter)) return;
