@@ -219,6 +219,7 @@ public class SearchActivity extends AppCompatActivity
         if (customIDs == null)
             urlString.append("&title=").append(searchBar.getText().toString().trim());
         else {
+            urlString.append("&order%5Btitle%5D=asc");
             for (String id : customIDs)
                 urlString.append("&ids[]=").append(id);
         }
