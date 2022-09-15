@@ -47,7 +47,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cover" />
+        app:layout_constraintTop_toBottomOf="@+id/cover"
+        android:transitionName="title"/>
 
     <TextView
         android:id="@+id/cardAuthor"
@@ -67,7 +68,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/cardTitle"
+        android:transitionName="author" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

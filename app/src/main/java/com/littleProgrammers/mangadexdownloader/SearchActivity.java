@@ -4,7 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.transition.ChangeImageTransform;
+import android.transition.ChangeTransform;
 import android.transition.Explode;
+import android.transition.Fade;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -83,9 +86,9 @@ public class SearchActivity extends AppCompatActivity
 
         getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         // set an enter transition
-        getWindow().setEnterTransition(new Explode());
+        getWindow().setEnterTransition(new Fade());
         // set an exit transition
-        getWindow().setExitTransition(new Explode());
+        getWindow().setExitTransition(new Fade());
 
         setContentView(R.layout.activity_search);
 
@@ -369,6 +372,7 @@ public class SearchActivity extends AppCompatActivity
 
                 SearchActivity.this.runOnUiThread(() -> {
                     try {
+                        StaticData.sharedCover = null;
                         Intent intent = new Intent(getApplicationContext(), ChapterDownloaderActivity.class);
                         intent.putExtra("MangaData", mapper.writeValueAsString(mResults.getData()[0]));
                         startActivity(intent);

@@ -11,7 +11,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.transition.ChangeImageTransform;
+import android.transition.ChangeTransform;
 import android.transition.Explode;
+import android.transition.Fade;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -103,9 +106,9 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         // set an enter transition
-        getWindow().setEnterTransition(new Explode());
+        getWindow().setEnterTransition(new Fade());
         // set an exit transition
-        getWindow().setExitTransition(new Explode());
+        getWindow().setExitTransition(new Fade());
         setContentView(R.layout.activity_download);
 
         client = new DNSClient(DNSClient.PresetDNS.GOOGLE, this, true);

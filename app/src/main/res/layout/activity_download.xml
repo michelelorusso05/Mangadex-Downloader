@@ -91,7 +91,8 @@
             app:autoSizeTextType="uniform"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:transitionName="title"/>
 
         <TextView
             android:id="@+id/authorView"
@@ -108,7 +109,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/mangaTitle"
-            app:layout_constraintTop_toBottomOf="@+id/mangaTitle" />
+            app:layout_constraintTop_toBottomOf="@+id/mangaTitle"
+            android:transitionName="author"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView

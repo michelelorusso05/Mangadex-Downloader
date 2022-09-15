@@ -1,9 +1,11 @@
 package com.littleProgrammers.mangadexdownloader;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,10 +86,14 @@ public class MangaAdapter extends RecyclerView.Adapter<MangaAdapter.viewHolder> 
                     //byte[] image = stream.toByteArray();
                     //Log.d("Size", String.valueOf(image.length));
                     //intent.putExtra("cachedCover", image);
-                    ActivityOptionsCompat options = ActivityOptionsCompat.
-                            makeSceneTransitionAnimation(ct, holder.cover, "cover");
+                    ActivityOptions options = ActivityOptions.
+                            makeSceneTransitionAnimation(ct,
+                                    Pair.create(holder.cover, "cover"));
 
-                    ct.startActivity(intent, options.toBundle());
+                    if (PreferenceManager.getDefaultSharedPreferences(ct).getBoolean("additionalAnim", false))
+                        ct.startActivity(intent, options.toBundle());
+                    else
+                        ct.startActivity(intent);
                 }
                 else
                     ct.startActivity(intent);

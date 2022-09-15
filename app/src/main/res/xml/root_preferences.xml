@@ -60,6 +60,14 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/settingsExperimental">
+        <SwitchPreferenceCompat
+            app:key="additionalAnim"
+            app:title="@string/settingsAdditionalAnim"
+            app:icon="@drawable/ic_baseline_animation_24"
+            app:summary="@string/settingsAdditionalAnimDesc"/>
+    </PreferenceCategory>
+
     <PreferenceCategory app:title="@string/about">
 
         <Preference

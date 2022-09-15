@@ -103,4 +103,7 @@
     <string name="downloadedChaptersHelp">Here you\'ll find all the chapters you\'ve downloaded so far, neatly organized. \n\nYou can delete a chapter or an entire manga you downloaded by long tapping it.</string>
     <string name="downloadedChaptersEmpty">What are you waiting for? Go download something!</string>
     <string name="serverManteinance">The server seems to be under maintenance. Try again later.</string>
+    <string name="settingsExperimental">Experimental</string>
+    <string name="settingsAdditionalAnim">Enable additional animations</string>
+    <string name="settingsAdditionalAnimDesc">Show additional transition animations when choosing a manga</string>
 </resources>
