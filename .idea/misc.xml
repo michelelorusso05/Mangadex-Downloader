@@ -31,6 +31,7 @@
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/drawable/ic_baseline_share_24.xml" value="0.136" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/drawable/ic_baseline_stop_24.xml" value="0.2065" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/drawable/ic_cat.xml" value="0.2" />
+        <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/drawable/ic_outline_low_quality_24.xml" value="0.14" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/drawable/splash_theme.xml" value="0.105" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/drawable/state_button.xml" value="0.2625" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout-land/activity_download.xml" value="0.16" />
@@ -42,12 +43,12 @@
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/activity_downloaded_files.xml" value="0.22" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/activity_reader.xml" value="0.1" />
-        <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/activity_search.xml" value="0.25" />
+        <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/activity_search.xml" value="0.2676200204290092" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/activity_splash_screen.xml" value="0.14" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/chapter_download_toolbar.xml" value="0.22402736212056434" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/chapter_spinner_item.xml" value="0.17916666666666667" />
-        <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/downloaded_file.xml" value="0.5970982142857143" />
-        <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/downloaded_manga.xml" value="0.33" />
+        <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/downloaded_file.xml" value="0.7428924598269468" />
+        <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/downloaded_manga.xml" value="0.2" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/manga_result_row.xml" value="0.22" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/page_indicator_spinner_item.xml" value="0.24230072463768115" />
         <entry key="..\:/Users/miche/Desktop/Programmazione/Progetti/AndroidStudioProjects/MangadexDownloader/app/src/main/res/layout/settings_activity.xml" value="0.25729166666666664" />

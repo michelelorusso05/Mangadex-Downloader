@@ -1,17 +1,22 @@
 package com.littleProgrammers.mangadexdownloader;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.transition.Explode;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -96,6 +101,11 @@ public class ChapterDownloaderActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+        // set an enter transition
+        getWindow().setEnterTransition(new Explode());
+        // set an exit transition
+        getWindow().setExitTransition(new Explode());
         setContentView(R.layout.activity_download);
 
         client = new DNSClient(DNSClient.PresetDNS.GOOGLE, this, true);
@@ -202,7 +212,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            finish();
+            supportFinishAfterTransition();
             return true;
         }
         else if (item.getItemId() == R.id.action_favourite) {
@@ -244,8 +254,17 @@ public class ChapterDownloaderActivity extends AppCompatActivity
     }
 
     private void getCover() throws JSONException {
+        // Load already cached image
+        if (StaticData.sharedCover != null) {
+            cover.setImageBitmap(StaticData.sharedCover);
+            ImageView background = findViewById(R.id.coverBackground);
+            if (background != null)
+                background.setImageBitmap(StaticData.sharedCover);
+            return;
+        }
+
         boolean lowQualityCover = PreferenceManager.getDefaultSharedPreferences(ChapterDownloaderActivity.this).getBoolean("lowQualityCovers", false);
-        final String coverUrl = "https://uploads.mangadex.org/covers/" + selectedManga.getId() + "/" + selectedManga.getAttributes().getCoverUrl() + ((lowQualityCover) ? ".512.jpg" : "");
+        final String coverUrl = "https://uploads.mangadex.org/covers/" + selectedManga.getId() + "/" + selectedManga.getAttributes().getCoverUrl() + ((lowQualityCover) ? ".256.jpg" : ".512.jpg");
 
         client.GetImageBitmapAsync(coverUrl, (bm) -> runOnUiThread(() -> {
             cover.setImageBitmap(bm);

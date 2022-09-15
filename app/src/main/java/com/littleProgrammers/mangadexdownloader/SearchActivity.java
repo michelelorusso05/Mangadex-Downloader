@@ -4,11 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.transition.Explode;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -78,6 +80,13 @@ public class SearchActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+        // set an enter transition
+        getWindow().setEnterTransition(new Explode());
+        // set an exit transition
+        getWindow().setExitTransition(new Explode());
+
         setContentView(R.layout.activity_search);
 
         recyclerView = findViewById(R.id.results);
@@ -318,7 +327,7 @@ public class SearchActivity extends AppCompatActivity
         TextView status = findViewById(R.id.status);
         randomButton.setEnabled(false);
 
-        String urlString = "https://api.mangadex.org/manga/random/?includes[]=author&includes[]=cover_art";
+        String urlString = "https://api.mangadex.org/manga/random?includes[]=author&includes[]=cover_art";
 
         status.setText(R.string.searchLoading);
         SetStatus(StatusType.SEARCHING);

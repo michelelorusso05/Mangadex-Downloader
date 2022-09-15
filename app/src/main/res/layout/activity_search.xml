@@ -121,7 +121,7 @@
 
         <Space
             android:layout_width="16dp"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"/>
 
         <ImageButton
             android:id="@+id/nextButton"
@@ -148,12 +148,15 @@
     <LinearLayout
         android:id="@+id/emptyView"
         android:layout_width="0dp"
-        android:layout_height="300dp"
+        android:layout_height="0dp"
         android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="8dp"
         android:alpha="0.3"
+        android:maxHeight="300dp"
+        app:layout_constraintHeight_max="300dp"
+        app:layout_constrainedHeight="true"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

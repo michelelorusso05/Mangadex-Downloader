@@ -11,10 +11,11 @@
         <item name="colorOnSecondary">@color/black</item>
 
         <!-- Customize your theme here. -->
-        <item name="cardBackgroundColor">#FFFFFFFF</item>
+        <item name="cardBackgroundColor">#FFF0F0F0</item>
         <item name="downloadedItemColor">#FFF0F0F0</item>
         <item name="android:navigationBarColor">?android:attr/colorBackground</item>
         <item name="customTranslucentToolbarColor">#A0EFEFEF</item>
+        <item name="android:windowContentTransitions">true</item>
     </style>
 
     <style name="roundedImageView" parent="">

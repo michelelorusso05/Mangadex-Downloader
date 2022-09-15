@@ -1,15 +1,22 @@
 package com.littleProgrammers.mangadexdownloader;
 
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.transition.ChangeBounds;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,6 +28,7 @@ import java.util.Objects;
 public class DownloadedMangaAdapter extends RecyclerView.Adapter<DownloadedMangaAdapter.ViewHolder> {
     Context ct;
     private final ArrayList<MangaHolderWrapper> downloadedMangas;
+    RecyclerView self;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView mangaTitle;
@@ -28,7 +36,7 @@ public class DownloadedMangaAdapter extends RecyclerView.Adapter<DownloadedManga
         ImageButton button;
         RecyclerView rView;
         View touchArea;
-        View expandableView;
+        ConstraintLayout expandableView;
 
         public ViewHolder(View view) {
             super(view);
@@ -42,11 +50,12 @@ public class DownloadedMangaAdapter extends RecyclerView.Adapter<DownloadedManga
         }
     }
 
-    public DownloadedMangaAdapter(Context _ct, @NonNull File[] _downloadedFolders) {
+    public DownloadedMangaAdapter(Context _ct, @NonNull File[] _downloadedFolders, RecyclerView _self) {
         ct = _ct;
         downloadedMangas = new ArrayList<>();
         for (File f : _downloadedFolders)
             downloadedMangas.add(new MangaHolderWrapper(f, false));
+        self = _self;
     }
 
     // Create new views (invoked by the layout manager)
@@ -67,7 +76,7 @@ public class DownloadedMangaAdapter extends RecyclerView.Adapter<DownloadedManga
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, final int position) {
+    public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int position) {
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
         String curElement = downloadedMangas.get(viewHolder.getAdapterPosition()).file.toString();
@@ -76,6 +85,7 @@ public class DownloadedMangaAdapter extends RecyclerView.Adapter<DownloadedManga
         MangaHolderWrapper mHW = downloadedMangas.get(viewHolder.getAdapterPosition());
 
         viewHolder.expandableView.setVisibility(mHW.isExpanded ? View.VISIBLE : View.GONE);
+        // viewHolder.chaptersAndSizes.setVisibility(mHW.isExpanded ? View.GONE : View.VISIBLE);
         Animations.toggleArrow(viewHolder.button, mHW.isExpanded);
 
         View.OnClickListener commonListener = v -> {
@@ -119,7 +129,9 @@ public class DownloadedMangaAdapter extends RecyclerView.Adapter<DownloadedManga
                     }
                 }));
         viewHolder.rView.setLayoutManager(new LinearLayoutManager(ct));
+        // viewHolder.rView.addItemDecoration(new DividerItemDecoration(ct, DividerItemDecoration.VERTICAL));
     }
+
 
     @Override
     public int getItemCount() {
@@ -134,6 +146,41 @@ public class DownloadedMangaAdapter extends RecyclerView.Adapter<DownloadedManga
 
         // Delete adapter
         downloadedMangas.remove(pos);
+    }
+
+    public static class MangaItemAnimator extends DefaultItemAnimator {
+        @Override
+        public boolean animateRemove(@NonNull RecyclerView.ViewHolder holder) {
+            holder.itemView.clearAnimation();
+            float x = holder.itemView.getTranslationX();
+            holder.itemView.setPivotY(0);
+            holder.itemView.animate()
+                    .setStartDelay(0)
+                    .alpha(0)
+                    .scaleY(0)
+                    .setInterpolator(new AccelerateInterpolator(2.f))
+                    .setDuration(300)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            dispatchRemoveFinished(holder);
+                            holder.itemView.setAlpha(1);
+                            holder.itemView.setTranslationX(x);
+                            holder.itemView.setScaleY(1);
+                        }
+                    })
+                    .start();
+            return false;
+        }
+
+        @Override
+        public boolean animateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder newHolder, int fromX, int fromY, int toX, int toY) {
+            oldHolder.itemView.clearAnimation();
+            oldHolder.itemView.setAlpha(0);
+            newHolder.itemView.setAlpha(1);
+            dispatchChangeFinished(newHolder, false);
+            return true;
+        }
     }
 }
 

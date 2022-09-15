@@ -9,26 +9,28 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_margin="8dp"
         app:cardBackgroundColor="?attr/cardBackgroundColor"
-        app:cardCornerRadius="10dp">
+        app:cardCornerRadius="24dp"
+        app:cardElevation="0dp"
+        app:cardMaxElevation="0dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp">
+            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:id="@+id/touchArea"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
                 android:gravity="center"
                 android:longClickable="true"
                 android:orientation="horizontal"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -48,20 +50,21 @@
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
                         android:gravity="center_vertical"
-                        android:maxLines="1"
+                        android:maxLines="3"
                         android:text=""
                         android:textAlignment="gravity"
-                        android:textSize="24sp"
+                        android:textSize="20sp"
                         android:textStyle="bold"
-                        app:autoSizeMaxTextSize="20sp"
                         app:autoSizeMinTextSize="10sp"
-                        app:autoSizeTextType="uniform" />
+                        app:autoSizeTextType="none" />
 
                     <TextView
                         android:id="@+id/chaptersAndSizes"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:alpha="0.5" />
+                        android:alpha="0.5"
+                        android:textSize="20sp" />
+
                 </LinearLayout>
 
                 <ImageButton
@@ -78,19 +81,41 @@
                 android:id="@+id/expandableView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/touchArea">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/downloadedChapters"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
+                <View
+                    android:id="@+id/dividerView3"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginEnd="24dp"
+                    android:layout_weight="1"
+                    android:alpha="0.5"
+                    android:background="@android:color/darker_gray"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="0dp"
+                    app:cardElevation="0dp"
+                    app:cardMaxElevation="0dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/dividerView3">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/downloadedChapters"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </androidx.cardview.widget.CardView>
+
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 

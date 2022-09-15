@@ -49,14 +49,16 @@
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/cover"
         android:layout_width="0dp"
-        android:layout_height="192dp"
+        android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:adjustViewBounds="false"
         android:scaleType="centerCrop"
-        app:layout_constraintDimensionRatio="W,2:3"
+        android:transitionName="cover"
+        app:layout_constraintDimensionRatio="h,2:3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/home_toolbar"
+        app:layout_constraintWidth_percent="0.35"
         app:shapeAppearanceOverlay="@style/roundedImageView"
         tools:ignore="ImageContrastCheck" />
 

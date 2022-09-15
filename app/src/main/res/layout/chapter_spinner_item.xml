@@ -11,11 +11,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ellipsize="end"
-        android:gravity="center_vertical"
         android:maxLines="1"
+        android:gravity="center_vertical"
         android:textAlignment="gravity"
-        android:textSize="20sp"
-        app:autoSizeTextType="uniform" />
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/scanlationGroup"
@@ -23,6 +22,5 @@
         android:layout_height="20dp"
         android:alpha="0.6"
         android:ellipsize="end"
-        android:maxLines="1"
-        app:autoSizeTextType="uniform" />
+        android:maxLines="1" />
 </LinearLayout>

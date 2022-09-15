@@ -2,6 +2,7 @@ package com.littleProgrammers.mangadexdownloader;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.transition.ChangeBounds;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -35,10 +37,11 @@ public class DownloadedFiles extends AppCompatActivity {
             emptyView.setVisibility(View.VISIBLE);
         }
         else {
-            DownloadedMangaAdapter adapter = new DownloadedMangaAdapter(DownloadedFiles.this, mangas);
+            DownloadedMangaAdapter adapter = new DownloadedMangaAdapter(DownloadedFiles.this, mangas, downloadedMangas);
             adapter.setHasStableIds(true);
             downloadedMangas.setAdapter(adapter);
             downloadedMangas.setLayoutManager(new LinearLayoutManager(DownloadedFiles.this));
+            // downloadedMangas.setItemAnimator(new DownloadedMangaAdapter.MangaItemAnimator());
         }
     }
 

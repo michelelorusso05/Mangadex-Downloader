@@ -11,10 +11,12 @@
         <item name="colorOnSecondary">@color/black</item>
 
         <!-- Customize your theme here. -->
-        <item name="cardBackgroundColor">#FF1E1E1E</item>
-        <item name="downloadedItemColor">#FF2E2E2E</item>
+        <item name="cardBackgroundColor">#FF1B1B1B</item>
+        <item name="downloadedItemColor">#FF1B1B1B</item>
         <item name="android:navigationBarColor">?android:attr/colorBackground</item>
         <item name="customTranslucentToolbarColor">#A0202020</item>
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:elevation">8dp</item>
     </style>
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
