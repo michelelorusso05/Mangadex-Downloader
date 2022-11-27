@@ -4,28 +4,24 @@ import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.text.HtmlCompat;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.littleProgrammers.mangadexdownloader.apiResults.Manga;
 import com.michelelorusso.dnsclient.DNSClient;
-
-import java.io.ByteArrayOutputStream;
 
 public class MangaAdapter extends RecyclerView.Adapter<MangaAdapter.viewHolder> {
     Activity ct;
@@ -72,6 +68,10 @@ public class MangaAdapter extends RecyclerView.Adapter<MangaAdapter.viewHolder> 
         new Thread(() -> ct.runOnUiThread(() -> holder.cover.setImageBitmap(covers[position]))).start();
 
         ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
+        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true);
+        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         try {
             final String manga = mapper.writeValueAsString(mangas[position]);
 
@@ -81,11 +81,6 @@ public class MangaAdapter extends RecyclerView.Adapter<MangaAdapter.viewHolder> 
                 StaticData.sharedCover = null;
                 if (covers[position] != null) {
                     StaticData.sharedCover = covers[position];
-                    //ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    //covers[position].compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    //byte[] image = stream.toByteArray();
-                    //Log.d("Size", String.valueOf(image.length));
-                    //intent.putExtra("cachedCover", image);
                     ActivityOptions options = ActivityOptions.
                             makeSceneTransitionAnimation(ct,
                                     Pair.create(holder.cover, "cover"));

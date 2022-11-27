@@ -1,19 +1,17 @@
 package com.littleProgrammers.mangadexdownloader;
 
-import android.app.Activity;
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
-import android.transition.ChangeImageTransform;
-import android.transition.ChangeTransform;
-import android.transition.Explode;
 import android.transition.Fade;
 import android.util.Pair;
 import android.view.Menu;
@@ -25,11 +23,15 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
@@ -49,6 +51,7 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Objects;
 
 import okhttp3.Call;
@@ -84,6 +87,9 @@ public class ChapterDownloaderActivity extends AppCompatActivity
     boolean markedFavourite;
     int bookmarkFavouriteIndex = -1;
 
+    ActivityResultLauncher<String> requestPermissionLauncher;
+
+
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -99,6 +105,14 @@ public class ChapterDownloaderActivity extends AppCompatActivity
             notificationManager.createNotificationChannel(channel);
             // notificationManager.cancelAll();
         }
+         requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                SharedPreferences.Editor e = this.getSharedPreferences("com.littleProgrammers.mangadexdownloader", Context.MODE_PRIVATE).edit();
+                e.putBoolean("refusedNotifications", !isGranted);
+                e.apply();
+
+                DownloadChapter(null);
+            });
     }
 
     @Override
@@ -180,8 +194,13 @@ public class ChapterDownloaderActivity extends AppCompatActivity
             author.setText(selectedManga.getAttributes().getAuthorString());
             author.setMovementMethod(new ScrollingMovementMethod());
             title.setText(FormattingUtilities.FormatFromHtml(selectedManga.getAttributes().getTitleS()));
-            String descriptionString = selectedManga.getAttributes().getDescriptionS();
-            if (!descriptionString.isEmpty())
+
+            HashMap<String, String> desc = selectedManga.getAttributes().getDescription();
+            String descriptionString = (desc.containsKey("en")) ?
+                    desc.get("en") :
+                    desc.entrySet().iterator().next().getValue();
+
+            if (descriptionString != null && !descriptionString.isEmpty())
                 description.setText(FormattingUtilities.FormatFromHtml(FormattingUtilities.MarkdownLite(descriptionString)));
             description.setMovementMethod(new ScrollingMovementMethod());
 
@@ -388,6 +407,27 @@ public class ChapterDownloaderActivity extends AppCompatActivity
     }
 
     public void DownloadChapter(View view) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(
+                this, Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED) {
+            boolean disableNotifications = this.getSharedPreferences("com.littleProgrammers.mangadexdownloader", Context.MODE_PRIVATE).getBoolean("refusedNotifications", false);
+
+            if (!disableNotifications)
+            {
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.notificationsExplainationTitle)
+                        .setMessage(R.string.notificationsExplainationDesc)
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS))
+                        .show();
+                return;
+            }
+            else
+            {
+                Toast.makeText(this, R.string.downloadStarted, Toast.LENGTH_SHORT).show();
+            }
+        }
+
+
         Chapter selectedChapter = mangaChapters.get(chapterSelection.getSelectedItemPosition());
 
         if (checkForNoPages(selectedChapter)) return;

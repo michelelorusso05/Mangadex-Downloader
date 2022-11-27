@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class FavouriteManager {
+
     public static void AddFavourite(@NonNull Context context, String id) {
         HashSet<String> savedIDs = GetFavourites(context);
         if (!Contains(savedIDs, id))
@@ -36,6 +37,7 @@ public class FavouriteManager {
         }
         return null;
     }
+
     public static void SetBookmarkForFavourite(@NonNull Context context, String id, String bookmark, boolean queueNext) {
         HashSet<String> savedIDs = GetFavourites(context);
         String s = GetFromID(savedIDs, id);
@@ -47,8 +49,8 @@ public class FavouriteManager {
     }
     @NonNull
     public static HashSet<String> GetFavourites(@NonNull Context context) {
-        return (HashSet<String>) context.getSharedPreferences("com.littleProgrammers.mangadexdownloader", Context.MODE_PRIVATE)
-                .getStringSet("Favourites", new HashSet<>());
+        return new HashSet<>(context.getSharedPreferences("com.littleProgrammers.mangadexdownloader", Context.MODE_PRIVATE)
+                .getStringSet("Favourites", new HashSet<>()));
     }
     @NonNull
     public static HashSet<String> GetFavouritesIDs(@NonNull Context context) {
@@ -61,7 +63,6 @@ public class FavouriteManager {
     public static void SaveFavourites(@NonNull Context context, @NonNull Set<String> favourites) {
         SharedPreferences.Editor editor = context.getSharedPreferences("com.littleProgrammers.mangadexdownloader", Context.MODE_PRIVATE)
                 .edit();
-        editor.clear();
         editor.putStringSet("Favourites", favourites.isEmpty() ? null : favourites);
         editor.apply();
     }

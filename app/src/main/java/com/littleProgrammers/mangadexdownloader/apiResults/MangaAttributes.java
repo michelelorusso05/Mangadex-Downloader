@@ -74,9 +74,9 @@ public class MangaAttributes {
     }
 
     public HashMap<String, String> getDescription() {
+        if (description == null || description.isEmpty()) setDescription(null);
         return description;
     }
-    public String getDescriptionS() { return (description.containsKey("en")) ? description.get("en") : description.entrySet().iterator().next().getValue(); }
     public void setDescription(HashMap<String, String> description) {
         if (description == null)
             this.description.put("en", "");

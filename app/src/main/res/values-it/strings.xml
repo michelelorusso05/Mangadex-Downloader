@@ -104,4 +104,7 @@
     <string name="settingsExperimental">Sperimentale</string>
     <string name="settingsAdditionalAnim">Abilita animazioni aggiuntive</string>
     <string name="settingsAdditionalAnimDesc">Mostra transizioni addizionali nel selezionare un manga</string>
+    <string name="notificationsExplainationTitle">Ascolta un po\'</string>
+    <string name="notificationsExplainationDesc">Mangadex Downloader usa le notifiche per aggiornarti sul progresso dei tuoi download.\n\nPuoi nasconderle se vuoi, ma se lo fai, il non sapere a che punto sta il manga che stai scaricando ti accompagnerà per tutta la vita.\n\n(Puoi sempre attivare le notifiche nelle impostazioni del telefono).</string>
+    <string name="downloadStarted">Download iniziato</string>
 </resources>

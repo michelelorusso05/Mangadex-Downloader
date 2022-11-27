@@ -93,6 +93,8 @@ public class ChapterDownloadWorker extends Worker {
         return success ? Result.success() : Result.failure();
     }
 
+
+    @SuppressLint("InlinedApi")
     private void downloadChapter() {
         boolean HQ = !PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("dataSaver", false);
 
@@ -110,8 +112,8 @@ public class ChapterDownloadWorker extends Worker {
         i.setAction("com.michelelorusso.mangadexdownloader.STOP_DOWNLOAD_".concat(selectedChapterID));
         i.putExtra("workID", selectedChapterID);
 
-        @SuppressLint("UnspecifiedImmutableFlag")
-        PendingIntent stopDownload = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent stopDownload;
+        stopDownload = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         // Create notification
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), String.valueOf(NOTIFICATION_ID))
@@ -259,8 +261,8 @@ public class ChapterDownloadWorker extends Worker {
         intent.putExtra("urls", images);
         intent.putExtra("notificationToCancel", uniqueID);
 
-        @SuppressLint("UnspecifiedImmutableFlag")
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        @SuppressLint("InlinedApi")
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder builderCompleted = new NotificationCompat.Builder(getApplicationContext(), String.valueOf(NOTIFICATION_ID))
                 .setSmallIcon(R.drawable.ic_stat_name)

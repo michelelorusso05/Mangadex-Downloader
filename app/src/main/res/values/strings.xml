@@ -106,4 +106,7 @@
     <string name="settingsExperimental">Experimental</string>
     <string name="settingsAdditionalAnim">Enable additional animations</string>
     <string name="settingsAdditionalAnimDesc">Show additional transition animations when choosing a manga</string>
+    <string name="notificationsExplainationTitle">Hear me out</string>
+    <string name="notificationsExplainationDesc">Mangadex Downloader uses notifications to update you on your current downloads.\n\nYou can suppress them if you want, but if you do so, doubt and uncertainty about your downloads will haunt you for the rest of your life.\n\n(You can always change this setting in your phone\'s options).</string>
+    <string name="downloadStarted">Download started</string>
 </resources>
