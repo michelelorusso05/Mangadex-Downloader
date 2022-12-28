@@ -20,6 +20,8 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -101,7 +103,7 @@ public class DownloadedMangaAdapter extends RecyclerView.Adapter<DownloadedManga
         viewHolder.chaptersAndSizes.setText(ct.getString((chapterNo == 1) ? R.string.chaptersAndSizesSingle : R.string.chaptersAndSizes, chapterNo, size));
 
         viewHolder.touchArea.setOnLongClickListener(v -> {
-            new AlertDialog.Builder(ct)
+            new MaterialAlertDialogBuilder(ct)
                     .setTitle(R.string.deleteManga)
                     .setMessage(R.string.deleteMangaDescription)
 

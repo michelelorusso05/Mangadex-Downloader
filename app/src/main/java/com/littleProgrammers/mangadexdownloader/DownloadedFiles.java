@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,10 +60,11 @@ public class DownloadedFiles extends AppCompatActivity {
             return true;
         }
         else if (item.getItemId() == R.id.action_downloadedfiles_help) {
-            new AlertDialog.Builder(this)
+            new MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.help)
                     .setMessage(R.string.downloadedChaptersHelp)
                     .setPositiveButton(android.R.string.ok, null)
+                    .create()
                     .show();
             return true;
         }

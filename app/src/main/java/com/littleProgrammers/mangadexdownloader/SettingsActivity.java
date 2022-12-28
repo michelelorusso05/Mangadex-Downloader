@@ -1,12 +1,16 @@
 package com.littleProgrammers.mangadexdownloader;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -48,27 +52,29 @@ public class SettingsActivity extends AppCompatActivity {
             extraParams = getArguments() != null ? getArguments().getString("params", "") : "";
             if (extraParams.equals("cat"))
                 addPreferencesFromResource(R.xml.extra_preferences);
+
         }
 
         @Override
         public boolean onPreferenceTreeClick(Preference preference) {
             if (preference.getKey().equals("info")) {
                 if (extraParams.equals("special")) {
-                    new AlertDialog.Builder(getContext())
+                    new MaterialAlertDialogBuilder(requireContext())
                             .setTitle(R.string.aboutRealTitle)
                             .setMessage(R.string.aboutRealParagraph)
-
                             .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                             })
+                            .create()
                             .show();
                 }
                 else {
-                    new AlertDialog.Builder(getContext())
+                    new MaterialAlertDialogBuilder(requireContext())
                             .setTitle(R.string.about)
                             .setMessage(R.string.aboutParagraph)
 
                             .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                             })
+                            .create()
                             .show();
                 }
 

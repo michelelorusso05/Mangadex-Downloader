@@ -1,6 +1,7 @@
 package com.littleProgrammers.mangadexdownloader;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -8,18 +9,25 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.transition.Fade;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -31,7 +39,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.preference.PreferenceManager;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
@@ -41,6 +54,7 @@ import androidx.work.WorkManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.littleProgrammers.mangadexdownloader.apiResults.Chapter;
 import com.littleProgrammers.mangadexdownloader.apiResults.ChapterResults;
 import com.littleProgrammers.mangadexdownloader.apiResults.Manga;
@@ -78,8 +92,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
     ImageView cover;
     Spinner chapterSelection;
 
-    Button downloadButton, readButton;
-    View progressBar;
+    ImageButton downloadButton, readButton;
     View continueReading;
 
     DNSClient client;
@@ -115,14 +128,27 @@ public class ChapterDownloaderActivity extends AppCompatActivity
             });
     }
 
+    // Only deprecated mehtod here is setSystemUiVisibility, which is only used for APIs that don't support setDecorFitsSystemWindows().
+    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-        // set an enter transition
+        // Set an enter transition
         getWindow().setEnterTransition(new Fade());
-        // set an exit transition
+        // Set an exit transition
         getWindow().setExitTransition(new Fade());
+
+        // Make status bar transparent
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            getWindow().setDecorFitsSystemWindows(false);
+        }
+        else {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        }
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+
         setContentView(R.layout.activity_download);
 
         client = new DNSClient(DNSClient.PresetDNS.GOOGLE, this, true);
@@ -135,7 +161,6 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         chapterSelection = findViewById(R.id.chapterSelection);
         downloadButton = findViewById(R.id.buttonDownload);
         readButton = findViewById(R.id.buttonRead);
-        progressBar = findViewById(R.id.readLoadingBar);
         continueReading = findViewById(R.id.continueReading);
 
         Toolbar t = findViewById(R.id.home_toolbar);
@@ -143,6 +168,14 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         ActionBar actionBar = getSupportActionBar();
         assert actionBar != null;
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+        // Move actionbar under notch
+        ViewCompat.setOnApplyWindowInsetsListener(t, (v, insets) -> {
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) t.getLayoutParams();
+            params.setMargins(0, insets.getInsets((WindowInsetsCompat.Type.systemBars())).top, 0, 0);
+
+            return WindowInsetsCompat.CONSUMED;
+        });
 
         ChapterSelectionAdapter adapter = new ChapterSelectionAdapter(ChapterDownloaderActivity.this,
                 new Pair<>(getString(R.string.fetchingString), getString(R.string.wait)));
@@ -157,7 +190,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
                 else
                     downloadButton.setVisibility(View.VISIBLE);
                 if (position != bookmarkFavouriteIndex)
-                    continueReading.setVisibility(View.INVISIBLE);
+                    continueReading.setVisibility(View.GONE);
             }
 
             @Override
@@ -414,7 +447,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
 
             if (!disableNotifications)
             {
-                new AlertDialog.Builder(this)
+                new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.notificationsExplainationTitle)
                         .setMessage(R.string.notificationsExplainationDesc)
                         .setPositiveButton(android.R.string.ok, (dialog, which) -> requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS))
@@ -479,7 +512,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
     private boolean checkForNoPages(@NonNull Chapter chapter) {
         String externalUrl = chapter.getAttributes().getExternalUrl();
         if (externalUrl != null) {
-            new AlertDialog.Builder(ChapterDownloaderActivity.this)
+            new MaterialAlertDialogBuilder(ChapterDownloaderActivity.this)
                     .setTitle(R.string.noPagesDialogTitle)
                     .setMessage(FormattingUtilities.FormatFromHtml(getString(R.string.noPagesDialog, externalUrl)))
 

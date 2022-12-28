@@ -16,6 +16,8 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -76,7 +78,7 @@ public class DownloadedChapterAdapter extends RecyclerView.Adapter<DownloadedCha
             ct.startActivity(intent);
         });
         holder.rowLayout.setOnLongClickListener((View v) -> {
-            new AlertDialog.Builder(ct)
+            new MaterialAlertDialogBuilder(ct)
                     .setTitle(R.string.deleteChapter)
                     .setMessage(R.string.deleteChapterDescription)
 

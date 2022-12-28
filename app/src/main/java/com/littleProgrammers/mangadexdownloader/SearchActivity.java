@@ -3,6 +3,7 @@ package com.littleProgrammers.mangadexdownloader;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.media.Image;
 import android.os.Bundle;
 import android.transition.ChangeImageTransform;
 import android.transition.ChangeTransform;
@@ -27,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.splashscreen.SplashScreen;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -63,7 +65,7 @@ public class SearchActivity extends AppCompatActivity
     ImageView emptyViewImage;
     TextView emptyViewDescription;
 
-    Button searchButton, randomButton, favouriteButton;
+    ImageButton searchButton, randomButton, favouriteButton;
     View controlsContainer;
     ImageButton nextButton, previousButton;
     private int searchOffset = 0;
@@ -83,6 +85,8 @@ public class SearchActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        SplashScreen.Companion.installSplashScreen(this);
+
         super.onCreate(savedInstanceState);
 
         getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);

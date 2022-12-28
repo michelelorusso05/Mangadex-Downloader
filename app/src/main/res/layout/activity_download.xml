@@ -10,16 +10,16 @@
         android:id="@+id/coverBackground"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:alpha="0.6"
+        android:alpha="0.5"
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:scaleType="centerCrop"
-        app:layout_constraintBottom_toTopOf="@+id/dividerView"
+        app:layout_constraintBottom_toTopOf="@id/mangaDescription"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/backgrounds/scenic"
-        tools:ignore="ContentDescription" />
+        tools:ignore="ContentDescription"
+        tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
     <ImageView
         android:id="@+id/filter"
@@ -29,7 +29,7 @@
         android:focusableInTouchMode="false"
         android:scaleType="centerCrop"
         android:tintMode="add"
-        app:layout_constraintBottom_toTopOf="@+id/dividerView"
+        app:layout_constraintBottom_toTopOf="@id/mangaDescription"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -63,14 +63,14 @@
         tools:ignore="ImageContrastCheck" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/linearLayout3"
+        android:id="@+id/mangaInfoContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/dividerView"
+        app:layout_constraintBottom_toTopOf="@id/mangaDescription"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/cover"
         app:layout_constraintTop_toBottomOf="@+id/home_toolbar">
@@ -86,13 +86,13 @@
             android:text="@string/noMangaSelected"
             android:textSize="34sp"
             android:textStyle="bold"
+            android:transitionName="title"
             app:autoSizeMaxTextSize="36sp"
             app:autoSizeMinTextSize="10sp"
             app:autoSizeTextType="uniform"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:transitionName="title"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/authorView"
@@ -106,11 +106,11 @@
             android:text="@string/noMangaSelected"
             android:textAlignment="gravity"
             android:textSize="20sp"
+            android:transitionName="author"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/mangaTitle"
-            app:layout_constraintTop_toBottomOf="@+id/mangaTitle"
-            android:transitionName="author"/>
+            app:layout_constraintTop_toBottomOf="@+id/mangaTitle" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
@@ -130,128 +130,87 @@
         android:text="@string/defaultDescription"
         android:textAlignment="viewStart"
         android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/dividerView2"
+        app:layout_constraintBottom_toTopOf="@id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/dividerView" />
-
-    <TextView
-        android:id="@+id/continueReading"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:alpha="0.5"
-        android:text="@string/continueFromBookmark"
-        android:textSize="16sp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/chapterSelection"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="TextContrastCheck" />
-
-    <Spinner
-        android:id="@+id/chapterSelection"
-        android:layout_width="0dp"
-        android:layout_height="56dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
-        android:gravity="center_vertical"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="SpeakableTextPresentCheck" />
-
-
-    <View
-        android:id="@+id/dividerView"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="10dp"
-        android:alpha="0.3"
-        android:background="@android:color/darker_gray"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cover" />
 
-    <View
-        android:id="@+id/dividerView2"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="8dp"
-        android:alpha="0.3"
-        android:background="@android:color/darker_gray"
-        app:layout_constraintBottom_toTopOf="@+id/continueReading"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent" />
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/readLoadingBar"
-        app:layout_constraintEnd_toStartOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <Button
-            android:id="@+id/buttonDownload"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_weight="1"
-            android:enabled="false"
-            android:text="@string/startDownload"
-            android:textSize="12sp"
-            app:icon="@drawable/ic_baseline_save_alt_24"
-            tools:ignore="ButtonStyle" />
-
-        <Button
-            android:id="@+id/buttonRead"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_weight="1"
-            android:enabled="false"
-            android:text="@string/read"
-            android:textSize="12sp"
-            app:icon="@drawable/ic_baseline_auto_stories_24"
-            tools:ignore="ButtonStyle" />
-    </LinearLayout>
-
-    <ProgressBar
-        android:id="@+id/readLoadingBar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
         android:layout_marginBottom="16dp"
-        android:indeterminate="true"
-        android:indeterminateBehavior="cycle"
-        android:indeterminateOnly="true"
-        android:visibility="invisible"
+        android:gravity="center_vertical"
+        app:cardBackgroundColor="?attr/cardBackgroundColor"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/continueReading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:alpha="0.5"
+                android:text="@string/continueFromBookmark"
+                android:textSize="16sp"
+                android:visibility="gone"
+                tools:ignore="TextContrastCheck" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="8dp">
+
+                <Spinner
+                    android:id="@+id/chapterSelection"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    tools:ignore="SpeakableTextPresentCheck" />
+
+                <ImageButton
+                    android:id="@+id/buttonDownload"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?android:selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/settingsDownloadDataSaverOn"
+                    android:src="@drawable/ic_baseline_save_alt_24"
+                    tools:ignore="ButtonStyle" />
+
+                <ImageButton
+                    android:id="@+id/buttonRead"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?android:selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/errAlreadyDownloading"
+                    android:src="@drawable/ic_baseline_auto_stories_24"
+                    tools:ignore="ButtonStyle" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/home_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/customTranslucentToolbarColor"
+        android:background="@android:color/transparent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

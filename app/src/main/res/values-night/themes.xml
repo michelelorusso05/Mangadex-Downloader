@@ -1,29 +1,32 @@
-<resources>
-    <!-- Base application theme. -->
-    <style name="Theme.MangadexDownloader" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">#F1A750</item>
-        <item name="colorPrimaryVariant">#F0A64F</item>
-        <item name="colorOnPrimary">@color/light_black</item>
-        <!-- Secondary brand color. -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.MangadexDownloader" parent="Theme.Material3.DayNight">
+        <item name="android:colorBackground">@color/very_dark_orange</item>
+        <item name="colorPrimary">#FF6740</item>
+        <item name="colorOnPrimary">?android:attr/colorBackground</item>
+        <item name="colorPrimaryContainer">#c44c2d</item>
+        <item name="colorOnPrimaryContainer">#FFBFBF</item>
         <item name="colorSecondary">#F1A750</item>
-        <item name="colorSecondaryVariant">#F0A64F</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorOnSecondary">#FFBFBF</item>
+        <item name="colorSurface">@color/very_dark_orange</item>
+        <item name="android:statusBarColor">@color/very_dark_orange</item>
 
-        <!-- Customize your theme here. -->
-        <item name="cardBackgroundColor">#FF1B1B1B</item>
-        <item name="downloadedItemColor">#FF1B1B1B</item>
         <item name="android:navigationBarColor">?android:attr/colorBackground</item>
-        <item name="customTranslucentToolbarColor">#A0202020</item>
+        <item name="customTranslucentToolbarColor">#A0FFFFFF</item>
         <item name="android:windowContentTransitions">true</item>
+
+        <item name="toolbarStyle">@style/Theme.Custom.Toolbar</item>
+
+        <item name="cardBackgroundColor">#FF2C2025</item>
     </style>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">#F1A750</item>
+    <style name="Theme.Custom.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@color/very_dark_orange</item>
     </style>
 
-    <style name="roundedImageView" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">8dp</item>
+    <style name="Theme.MangadexDownloader.Fullscreen" parent="Theme.MangadexDownloader.NoActionBar">
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="o_mr1">shortEdges</item>
+        <item name="android:statusBarColor">?android:attr/colorBackground</item>
     </style>
 </resources>

@@ -27,10 +27,12 @@
             android:exported="false"
             android:label="@string/openDownloadFolder"
             android:parentActivityName=".SearchActivity" />
+
         <activity
-            android:name=".SplashScreen"
+            android:name=".SearchActivity"
+            android:windowSoftInputMode="adjustNothing"
             android:exported="true"
-            android:theme="@style/SplashTheme">
+            android:theme="@style/Theme.MangadexDownloader.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -39,15 +41,11 @@
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
         </activity>
-
-        <activity
-            android:name=".SearchActivity"
-            android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".ChapterDownloaderActivity"
             android:label="@string/activityDownloadName"
             android:parentActivityName=".SearchActivity"
-            android:theme="@style/Theme.MangadexDownloader.NoActionBar"/>
+            android:theme="@style/Theme.MangadexDownloader.Fullscreen"/>
         <activity
             android:name=".SettingsActivity"
             android:label="@string/settings"

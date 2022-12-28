@@ -10,64 +10,72 @@
     android:focusable="false"
     android:focusableInTouchMode="false">
 
-    <LinearLayout
-        android:id="@+id/linearLayout2"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true"
         android:orientation="horizontal"
+        app:cardBackgroundColor="?attr/cardBackgroundColor"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:descendantFocusability="beforeDescendants"
-        android:focusableInTouchMode="true">
+        app:layout_constraintTop_toTopOf="parent">
 
-        <EditText
-            android:id="@+id/searchBar"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="4dp"
-            android:layout_weight="1"
-            android:ems="10"
-            android:hint="@string/mangaSearchHint"
-            android:imeOptions="actionSearch"
-            android:inputType="textPersonName"
-            android:maxLines="1"
-            tools:ignore="Autofill" />
-
-        <Button
-            android:id="@+id/searchButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="4dp"
-            android:contentDescription="@string/buttonSearch"
-            android:minWidth="0dp"
-            android:visibility="gone"
-            app:icon="@drawable/ic_baseline_search_24"
-            app:iconPadding="0dp" />
-
-        <Button
-            android:id="@+id/favouriteButton"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/linearLayout2"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="4dp"
-            android:contentDescription="@string/buttonSearch"
-            android:minWidth="0dp"
-            app:icon="@drawable/ic_baseline_collections_bookmark_24"
-            app:iconPadding="0dp" />
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="12dp">
 
-        <Button
-            android:id="@+id/randomButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/buttonRandom"
-            android:minWidth="0dp"
-            app:icon="@drawable/ic_baseline_shuffle_24"
-            app:iconPadding="0dp" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/searchBar"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:ems="10"
+                android:hint="@string/mangaSearchHint"
+                android:imeOptions="actionSearch"
+                android:inputType="textPersonName"
+                android:maxLines="1"
+                tools:ignore="Autofill" />
 
-    </LinearLayout>
+            <ImageButton
+                android:id="@+id/searchButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="4dp"
+                android:contentDescription="@string/buttonSearch"
+                android:minWidth="0dp"
+                android:visibility="gone"
+                app:icon="@drawable/ic_baseline_search_24"
+                app:iconPadding="0dp" />
+
+            <ImageButton
+                android:id="@+id/favouriteButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?android:selectableItemBackgroundBorderless"
+                android:contentDescription="@string/buttonSearch"
+                android:src="@drawable/ic_baseline_collections_bookmark_24" />
+
+            <ImageButton
+                android:id="@+id/randomButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?android:selectableItemBackgroundBorderless"
+                android:contentDescription="@string/buttonRandom"
+                android:src="@drawable/ic_baseline_shuffle_24" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
     <TextView
         android:id="@+id/status"
@@ -81,7 +89,7 @@
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
+        app:layout_constraintTop_toBottomOf="@+id/cardView" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/results"

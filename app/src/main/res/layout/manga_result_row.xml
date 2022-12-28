@@ -20,13 +20,12 @@
         android:layout_marginEnd="32dp"
         android:adjustViewBounds="false"
         android:scaleType="centerCrop"
+        android:transitionName="cover"
         app:layout_constraintDimensionRatio="w,3:2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearanceOverlay="@style/roundedImageView"
-        android:transitionName="cover"
-        app:srcCompat="@mipmap/ic_launcher_foreground" />
+        app:shapeAppearanceOverlay="@style/roundedImageView" />
 
     <TextView
         android:id="@+id/cardTitle"

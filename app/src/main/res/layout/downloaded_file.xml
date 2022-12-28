@@ -15,7 +15,7 @@
         android:id="@+id/rowLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/downloadedItemColor"
+        android:background="?attr/cardBackgroundColor"
         android:foreground="?attr/selectableItemBackground"
         android:longClickable="true"
         app:layout_constraintEnd_toEndOf="parent"
