@@ -19,6 +19,8 @@
         <item name="toolbarStyle">@style/Theme.Custom.Toolbar</item>
 
         <item name="cardBackgroundColor">#FF2C2025</item>
+
+        <item name="alertDialogTheme">@style/AppTheme.MyOldAlertDialog</item>
     </style>
 
     <style name="Theme.Custom.Toolbar" parent="Widget.Material3.Toolbar">

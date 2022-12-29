@@ -1,8 +1,6 @@
 package com.littleProgrammers.mangadexdownloader;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -15,18 +13,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.transition.Fade;
+import android.util.DisplayMetrics;
 import android.util.Pair;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowInsets;
-import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -39,12 +34,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.preference.PreferenceManager;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
@@ -169,10 +162,16 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         assert actionBar != null;
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        // Move actionbar under notch
+        // Move actionbar under notch and chapter selection bar over navigation bar
         ViewCompat.setOnApplyWindowInsetsListener(t, (v, insets) -> {
             ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) t.getLayoutParams();
-            params.setMargins(0, insets.getInsets((WindowInsetsCompat.Type.systemBars())).top, 0, 0);
+            Insets systemBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            params.setMargins(systemBarInsets.left, systemBarInsets.top, systemBarInsets.right, 0);
+
+            params = (ViewGroup.MarginLayoutParams) findViewById(R.id.linearLayout).getLayoutParams();
+            params.setMargins(params.getMarginStart(), 0, params.getMarginEnd(),
+                    insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom +
+                            (int) (16 * ((float) getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT)));
 
             return WindowInsetsCompat.CONSUMED;
         });

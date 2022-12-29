@@ -2,7 +2,7 @@
     <style name="Theme.MangadexDownloader" parent="Theme.Material3.DayNight">
         <item name="android:colorBackground">@color/very_light_orange</item>
         <item name="colorPrimary">#FCD298</item>
-        <item name="colorOnPrimary">#2F0000</item>
+        <item name="colorOnPrimary">#FFEFEF</item>
         <item name="colorPrimaryContainer">#FCDCAE</item>
         <item name="colorOnPrimaryContainer">#FFBFBF</item>
         <item name="colorSecondary">#F1A750</item>
@@ -20,6 +20,8 @@
         <item name="toolbarStyle">@style/Theme.Custom.Toolbar</item>
 
         <item name="cardBackgroundColor">#FFFFEFEF</item>
+
+        <item name="alertDialogTheme">@style/AppTheme.MyOldAlertDialog</item>
     </style>
 
     <style name="Theme.MangadexDownloader.NoActionBar" parent="Theme.MangadexDownloader">
@@ -46,5 +48,12 @@
         <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="o_mr1">shortEdges</item>
         <item name="android:statusBarColor">?android:attr/colorBackground</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+    </style>
+
+    <style name="AppTheme.MyOldAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="dialogCornerRadius">28dp</item>
+        <item name="cornerFamily">rounded</item>
+        <item name="android:colorBackground">?attr/colorSurface</item>
+        <item name="android:layout">@layout/m3_alert_dialog</item>
     </style>
 </resources>

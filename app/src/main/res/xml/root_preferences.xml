@@ -20,13 +20,14 @@
             app:summary="@string/settingsChapterShowSameChapterDes"
             app:title="@string/settingsChapterShowSameChapter"
             app:icon="@drawable/ic_baseline_allow_duplicate_24"
-            app:defaultValue="true"/>
+            app:defaultValue="true"
+            android:widgetLayout="@layout/preference_material_switch"/>
         <SwitchPreferenceCompat
             app:key="hideExternal"
             app:title="@string/settingsHideExternal"
             app:summary="@string/settingsHideExternalDescription"
             app:icon="@drawable/ic_baseline_link_off_24"
-            />
+            android:widgetLayout="@layout/preference_material_switch"/>
         <ListPreference
             app:key="chapterLanguages"
             app:title="@string/settingsChapterLanguageTitle"
@@ -45,7 +46,8 @@
             app:summaryOff="@string/settingsDownloadDataSaverOff"
             app:summaryOn="@string/settingsDownloadDataSaverOn"
             app:title="@string/settingsDownloadDataSaver"
-            app:icon="@drawable/ic_baseline_data_saver_on_24" />
+            app:icon="@drawable/ic_baseline_data_saver_on_24"
+            android:widgetLayout="@layout/preference_material_switch"/>
 
     </PreferenceCategory>
 
@@ -56,7 +58,8 @@
             app:summaryOff="@string/settingsLowQualityCoversOff"
             app:summaryOn="@string/settingsLowQualityCoversOn"
             app:title="@string/settingsLowQualityCovers"
-            app:icon="@drawable/ic_baseline_photo_size_select_large_24" />
+            app:icon="@drawable/ic_baseline_photo_size_select_large_24"
+            android:widgetLayout="@layout/preference_material_switch"/>
 
     </PreferenceCategory>
 
@@ -65,7 +68,8 @@
             app:key="additionalAnim"
             app:title="@string/settingsAdditionalAnim"
             app:icon="@drawable/ic_baseline_animation_24"
-            app:summary="@string/settingsAdditionalAnimDesc"/>
+            app:summary="@string/settingsAdditionalAnimDesc"
+            android:widgetLayout="@layout/preference_material_switch"/>
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/about">

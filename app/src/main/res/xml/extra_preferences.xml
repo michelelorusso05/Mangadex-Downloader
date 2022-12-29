@@ -1,11 +1,13 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory app:key="secret" app:title="\?\?\?">
         <SwitchPreferenceCompat
             app:key="cat"
             app:title="@string/cat"
             app:summary="@string/cat"
-            app:icon="@drawable/ic_cat"/>
+            app:icon="@drawable/ic_cat"
+            android:widgetLayout="@layout/preference_material_switch"/>
 
     </PreferenceCategory>
 
