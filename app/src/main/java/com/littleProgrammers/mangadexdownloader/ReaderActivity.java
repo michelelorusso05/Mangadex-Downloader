@@ -1,14 +1,11 @@
 package com.littleProgrammers.mangadexdownloader;
 
-import static com.littleProgrammers.mangadexdownloader.BitmapUtilities.combineBitmaps;
-
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
@@ -17,48 +14,39 @@ import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager2.widget.ViewPager2;
 
-import com.jsibbold.zoomage.ZoomageView;
-
-public class ReaderActivity extends AppCompatActivity {
+public abstract class ReaderActivity extends AppCompatActivity {
     protected String baseUrl;
     protected String[] urls = new String[0];
     protected boolean landscape;
     protected boolean showControls = true;
-
+    protected ViewPager2 pager;
     protected Spinner pageSelection;
     protected ImageButton previous, next, first, last;
-    protected ZoomageView display;
-    protected View pBar;
     protected ProgressBar pageProgressIndicator;
 
     // Bitmap configuration (applies to this class, all methods)
-    protected final BitmapFactory.Options opt = new BitmapFactory.Options();
+    public static final BitmapFactory.Options opt;
+
+    static {
+        // Bitmap config
+        opt = new BitmapFactory.Options();
+        opt.inMutable = true;
+        opt.inPreferredConfig = Bitmap.Config.RGB_565;
+        opt.inSampleSize = 1;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reader);
 
-        // Bitmap config
-        opt.inMutable = true;
-        opt.inPreferredConfig = Bitmap.Config.RGB_565;
-        opt.inSampleSize = 1;
-
-        display = findViewById(R.id.displayView);
-
-        display.SetOnSingleTapConfirmedEvent((MotionEvent e) -> {
-            if (e.getX() < (float) display.getWidth() / 2)
-                previousPage(null);
-            else
-                nextPage(null);
-        });
-
         landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 
         pageSelection = findViewById(R.id.progressView);
-        pBar = findViewById(R.id.loadingImage);
         pageProgressIndicator = findViewById(R.id.pageProgress);
+        pager = findViewById(R.id.pager);
 
         previous = findViewById(R.id.previousButton);
         next = findViewById(R.id.nextButton);
@@ -74,17 +62,11 @@ public class ReaderActivity extends AppCompatActivity {
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        int savedPage = savedInstanceState.getInt("currentPage", 0);
-        pageSelection.setSelection(savedPage);
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (landscape)
-            outState.putInt("currentPage", pageSelection.getSelectedItemPosition() * 2);
-        else
-            outState.putInt("currentPage", (int) Math.floor((float) pageSelection.getSelectedItemPosition() / 2));
     }
 
     @Override
@@ -111,10 +93,10 @@ public class ReaderActivity extends AppCompatActivity {
     }
 
     protected void GeneratePageSelectionSpinnerAdapter() {
-        int l = (int) Math.ceil((float) urls.length / pageStep());
+        int l = urls.length;
         String[] pages = new String[l];
         for (int i = 0; i < l; i++)
-            pages[i] = UpdatePageIndicator(i * pageStep());
+            pages[i] = UpdatePageIndicator(i);
 
         pageSelection.setAdapter(new ArrayAdapter<>(this, R.layout.page_indicator_spinner_item, pages));
     }
@@ -126,33 +108,7 @@ public class ReaderActivity extends AppCompatActivity {
     }
 
     protected String UpdatePageIndicator(int index) {
-        if (landscape && index < urls.length - 1)
-            return getString(R.string.doublePageIndicator, index + 1, index + 2);
         return getString(R.string.pageIndicator, index + 1);
-    }
-
-    protected void turnPage(int index) {
-        // To be implemented in inherithed classes
-    }
-
-    protected void BitmapRetrieveDone(Bitmap b1, Bitmap b2) {
-        new Thread(() -> {
-            Bitmap b = combineBitmaps(b1, b2);
-            runOnUiThread(() -> {
-                display.setVisibility(View.VISIBLE);
-                pBar.setVisibility(View.GONE);
-                display.setImageBitmap(b);
-            });
-        }).start();
-    }
-
-    protected int GetCurIndex() {
-        return pageSelection.getSelectedItemPosition() * pageStep();
-    }
-
-
-    protected int pageStep() {
-        return landscape ? 2 : 1;
     }
 
     public void nextPage(View v) {
@@ -168,5 +124,12 @@ public class ReaderActivity extends AppCompatActivity {
     }
     public void lastPage(View v) {
         pageSelection.setSelection(pageSelection.getCount() - 1);
+    }
+
+    protected void LockPager() {
+        pager.setTag("spinnerControl");
+    }
+    protected void LockSelectionSpinner() {
+        pageSelection.setTag("pagerLock");
     }
 }

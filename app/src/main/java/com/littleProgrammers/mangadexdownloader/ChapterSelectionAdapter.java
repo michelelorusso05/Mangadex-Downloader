@@ -1,6 +1,7 @@
 package com.littleProgrammers.mangadexdownloader;
 
 import android.content.Context;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +33,7 @@ public class ChapterSelectionAdapter extends ArrayAdapter<Pair<String, String>> 
         this(context, ChapterToStringPairArray(data));
     }
     public ChapterSelectionAdapter(@NonNull Context context, String[] names) {
-        this(context, ChapterToStringPairArray(names));
+        this(context, ChapterToStringPairArray(names), true);
     }
 
     @NonNull
@@ -52,46 +53,33 @@ public class ChapterSelectionAdapter extends ArrayAdapter<Pair<String, String>> 
         return returnData;
     }
 
+
+
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-
-        // convertView which is recyclable view
         View currentItemView = convertView;
 
-        // of the recyclable view is null then inflate the custom layout for the same
         if (currentItemView == null) {
             currentItemView = LayoutInflater.from(getContext()).inflate(R.layout.chapter_spinner_item, parent, false);
         }
 
-        // get the position of the view from the ArrayAdapter
         Pair<String, String> currentObjectPosition = getItem(position);
 
-        // then according to the position of the view assign the desired TextView 1 for the same
-        TextView textView1 = currentItemView.findViewById(R.id.chapterTitle);
-        textView1.setText(currentObjectPosition.first);
+        TextView name = currentItemView.findViewById(R.id.chapterTitle);
+        name.setText(currentObjectPosition.first);
 
-        // then according to the position of the view assign the desired TextView 2 for the same
-        TextView textView2 = currentItemView.findViewById(R.id.scanlationGroup);
-        if (currentObjectPosition.second != null && !ignoreSecond)
-            textView2.setText(currentObjectPosition.second);
+        TextView group = currentItemView.findViewById(R.id.scanlationGroup);
+        if (!ignoreSecond && currentObjectPosition.second != null)
+            group.setText(currentObjectPosition.second);
         else
-            textView2.setVisibility(View.GONE);
+            group.setVisibility(View.GONE);
 
-        // then return the recyclable view
         return currentItemView;
     }
 
     @Override
     public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
-        if (convertView == null){
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.chapter_spinner_item, parent, false);
-        }
-        Pair<String, String> rowItem = getItem(position);
-        TextView txtTitle = convertView.findViewById(R.id.chapterTitle);
-        txtTitle.setText(rowItem.first);
-        TextView groupView = convertView.findViewById(R.id.scanlationGroup);
-        groupView.setText(rowItem.second);
-        return convertView;
+        return getView(position, convertView, parent);
     }
 }

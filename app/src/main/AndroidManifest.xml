@@ -52,7 +52,18 @@
             android:parentActivityName=".SearchActivity" />
 
         <receiver android:name=".DownloadStopper"
-            android:exported="false">
+            android:exported="false"
+            >
+            <intent-filter>
+                <action android:name="com.michelelorusso.mangadexdownloader.STOP_DOWNLOAD" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".DownloadRetryer"
+            android:exported="false"
+            >
+            <intent-filter>
+                <action android:name="com.michelelorusso.mangadexdownloader.RETRY_DOWNLOAD" />
+            </intent-filter>
         </receiver>
         <!-- For sharing PDF files -->
         <provider

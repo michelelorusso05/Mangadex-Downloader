@@ -39,6 +39,26 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/settingsReader">
+
+        <SwitchPreferenceCompat
+            app:key="readerRTL"
+            app:title="@string/settingsReaderRTL"
+            app:summary="@string/settingsReaderRTLDesc"
+            app:icon="@drawable/outline_reverse_arrows_24"
+            android:widgetLayout="@layout/preference_material_switch"/>
+
+        <ListPreference
+            app:key="readerVolumeKeysNavigation"
+            app:title="@string/settingsReaderVolumeButtons"
+            app:icon="@drawable/baseline_volume_24"
+            app:defaultValue="dis"
+            app:entryValues="@array/settingsVolumeNavigationValues"
+            app:entries="@array/settingsVolumeButtonsOptions"
+            app:useSimpleSummaryProvider="true"/>
+
+    </PreferenceCategory>
+
     <PreferenceCategory app:title="@string/settingsDownloadCategory">
 
         <SwitchPreferenceCompat

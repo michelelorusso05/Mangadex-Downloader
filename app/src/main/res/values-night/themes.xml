@@ -5,7 +5,7 @@
         <item name="android:colorBackground">@color/very_dark_orange</item>
         <item name="colorPrimary">#FF6740</item>
         <item name="colorOnPrimary">?android:attr/colorBackground</item>
-        <item name="colorPrimaryContainer">#c44c2d</item>
+        <item name="colorPrimaryContainer">#352123</item>
         <item name="colorOnPrimaryContainer">#FFBFBF</item>
         <item name="colorSecondary">#F1A750</item>
         <item name="colorOnSecondary">#FFBFBF</item>
@@ -18,7 +18,7 @@
 
         <item name="toolbarStyle">@style/Theme.Custom.Toolbar</item>
 
-        <item name="cardBackgroundColor">#FF2C2025</item>
+        <item name="cardBackgroundColor">#FF2C2024</item>
 
         <item name="alertDialogTheme">@style/AppTheme.MyOldAlertDialog</item>
     </style>

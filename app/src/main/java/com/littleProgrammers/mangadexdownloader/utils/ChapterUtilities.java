@@ -1,10 +1,11 @@
-package com.littleProgrammers.mangadexdownloader;
+package com.littleProgrammers.mangadexdownloader.utils;
 
 import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.littleProgrammers.mangadexdownloader.R;
 import com.littleProgrammers.mangadexdownloader.apiResults.Chapter;
 import com.littleProgrammers.mangadexdownloader.apiResults.Relationship;
 
@@ -105,7 +106,7 @@ public class ChapterUtilities {
         public boolean allowDuplicate;
         public boolean hideExternal;
         public String keepThisForMe;
-        FormattingOptions(boolean allowDuplicate, boolean hideExternal, String keepThisForMe) {
+        public FormattingOptions(boolean allowDuplicate, boolean hideExternal, String keepThisForMe) {
             this.allowDuplicate = allowDuplicate;
             this.hideExternal = hideExternal;
             this.keepThisForMe = keepThisForMe;

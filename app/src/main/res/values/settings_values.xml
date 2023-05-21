@@ -91,4 +91,9 @@
         <item>__trn</item>
         <item>__fav</item>
     </string-array>
+    <string-array name="settingsVolumeNavigationValues">
+        <item>dis</item>
+        <item>en</item>
+        <item>en_rev</item>
+    </string-array>
 </resources>

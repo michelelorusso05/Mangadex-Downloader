@@ -1,4 +1,4 @@
-package com.littleProgrammers.mangadexdownloader;
+package com.littleProgrammers.mangadexdownloader.utils;
 
 import android.text.Spanned;
 

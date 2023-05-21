@@ -1,4 +1,4 @@
-package com.littleProgrammers.mangadexdownloader;
+package com.littleProgrammers.mangadexdownloader.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -7,8 +7,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class BitmapUtilities {
-    @NonNull
+
     public static Bitmap combineBitmaps(@NonNull Bitmap left, @Nullable Bitmap right) {
+        return combineBitmaps(left, right, false);
+    }
+    @NonNull
+    public static Bitmap combineBitmaps(@NonNull Bitmap left, @Nullable Bitmap right, boolean inverse) {
+        if (inverse) {
+            if (right == null) return combineBitmaps(left, null, false);
+            return combineBitmaps(right, left, false);
+        }
+
         // If right is null, then only the last (lone) page is left to render
         if (right == null) return left;
 

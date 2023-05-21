@@ -3,11 +3,7 @@ package com.littleProgrammers.mangadexdownloader;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.media.Image;
 import android.os.Bundle;
-import android.transition.ChangeImageTransform;
-import android.transition.ChangeTransform;
-import android.transition.Explode;
 import android.transition.Fade;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -16,7 +12,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -38,10 +33,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.littleProgrammers.mangadexdownloader.apiResults.Manga;
 import com.littleProgrammers.mangadexdownloader.apiResults.MangaResults;
 import com.littleProgrammers.mangadexdownloader.apiResults.Relationship;
+import com.littleProgrammers.mangadexdownloader.utils.FavouriteManager;
 import com.michelelorusso.dnsclient.DNSClient;
 
 import java.io.IOException;
@@ -70,7 +65,7 @@ public class SearchActivity extends AppCompatActivity
     ImageButton nextButton, previousButton;
     private int searchOffset = 0;
 
-    DNSClient client = new DNSClient(DNSClient.PresetDNS.GOOGLE);
+    DNSClient client;
     private ObjectMapper mapper;
 
     private Set<String> customIDs;
@@ -88,6 +83,8 @@ public class SearchActivity extends AppCompatActivity
         SplashScreen.Companion.installSplashScreen(this);
 
         super.onCreate(savedInstanceState);
+
+        client = new DNSClient(DNSClient.PresetDNS.CLOUDFLARE);
 
         getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
         // set an enter transition
@@ -285,13 +282,13 @@ public class SearchActivity extends AppCompatActivity
                 for (Manga manga : mResults.getData()) {
                     for (Relationship relationship : manga.getRelationships()) {
                         if (relationship.getType().equals("author")) {
-                            String author = relationship.getAttributes().get("name").textValue();
+                            String author = (relationship.getAttributes() != null) ? relationship.getAttributes().get("name").textValue() : "-";
                             if (manga.getAttributes().getAuthorString() == null)
                                 manga.getAttributes().setAuthorString(author);
                             else {
                                 String a = manga.getAttributes().getAuthorString()
                                         .concat(", ")
-                                        .concat(relationship.getAttributes().get("name").textValue());
+                                        .concat(author);
                                 manga.getAttributes().setAuthorString(a);
                             }
                         }

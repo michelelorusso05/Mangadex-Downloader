@@ -32,7 +32,7 @@ public class MangaAdapter extends RecyclerView.Adapter<MangaAdapter.viewHolder> 
     public MangaAdapter(Activity _ct, Manga[] _mangas) {
         ct = _ct;
         mangas = _mangas;
-        client = new DNSClient(DNSClient.PresetDNS.GOOGLE, ct, true);
+        client = new DNSClient(DNSClient.PresetDNS.CLOUDFLARE, ct, true);
 
         boolean lowQualityCover = PreferenceManager.getDefaultSharedPreferences(ct).getBoolean("lowQualityCovers", false);
 
@@ -40,7 +40,7 @@ public class MangaAdapter extends RecyclerView.Adapter<MangaAdapter.viewHolder> 
         for (int i = 0, mangasLength = mangas.length; i < mangasLength; i++) {
             Manga m = mangas[i];
             int finalI = i;
-            client.GetImageBitmapAsync("https://uploads.mangadex.org/covers/" + m.getId() + "/" + m.getAttributes().getCoverUrl() + ((lowQualityCover) ? ".256.jpg" : ".512.jpg"), (Bitmap bm) -> {
+            client.GetImageBitmapAsync("https://uploads.mangadex.org/covers/" + m.getId() + "/" + m.getAttributes().getCoverUrl() + ((lowQualityCover) ? ".256.jpg" : ".512.jpg"), (Bitmap bm, boolean success) -> {
                covers[finalI] = bm;
                ct.runOnUiThread(() -> notifyItemChanged(finalI));
             });

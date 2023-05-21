@@ -62,7 +62,7 @@
                 android:id="@+id/favouriteButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="?android:selectableItemBackgroundBorderless"
+                android:background="@drawable/ripple_button_24"
                 android:contentDescription="@string/buttonSearch"
                 android:src="@drawable/ic_baseline_collections_bookmark_24" />
 
@@ -70,7 +70,7 @@
                 android:id="@+id/randomButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:background="?android:selectableItemBackgroundBorderless"
+                android:background="@drawable/ripple_button_24"
                 android:contentDescription="@string/buttonRandom"
                 android:src="@drawable/ic_baseline_shuffle_24" />
 

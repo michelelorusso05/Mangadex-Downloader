@@ -1,4 +1,4 @@
-package com.littleProgrammers.mangadexdownloader;
+package com.littleProgrammers.mangadexdownloader.utils;
 
 import android.util.Log;
 
@@ -26,18 +26,33 @@ public class FolderUtilities {
             }
         }
     }
+    public static void MoveFile(File src, File dst) {
+        if (!src.renameTo(dst))
+            Log.w("Unable to rename file", "src: " + src + " dst: " + dst);
+    }
     public static void DeleteFolderContents(@NonNull File f) {
         if (f.isDirectory()) {
             for (String child : Objects.requireNonNull(f.list())) {
                 File cur = new File(f, child);
-                DeleteFolder(cur);
+                EraseFile(cur);
             }
         }
     }
     public static void DeleteFolder(@NonNull File f) {
         DeleteFolderContents(f);
         if (!f.delete())
-            Log.d("Error", "Unable to delete ".concat(f.getName()));
+            Log.d("Error", "Unable to delete ".concat(f.getPath()));
+    }
+    public static void EraseFile(@NonNull File f) {
+        if (f.isDirectory()) {
+            File[] children = f.listFiles();
+            assert children != null;
+            for (File subFile : children) {
+                EraseFile(subFile);
+            }
+        }
+        if (!f.delete())
+            Log.w("Deletion error", "Unable to delete " + f);
     }
     public static long SizeOfFolder(@NonNull File f) {
         long s = 0;

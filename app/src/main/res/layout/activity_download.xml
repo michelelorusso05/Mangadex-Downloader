@@ -182,13 +182,14 @@
                     android:layout_height="56dp"
                     android:layout_weight="1"
                     android:gravity="center_vertical"
+                    android:spinnerMode="dialog"
                     tools:ignore="SpeakableTextPresentCheck" />
 
                 <ImageButton
                     android:id="@+id/buttonDownload"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?android:selectableItemBackgroundBorderless"
+                    android:background="@drawable/ripple_button_24"
                     android:contentDescription="@string/settingsDownloadDataSaverOn"
                     android:src="@drawable/ic_baseline_save_alt_24"
                     tools:ignore="ButtonStyle" />
@@ -197,7 +198,7 @@
                     android:id="@+id/buttonRead"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?android:selectableItemBackgroundBorderless"
+                    android:background="@drawable/ripple_button_24"
                     android:contentDescription="@string/errAlreadyDownloading"
                     android:src="@drawable/ic_baseline_auto_stories_24"
                     tools:ignore="ButtonStyle" />

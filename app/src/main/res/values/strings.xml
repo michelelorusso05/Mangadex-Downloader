@@ -67,7 +67,7 @@
     <string name="read">Read</string>
     <string name="readerActivityTitle">Read a chapter</string>
     <string name="pageIndicator" translatable="false">%1$d</string>
-    <string name="doublePageIndicator" translatable="false">%1$d-%2$d</string>
+    <string name="doublePageIndicator" translatable="false">%1$d - %2$d</string>
     <string name="errAlreadyDownloading">You are already downloading this chapter</string>
     <string name="originalLanguage">Original language: %1$s (%2$s)</string>
     <string name="wait">Hold on tight…</string>
@@ -109,4 +109,19 @@
     <string name="notificationsExplainationTitle">Hear me out</string>
     <string name="notificationsExplainationDesc">Mangadex Downloader uses notifications to update you on your current downloads.\n\nYou can suppress them if you want, but if you do so, doubt and uncertainty about your downloads will haunt you for the rest of your life.\n\n(You can always change this setting in your phone\'s options).</string>
     <string name="downloadStarted">Download started</string>
+    <string name="downloadRetry">Retry</string>
+    <string name="downloadMoreInfo">Check your internet connection.</string>
+    <string name="chapterPrevious">Previous chapter</string>
+    <string name="chapterNext">Next chapter</string>
+    <string name="settingsReader">Reader settings</string>
+    <string name="settingsReaderRTL">Enable Right-To-Left (RTL)</string>
+    <string name="settingsReaderRTLDesc">Reverse page order and scrolling, just like original mangas.</string>
+    <string name="settingsReaderVolumeButtons">Volume buttons navigation</string>
+    <string name="settingsReaderVolumeButtonsDesc">Enable in-reader page scrolling using volume buttons.</string>
+
+    <string-array name="settingsVolumeButtonsOptions">
+        <item>Disabled</item>
+        <item>Enabled</item>
+        <item>Enabled (reverse)</item>
+    </string-array>
 </resources>

@@ -11,9 +11,12 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
@@ -21,6 +24,8 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -74,6 +79,7 @@ class DNSPreset {
  */
 public class DNSClient {
     private OkHttpClient client;
+    private Cache cache;
     private int status = 0;
 
     public enum PresetDNS {
@@ -94,10 +100,9 @@ public class DNSClient {
      * @param maxRequests Override max async requests in queue.
      * @see DNSPreset
      */
-    public DNSClient(@NonNull PresetDNS dns, @Nullable Context ctx, boolean cached, int maxRequests) {
+    public DNSClient(@NonNull PresetDNS dns, @Nullable Context ctx, boolean cached, int maxRequests, boolean forceHTTP1_1) {
         Dispatcher dispatcher = new Dispatcher();
         dispatcher.setMaxRequests(maxRequests);
-        dispatcher.setMaxRequestsPerHost(maxRequests);
 
         DNSPreset selectedDNS = presets[dns.ordinal()];
         OkHttpClient bootstrapClient = new OkHttpClient.Builder()
@@ -111,16 +116,19 @@ public class DNSClient {
                     .bootstrapDnsHosts(InetAddress.getByName(selectedDNS.secondary), InetAddress.getByName(selectedDNS.primary))
                     .build();
 
-            OkHttpClient.Builder builder = bootstrapClient.newBuilder().dns(DNS).dispatcher(dispatcher)
-                    .connectionPool(new ConnectionPool(100, 15000, TimeUnit.MILLISECONDS))
-                    .protocols(Collections.singletonList(Protocol.HTTP_1_1))
-                    .connectTimeout(30, TimeUnit.SECONDS)
-                    .readTimeout(0, TimeUnit.SECONDS);
+            OkHttpClient.Builder builder = bootstrapClient
+                    .newBuilder()
+                    .dns(DNS)
+                    .dispatcher(dispatcher)
+                    //.connectionPool(new ConnectionPool(0, 1, TimeUnit.MILLISECONDS))
+                    .protocols(forceHTTP1_1 ? Collections.singletonList(Protocol.HTTP_1_1) : Arrays.asList(Protocol.HTTP_2, Protocol.HTTP_1_1))
+                    .connectTimeout(15, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS);
 
             if (cached && ctx != null) {
                 File httpCacheDirectory = new File(ctx.getExternalCacheDir(), "http-cache");
-                int cacheSize = 50 * 1024 * 1024; // 10 MiB
-                Cache cache = new Cache(httpCacheDirectory, cacheSize);
+                int cacheSize = 100 * 1024 * 1024; // 100 MiB
+                cache = new Cache(httpCacheDirectory, cacheSize);
                 builder
                         .addNetworkInterceptor(new CacheInterceptor())
                         .cache(cache);
@@ -186,7 +194,7 @@ public class DNSClient {
      * @see DNSPreset
      */
     public DNSClient(@NonNull PresetDNS dns, @Nullable Context ctx, boolean cached) {
-        this(dns, ctx, cached, 100);
+        this(dns, ctx, cached, 100, false);
     }
     /**
      * Creates a DNSClient.
@@ -221,9 +229,12 @@ public class DNSClient {
     public void HttpRequestAsync(String url, @NonNull Callback callback) {
         Request request = new Request.Builder()
                 .url(url)
+                //.header("Connection", "keep-alive")
+                //.header("Transfer-Encoding", "chunked")
                 .build();
 
-        client.newCall(request).enqueue(new Callback() {
+        client.newCall(request)
+                .enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 callback.onFailure(call, e);
@@ -239,7 +250,7 @@ public class DNSClient {
 
 
     public interface GetImage {
-        void Execute(Bitmap bm);
+        void Execute(Bitmap bm, boolean success);
     }
 
     /**
@@ -253,6 +264,7 @@ public class DNSClient {
         HttpRequestAsync(url, new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                action.Execute(null, false);
                 Log.d("GetImageBitmapAsync", "Failed to fetch image " + call.request().url());
             }
 
@@ -260,7 +272,8 @@ public class DNSClient {
             public void onResponse(@NonNull Call call, @NonNull Response response) {
                 ResponseBody body = Objects.requireNonNull(response.body());
                 Bitmap bm = BitmapFactory.decodeStream(body.byteStream(), null, opts);
-                action.Execute(bm);
+                action.Execute(bm, true);
+                Log.d("Cache response", response.cacheResponse() != null ? (response.networkResponse() == null ? "Response was from cache" : "Response was a conditional GET") : "Response was from server");
                 response.close();
             }
         });
@@ -296,9 +309,10 @@ public class DNSClient {
      * @param view The target ImageView.
      * @param caller The Activity that manages the target view.
      * @param callback Additional operations to be executed after the image fetching.
+     * @param opts Additional options to pass to BitmapFactory.
      * @see Callback
      */
-    public void ImageIntoViewAsync(String url, ImageView view, Activity caller, Callback callback) {
+    public void ImageIntoViewAsync(String url, ImageView view, Activity caller, Callback callback, BitmapFactory.Options opts) {
         HttpRequestAsync(url, new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -309,7 +323,7 @@ public class DNSClient {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 ResponseBody body = Objects.requireNonNull(response.body());
-                Bitmap bm = BitmapFactory.decodeByteArray(body.bytes(), 0, (int) body.contentLength());
+                Bitmap bm = BitmapFactory.decodeByteArray(body.bytes(), 0, (int) body.contentLength(), opts);
                 caller.runOnUiThread(() -> view.setImageBitmap(bm));
 
                 if (callback != null)
@@ -318,6 +332,9 @@ public class DNSClient {
                 response.close();
             }
         });
+    }
+    public void ImageIntoViewAsync(String url, ImageView view, Activity caller, Callback callback) {
+        ImageIntoViewAsync(url, view, caller, callback, null);
     }
 
     /**
@@ -355,25 +372,18 @@ public class DNSClient {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
                 if (response.isSuccessful()) {
-                    if (response.body() == null)
-                        Log.d("Ahia", "Ahimè");
-                    else
-                    {
-                        try {
-                            BufferedSink sink = Okio.buffer(Okio.sink(destination));
-                            ResponseBody body = Objects.requireNonNull(response.body());
-                            sink.writeAll(body.source());
-                            sink.close();
-                            onDownloadEnd.onResponse(call, response);
-                        } catch (Exception e) {
-                            Log.d("non posso scrivere", "aiut");
-                            e.printStackTrace();
-                            onDownloadEnd.onFailure(call, new IOException());
-                        }
+                    try {
+                        BufferedSink sink = Okio.buffer(Okio.sink(destination));
+                        ResponseBody body = Objects.requireNonNull(response.body());
+                        sink.writeAll(body.source());
+                        sink.close();
+                        onDownloadEnd.onResponse(call, response);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        onDownloadEnd.onFailure(call, new IOException());
                     }
                 }
                 else {
-                    Log.d("Unable to download", "ahimè");
                     onDownloadEnd.onFailure(call, new UnknownHostException());
                 }
                 response.close();
@@ -402,6 +412,23 @@ public class DNSClient {
         return client.dispatcher().queuedCalls();
     }
 
+    @NonNull
+    public Cache getCache() {
+        if (cache == null) throw new NullPointerException("Cache has not been set for this client.");
+        return cache;
+    }
+
+    /**
+     * Shutdowns client, closes cache (if open), and refuses further calls.
+     */
+    public void shutdown() {
+        CancelAllPendingRequests();
+        client.dispatcher().executorService().shutdown();
+        try {
+            if (cache != null) cache.close();
+        } catch (IOException e) { e.printStackTrace(); }
+    }
+
     public static class CacheInterceptor implements Interceptor {
         @NonNull
         @Override
@@ -409,10 +436,15 @@ public class DNSClient {
             Response response = chain.proceed(chain.request());
 
             CacheControl cacheControl = new CacheControl.Builder()
-                    .maxAge(30, TimeUnit.MINUTES)
+                    .maxAge(Integer.MAX_VALUE, TimeUnit.SECONDS)
+                    .maxStale(Integer.MAX_VALUE, TimeUnit.SECONDS)
+                    .noTransform()
+                    .immutable()
                     .build();
 
-            return response.newBuilder()
+            Response.Builder builder = response.newBuilder();
+
+            return builder
                     .removeHeader("Pragma")
                     .removeHeader("Cache-Control")
                     .header("Cache-Control", cacheControl.toString())

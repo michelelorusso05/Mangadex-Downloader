@@ -3,10 +3,7 @@ package com.littleProgrammers.mangadexdownloader;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.transition.ChangeBounds;
-import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +18,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.littleProgrammers.mangadexdownloader.utils.Animations;
+import com.littleProgrammers.mangadexdownloader.utils.FolderUtilities;
 
 import java.io.File;
 import java.text.DecimalFormat;

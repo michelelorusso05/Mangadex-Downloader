@@ -3,7 +3,7 @@
         <item name="android:colorBackground">@color/very_light_orange</item>
         <item name="colorPrimary">#FCD298</item>
         <item name="colorOnPrimary">#FFEFEF</item>
-        <item name="colorPrimaryContainer">#FCDCAE</item>
+        <item name="colorPrimaryContainer">#FCE4C2</item>
         <item name="colorOnPrimaryContainer">#FFBFBF</item>
         <item name="colorSecondary">#F1A750</item>
         <item name="colorOnSecondary">#FFBFBF</item>
@@ -11,6 +11,7 @@
         <item name="colorOnSurface">#2F0000</item>
         <item name="android:statusBarColor">#FCD298</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
 
 
         <item name="android:navigationBarColor">?android:attr/colorBackground</item>

@@ -2,7 +2,6 @@ package com.littleProgrammers.mangadexdownloader;
 
 import static android.view.View.GONE;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -17,6 +16,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.littleProgrammers.mangadexdownloader.utils.FolderUtilities;
 
 import java.io.File;
 import java.text.DecimalFormat;

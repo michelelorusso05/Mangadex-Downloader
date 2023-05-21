@@ -1,22 +1,25 @@
 package com.littleProgrammers.mangadexdownloader;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 import androidx.preference.PreferenceManager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.littleProgrammers.mangadexdownloader.apiResults.AtHomeResults;
+import com.littleProgrammers.mangadexdownloader.utils.FavouriteManager;
 import com.michelelorusso.dnsclient.DNSClient;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Objects;
 
 import okhttp3.Call;
@@ -31,6 +34,10 @@ public class OnlineReaderActivity extends ReaderActivity {
     String[] chapterIDs;
     ObjectMapper mapper;
 
+    boolean startedPreloading;
+    final ArrayList<Boolean> isLandscape = new ArrayList<>();
+    ArrayList<Pair<Integer, Integer>> indexes = new ArrayList<>();
+
     Spinner chapterSelection;
     ImageButton chapterNext, chapterPrevious;
 
@@ -39,9 +46,12 @@ public class OnlineReaderActivity extends ReaderActivity {
 
     boolean setLastPage;
 
+    ReaderPagesAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         chapterPrevious = findViewById(R.id.previousChapterButton);
         chapterNext = findViewById(R.id.nextChapterButton);
         chapterSelection = findViewById(R.id.chapterSelection);
@@ -51,7 +61,7 @@ public class OnlineReaderActivity extends ReaderActivity {
 
         findViewById(R.id.chapterNavigation).setVisibility(View.VISIBLE);
 
-        client = new DNSClient(DNSClient.PresetDNS.GOOGLE, this, true);
+        client = StaticData.getClient(getApplicationContext());
         mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
@@ -67,6 +77,7 @@ public class OnlineReaderActivity extends ReaderActivity {
         chapterSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                startedPreloading = false;
                 FetchAtHome(position);
             }
             @Override
@@ -89,27 +100,69 @@ public class OnlineReaderActivity extends ReaderActivity {
         pageSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                turnPage(position * pageStep());
+                if (pageSelection.getTag() != null) {
+                    pageSelection.setTag(null);
+                }
+                else {
+                    LockPager();
+                    pager.setCurrentItem(position + 1);
+                }
+
+
                 if (bookmarkingEnabled && position >= pageSelection.getCount() - 2) {
                     FavouriteManager.SetBookmarkForFavourite(OnlineReaderActivity.this, mangaID,
                             chapterIDs[indexToBookmark == chapterSelection.getCount() - 1 ? indexToBookmark : indexToBookmark + 1],
                             indexToBookmark == chapterSelection.getCount() - 1);
                 }
-                pageProgressIndicator.setIndeterminate(false);
-                pageProgressIndicator.setProgress((int) ((position + 1f) / pageSelection.getCount() * 100f));
-                turnPage(position * pageStep());
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
+        pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                if (position < adapter.getFirstPage()) {
+                    setLastPage = true;
+                    ChapterPrevious(null);
+                    return;
+                }
+                if (position > adapter.getLastPage()) {
+                    setLastPage = false;
+                    ChapterNext(null);
+                    return;
+                }
+                int pos = adapter.rawPositionToChapterPosition(position);
+                if (pager.getTag() != null) {
+                    pager.setTag(null);
+                }
+                else {
+                    LockSelectionSpinner();
+                    pageSelection.setSelection(pos);
+                }
+
+                pageProgressIndicator.setProgress((int) ((100f / adapter.getTotalElements()) * (pos + 1)));
+            }
+        });
+
         if (savedInstanceState == null) {
+            try {
+                client.getCache().evictAll();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             pageSelection.setSelection(0);
-            FolderUtilities.DeleteFolderContents(getExternalCacheDir());
         }
+
+        next.setOnClickListener((v) -> pager.setCurrentItem(pager.getCurrentItem() + 1));
+        previous.setOnClickListener((v) -> pager.setCurrentItem(pager.getCurrentItem() - 1));
+        first.setOnClickListener((v) -> pager.setCurrentItem(adapter.getFirstPage()));
+        last.setOnClickListener((v) -> pager.setCurrentItem(adapter.getLastPage()));
     }
 
     private void FetchAtHome(int position) {
+        client.CancelAllPendingRequests();
+
         SetChapterControlsEnabled(false);
         SetPageControlsEnabled(false);
         pageProgressIndicator.setIndeterminate(true);
@@ -126,15 +179,8 @@ public class OnlineReaderActivity extends ReaderActivity {
             }
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                runOnUiThread(() -> {
-                    SetChapterControlsEnabled(true);
-                    SetPageControlsEnabled(true);
-                    chapterNext.setEnabled(position < chapterSelection.getCount() - 1);
-                    chapterPrevious.setEnabled(position > 0);
-                    pageProgressIndicator.setIndeterminate(false);
-                });
-
-                AtHomeResults hResults = mapper.readValue(Objects.requireNonNull(response.body()).string(), AtHomeResults.class);
+                AtHomeResults hResults = mapper.readValue(Objects.requireNonNull(response.body()).charStream(), AtHomeResults.class);
+                response.close();
 
                 String _baseUrl;
                 String[] _images;
@@ -148,25 +194,55 @@ public class OnlineReaderActivity extends ReaderActivity {
                     _baseUrl = hResults.getBaseUrl() + "/data-saver/";
                     _images = hResults.getChapter().getDataSaver();
                 }
-
                 _baseUrl += hResults.getChapter().getHash();
                 baseUrl = _baseUrl;
                 urls = _images;
                 response.close();
+
+                final boolean lastFlag = setLastPage;
+
                 runOnUiThread(() -> {
+                    SetChapterControlsEnabled(true);
+                    SetPageControlsEnabled(true);
+                    chapterNext.setEnabled(position < chapterSelection.getCount() - 1);
+                    chapterPrevious.setEnabled(position > 0);
+                    pageProgressIndicator.setIndeterminate(false);
+                    pageProgressIndicator.setProgress((int) (100f / chapterSelection.getCount()));
+                    pageProgressIndicator.setMax(100);
+
+                    adapter = new OnlinePagesAdapter(OnlineReaderActivity.this,
+                            baseUrl, urls, client, ReaderPagesAdapter.BooleanToParameter(
+                                    chapterPrevious.isEnabled(), chapterNext.isEnabled()), landscape);
+                    adapter.setHasStableIds(true);
+                    adapter.setOnPageUpdatedCallback((indexes) -> {
+                        LockSelectionSpinner();
+
+                        String[] pages = new String[indexes.size()];
+
+                        for (int i = 0; i < indexes.size(); i++) {
+                            Pair<Integer, Integer> p = indexes.get(i);
+                            pages[i] = p.second == null ? getString(R.string.pageIndicator, p.first + 1) : getString(R.string.doublePageIndicator, p.first + 1, p.second + 1);
+                        }
+
+                        runOnUiThread(() -> pageSelection.setAdapter(new ArrayAdapter<>(OnlineReaderActivity.this, R.layout.page_indicator_spinner_item, pages)));
+                    });
+                    pager.setAdapter(adapter);
+                    pager.setCurrentItem(lastFlag ? adapter.getLastPage() : adapter.getFirstPage(), false);
+
                     GeneratePageSelectionSpinnerAdapter();
-                    if (setLastPage) {
-                        setLastPage = false;
-                        pageSelection.setSelection(pageSelection.getCount() - 1);
+
+                    if (lastFlag) {
+                        LockSelectionSpinner();
+                        pageSelection.setSelection(urls.length - 1);
                     }
-                    else
-                        pageSelection.setSelection(0);
                 });
                 if (bookmarkingEnabled) {
                     indexToBookmark = position;
                     FavouriteManager.SetBookmarkForFavourite(OnlineReaderActivity.this, mangaID, chapterIDs[position],
                             position == chapterIDs.length - 1);
                 }
+
+                setLastPage = false;
             }
         });
     }
@@ -186,75 +262,12 @@ public class OnlineReaderActivity extends ReaderActivity {
 
     private void UpdateButtonsState(final int index) {
         first.setEnabled(index > 0);
-        last.setEnabled(index < urls.length - pageStep());
+        last.setEnabled(index < urls.length - 1);
 
         previous.setEnabled(chapterPrevious.isEnabled() || first.isEnabled());
         next.setEnabled(chapterNext.isEnabled() || last.isEnabled());
     }
 
-    public void turnPage(final int index) {
-        if (index >= urls.length) return;
-
-        display.setVisibility(View.INVISIBLE);
-        pBar.setVisibility(View.VISIBLE);
-        UpdateButtonsState(index);
-
-        if (!landscape) {
-            client.GetImageBitmapAsync(baseUrl + "/" + urls[index], bm -> runOnUiThread(() -> BitmapRetrieveDone(bm, null, index)), opt);
-            // Preload
-            if (index < urls.length - 1)
-                PreloadImage(baseUrl + "/" + urls[index + 1]);
-        }
-        else {
-            final boolean[] isWorkDone = new boolean[1];
-            final Bitmap[] images = new Bitmap[2];
-            if (index < urls.length - 1) {
-                client.GetImageBitmapAsync(baseUrl + "/" + urls[index + 1], bm -> {
-                    images[1] = bm;
-                    if (isWorkDone[0]) BitmapRetrieveDone(images[0], images[1], index);
-                    else isWorkDone[0] = true;
-                }, opt);
-            }
-            else {
-                isWorkDone[0] = true;
-                images[1] = null;
-            }
-            client.GetImageBitmapAsync(baseUrl + "/" + urls[index], bm -> {
-                images[0] = bm;
-                if (isWorkDone[0]) BitmapRetrieveDone(images[0], images[1], index);
-                else isWorkDone[0] = true;
-            }, opt);
-
-            // Preload
-            if (index < urls.length - 2)
-                PreloadImage(baseUrl + "/" + urls[index + 2]);
-            if (index < urls.length - 3)
-                PreloadImage(baseUrl + "/" + urls[index + 3]);
-        }
-    }
-
-    protected void BitmapRetrieveDone(Bitmap b1, Bitmap b2, int i) {
-        if (i == GetCurIndex())
-            super.BitmapRetrieveDone(b1, b2);
-    }
-
-    private void PreloadImage(String url) {
-        client.HttpRequestAsync(url, new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.d("Preloading", "Preloading of " + url + " failed");
-            }
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) {
-                try {
-                    Objects.requireNonNull(response.body()).bytes();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                response.close();
-            }
-        });
-    }
 
     public void ChapterNext(View v) {
         if (chapterSelection.getSelectedItemPosition() < chapterSelection.getCount() - 1)
@@ -264,21 +277,5 @@ public class OnlineReaderActivity extends ReaderActivity {
         if (chapterSelection.getSelectedItemPosition() > 0)
             chapterSelection.setSelection(chapterSelection.getSelectedItemPosition() - 1);
     }
-
-    @Override
-    public void nextPage(View v) {
-        if (pageSelection.getSelectedItemPosition() < pageSelection.getCount() - 1)
-            pageSelection.setSelection(pageSelection.getSelectedItemPosition() + 1);
-        else
-            ChapterNext(v);
-    }
-    @Override
-    public void previousPage(View v) {
-        if (pageSelection.getSelectedItemPosition() > 0)
-            pageSelection.setSelection(pageSelection.getSelectedItemPosition() - 1);
-        else {
-            ChapterPrevious(v);
-            setLastPage = true;
-        }
-    }
 }
+

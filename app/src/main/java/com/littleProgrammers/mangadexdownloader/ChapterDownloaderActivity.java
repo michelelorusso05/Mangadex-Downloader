@@ -51,6 +51,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.littleProgrammers.mangadexdownloader.apiResults.Chapter;
 import com.littleProgrammers.mangadexdownloader.apiResults.ChapterResults;
 import com.littleProgrammers.mangadexdownloader.apiResults.Manga;
+import com.littleProgrammers.mangadexdownloader.utils.ChapterUtilities;
+import com.littleProgrammers.mangadexdownloader.utils.FavouriteManager;
+import com.littleProgrammers.mangadexdownloader.utils.FormattingUtilities;
 import com.michelelorusso.dnsclient.DNSClient;
 
 import org.json.JSONException;
@@ -144,7 +147,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_download);
 
-        client = new DNSClient(DNSClient.PresetDNS.GOOGLE, this, true);
+        client = new DNSClient(DNSClient.PresetDNS.CLOUDFLARE);
 
         // UI binding
         title = findViewById(R.id.mangaTitle);
@@ -152,9 +155,13 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         description = findViewById(R.id.mangaDescription);
         cover = findViewById(R.id.cover);
         chapterSelection = findViewById(R.id.chapterSelection);
-        downloadButton = findViewById(R.id.buttonDownload);
-        readButton = findViewById(R.id.buttonRead);
         continueReading = findViewById(R.id.continueReading);
+
+        downloadButton = findViewById(R.id.buttonDownload);
+        downloadButton.setEnabled(false);
+
+        readButton = findViewById(R.id.buttonRead);
+        readButton.setEnabled(false);
 
         Toolbar t = findViewById(R.id.home_toolbar);
         setSupportActionBar(t);
@@ -179,6 +186,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         ChapterSelectionAdapter adapter = new ChapterSelectionAdapter(ChapterDownloaderActivity.this,
                 new Pair<>(getString(R.string.fetchingString), getString(R.string.wait)));
         chapterSelection.setAdapter(adapter);
+        chapterSelection.setEnabled(false);
 
         chapterSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -320,7 +328,11 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         boolean lowQualityCover = PreferenceManager.getDefaultSharedPreferences(ChapterDownloaderActivity.this).getBoolean("lowQualityCovers", false);
         final String coverUrl = "https://uploads.mangadex.org/covers/" + selectedManga.getId() + "/" + selectedManga.getAttributes().getCoverUrl() + ((lowQualityCover) ? ".256.jpg" : ".512.jpg");
 
-        client.GetImageBitmapAsync(coverUrl, (bm) -> runOnUiThread(() -> {
+        client.GetImageBitmapAsync(coverUrl, (bm, success) -> runOnUiThread(() -> {
+            if (!success) {
+                Toast.makeText(this, R.string.errNoConnection, Toast.LENGTH_SHORT).show();
+                return;
+            }
             cover.setImageBitmap(bm);
             ImageView background = findViewById(R.id.coverBackground);
             if (background != null)
@@ -433,8 +445,9 @@ public class ChapterDownloaderActivity extends AppCompatActivity
                 continueReading.setVisibility(View.VISIBLE);
             }
 
-            findViewById(R.id.buttonDownload).setEnabled(true);
-            findViewById(R.id.buttonRead).setEnabled(true);
+            downloadButton.setEnabled(true);
+            readButton.setEnabled(true);
+            chapterSelection.setEnabled(true);
         });
     }
 
