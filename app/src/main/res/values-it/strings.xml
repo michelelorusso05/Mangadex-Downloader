@@ -84,7 +84,6 @@
     <string name="settingsShowAtStart">Pagina iniziale</string>
 
     <string-array name="settingsShowAtStartupStrings">
-        <item>Niente</item>
         <item>Consigliati di Mangadex</item>
         <item>I tuoi preferiti</item>
     </string-array>

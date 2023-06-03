@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.transition.ChangeImageTransform;
 import android.transition.Fade;
 import android.util.DisplayMetrics;
 import android.util.Pair;
@@ -130,10 +131,16 @@ public class ChapterDownloaderActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+
+        Fade fade = new Fade();
+
+        getWindow().setSharedElementsUseOverlay(false);
+
         // Set an enter transition
         getWindow().setEnterTransition(new Fade());
+        getWindow().setSharedElementExitTransition(fade);
         // Set an exit transition
-        getWindow().setExitTransition(new Fade());
+        getWindow().setExitTransition(null);
 
         // Make status bar transparent
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -274,7 +281,8 @@ public class ChapterDownloaderActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            supportFinishAfterTransition();
+            // supportFinishAfterTransition();
+            finish();
             return true;
         }
         else if (item.getItemId() == R.id.action_favourite) {
@@ -286,6 +294,11 @@ public class ChapterDownloaderActivity extends AppCompatActivity
                 FavouriteManager.RemoveFavourite(this, selectedManga.getId());
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
     }
 
     @Override

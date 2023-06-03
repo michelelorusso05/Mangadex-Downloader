@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -22,6 +24,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.littleProgrammers.mangadexdownloader.apiResults.Manga;
 import com.michelelorusso.dnsclient.DNSClient;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MangaAdapter extends RecyclerView.Adapter<MangaAdapter.viewHolder> {
     Activity ct;
@@ -42,7 +47,7 @@ public class MangaAdapter extends RecyclerView.Adapter<MangaAdapter.viewHolder> 
             int finalI = i;
             client.GetImageBitmapAsync("https://uploads.mangadex.org/covers/" + m.getId() + "/" + m.getAttributes().getCoverUrl() + ((lowQualityCover) ? ".256.jpg" : ".512.jpg"), (Bitmap bm, boolean success) -> {
                covers[finalI] = bm;
-               ct.runOnUiThread(() -> notifyItemChanged(finalI));
+               ct.runOnUiThread(() -> notifyItemChanged(finalI, "coverReady"));
             });
         }
     }
@@ -65,7 +70,8 @@ public class MangaAdapter extends RecyclerView.Adapter<MangaAdapter.viewHolder> 
         Manga current = mangas[position];
         holder.mangaTitle.setText(HtmlCompat.fromHtml(current.getAttributes().getTitleS(), HtmlCompat.FROM_HTML_MODE_LEGACY));
         holder.mangaAuthor.setText(current.getAttributes().getAuthorString());
-        new Thread(() -> ct.runOnUiThread(() -> holder.cover.setImageBitmap(covers[position]))).start();
+
+        holder.cover.setImageBitmap(covers[position]);
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -81,14 +87,33 @@ public class MangaAdapter extends RecyclerView.Adapter<MangaAdapter.viewHolder> 
                 StaticData.sharedCover = null;
                 if (covers[position] != null) {
                     StaticData.sharedCover = covers[position];
-                    ActivityOptions options = ActivityOptions.
-                            makeSceneTransitionAnimation(ct,
-                                    Pair.create(holder.cover, "cover"));
+                    Bundle bundle;
 
-                    if (PreferenceManager.getDefaultSharedPreferences(ct).getBoolean("additionalAnim", false))
-                        ct.startActivity(intent, options.toBundle());
+                    View statusBar = ct.findViewById(android.R.id.statusBarBackground);
+                    View navigation = ct.findViewById(android.R.id.navigationBarBackground);
+
+                    if (statusBar == null && navigation == null)
+                        bundle = ActivityOptions.makeSceneTransitionAnimation(ct,
+                                Pair.create(ct.findViewById(R.id.home_toolbar), "toolbar"),
+                                Pair.create(holder.cover, "cover")).toBundle();
+                    else if (statusBar != null && navigation == null)
+                        bundle = ActivityOptions.makeSceneTransitionAnimation(ct,
+                                Pair.create(ct.findViewById(R.id.home_toolbar), "toolbar"),
+                                Pair.create(holder.cover, "cover"),
+                                Pair.create(statusBar, Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME)).toBundle();
+                    else if (statusBar == null)
+                        bundle = ActivityOptions.makeSceneTransitionAnimation(ct,
+                                Pair.create(ct.findViewById(R.id.home_toolbar), "toolbar"),
+                                Pair.create(holder.cover, "cover"),
+                                Pair.create(navigation, Window.NAVIGATION_BAR_BACKGROUND_TRANSITION_NAME)).toBundle();
                     else
-                        ct.startActivity(intent);
+                        bundle = ActivityOptions.makeSceneTransitionAnimation(ct,
+                                Pair.create(ct.findViewById(R.id.home_toolbar), "toolbar"),
+                                Pair.create(holder.cover, "cover"),
+                                Pair.create(statusBar, Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME),
+                                Pair.create(navigation, Window.NAVIGATION_BAR_BACKGROUND_TRANSITION_NAME)).toBundle();
+
+                    ct.startActivity(intent, bundle);
                 }
                 else
                     ct.startActivity(intent);
@@ -99,8 +124,22 @@ public class MangaAdapter extends RecyclerView.Adapter<MangaAdapter.viewHolder> 
     }
 
     @Override
+    public void onBindViewHolder(@NonNull viewHolder holder, int position, @NonNull List<Object> payloads) {
+        if (payloads.isEmpty()) {
+            onBindViewHolder(holder, position);
+            return;
+        }
+        holder.cover.setImageBitmap(covers[position]);
+    }
+
+    @Override
     public int getItemCount() {
         return mangas.length;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return mangas[position].hashCode();
     }
 
     public static class viewHolder extends RecyclerView.ViewHolder {

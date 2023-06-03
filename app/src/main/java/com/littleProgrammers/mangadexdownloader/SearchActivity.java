@@ -2,8 +2,11 @@ package com.littleProgrammers.mangadexdownloader;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.transition.ChangeImageTransform;
+import android.transition.Explode;
 import android.transition.Fade;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -21,9 +24,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.splashscreen.SplashScreen;
+import androidx.core.widget.NestedScrollView;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -56,10 +62,6 @@ public class SearchActivity extends AppCompatActivity
     TextView status;
     ProgressBar pBar;
 
-    View emptyView;
-    ImageView emptyViewImage;
-    TextView emptyViewDescription;
-
     ImageButton searchButton, randomButton, favouriteButton;
     View controlsContainer;
     ImageButton nextButton, previousButton;
@@ -75,32 +77,43 @@ public class SearchActivity extends AppCompatActivity
         super.onResume();
         if (recyclerView.getAdapter() == null || recyclerView.getAdapter().getItemCount() == 0)
             SetStatus(StatusType.BEGIN);
+        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("cat", false))
+            findViewById(R.id.catWarning).setVisibility(View.VISIBLE);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         SplashScreen.Companion.installSplashScreen(this);
+        setTheme(R.style.Theme_MangadexDownloader_NoActionBar);
 
         super.onCreate(savedInstanceState);
 
         client = new DNSClient(DNSClient.PresetDNS.CLOUDFLARE);
 
         getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-        // set an enter transition
-        getWindow().setEnterTransition(new Fade());
-        // set an exit transition
-        getWindow().setExitTransition(new Fade());
+
+        Fade fade = new Fade();
+
+        getWindow().setSharedElementsUseOverlay(false);
+
+        // Set an enter transition
+        getWindow().setEnterTransition(null);
+        // Set an exit transition
+        getWindow().setExitTransition(fade);
+        getWindow().setSharedElementExitTransition(fade);
 
         setContentView(R.layout.activity_search);
+
+        Toolbar t = findViewById(R.id.home_toolbar);
+        setSupportActionBar(t);
+        ActionBar actionBar = getSupportActionBar();
+        assert actionBar != null;
 
         recyclerView = findViewById(R.id.results);
         searchBar = findViewById(R.id.searchBar);
         status = findViewById(R.id.status);
         pBar = findViewById(R.id.progressBar);
-        emptyView = findViewById(R.id.emptyView);
-        emptyViewImage = findViewById(R.id.emptyViewImage);
-        emptyViewDescription = findViewById(R.id.emptyViewText);
         searchButton = findViewById(R.id.searchButton);
         randomButton = findViewById(R.id.randomButton);
         favouriteButton = findViewById(R.id.favouriteButton);
@@ -179,16 +192,14 @@ public class SearchActivity extends AppCompatActivity
             }
         }
 
-
-        // warmupRequest();
+        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("cat", false))
+            findViewById(R.id.catWarning).setVisibility(View.VISIBLE);
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         if (customIDs != null)
             outState.putString("searchQuery", "__fav");
-        else if (emptyView.getVisibility() == View.GONE)
-            outState.putString("searchQuery", "__trn");
         else
             outState.putString("searchQuery", searchBar.getText().toString());
         outState.putInt("searchOffset", searchOffset);
@@ -310,6 +321,7 @@ public class SearchActivity extends AppCompatActivity
                         status.setText(getString(R.string.searchFound, mResults.getOffset() + 1, mResults.getOffset() + resultsLength, mResults.getTotal()));
                     }
                     MangaAdapter adapter = new MangaAdapter(SearchActivity.this, mResults.getData());
+                    adapter.setHasStableIds(true);
                     recyclerView.setAdapter(adapter);
 
                     searchButton.setEnabled(true);
@@ -322,10 +334,14 @@ public class SearchActivity extends AppCompatActivity
     public void QueryNext() {
         searchOffset += 20;
         getResults(customIDs);
+        NestedScrollView v = findViewById(R.id.scrollView);
+        v.smoothScrollTo(0, 0);
     }
     public void QueryPrevious() {
         searchOffset -= 20;
         getResults(customIDs);
+        NestedScrollView v = findViewById(R.id.scrollView);
+        v.smoothScrollTo(0, 0);
     }
 
     public void getRandomManga(View view) {
@@ -402,44 +418,23 @@ public class SearchActivity extends AppCompatActivity
     public void SetStatus(StatusType _status) {
         switch (_status) {
             case BEGIN:
-                pBar.setVisibility(View.GONE);
-                emptyView.setVisibility(View.VISIBLE);
-                recyclerView.setVisibility(View.INVISIBLE);
-                emptyViewImage.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.smiling));
-                emptyViewDescription.setText(R.string.searchBegin);
-                controlsContainer.setVisibility(View.INVISIBLE);
-                break;
             case NAY_RESULTS:
+            case FAVOURITE_EMPTY:
                 pBar.setVisibility(View.GONE);
-                emptyView.setVisibility(View.VISIBLE);
                 recyclerView.setVisibility(View.INVISIBLE);
-                emptyViewImage.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.distressed));
-                emptyViewDescription.setText(R.string.emptyList);
                 controlsContainer.setVisibility(View.INVISIBLE);
                 break;
             case YAY_RESULTS:
                 recyclerView.setVisibility(View.VISIBLE);
                 pBar.setVisibility(View.GONE);
-                emptyView.setVisibility(View.GONE);
                 controlsContainer.setVisibility(View.VISIBLE);
                 break;
             case SEARCHING:
                 pBar.setVisibility(View.VISIBLE);
                 recyclerView.setVisibility(View.INVISIBLE);
-                emptyView.setVisibility(View.GONE);
                 nextButton.setEnabled(false);
                 previousButton.setEnabled(false);
                 break;
-            case FAVOURITE_EMPTY:
-                pBar.setVisibility(View.GONE);
-                emptyView.setVisibility(View.VISIBLE);
-                recyclerView.setVisibility(View.INVISIBLE);
-                emptyViewImage.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.smiling));
-                emptyViewDescription.setText(R.string.addFavouritesHint);
-                controlsContainer.setVisibility(View.INVISIBLE);
-                break;
         }
-        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("cat", false))
-            emptyViewImage.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.cat));
     }
 }

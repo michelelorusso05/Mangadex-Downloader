@@ -17,9 +17,9 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.util.Pair;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.littleProgrammers.mangadexdownloader.utils.FavouriteManager;
 import com.littleProgrammers.mangadexdownloader.utils.FolderUtilities;
 import com.littleProgrammers.mangadexdownloader.utils.PDFHelper;
 
@@ -56,19 +56,15 @@ public class OfflineReaderActivity extends ReaderActivity {
 
         pageProgressIndicator.setIndeterminate(false);
 
-        pageSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (pageSelection.getTag() != null) {
-                    pageSelection.setTag(null);
-                }
-                else {
-                    LockPager();
-                    pager.setCurrentItem(position + 1);
-                }
+        pageSelection.spinner.setSaveEnabled(false);
+        pageSelection.setOnItemSelectedListener(pos -> {
+            if (pageSelection.spinner.getTag() != null) {
+                pageSelection.spinner.setTag(null);
+                return;
             }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+
+            LockPager();
+            pager.setCurrentItem(adapter.chapterPositionToRawPosition(pos));
         });
 
         pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
@@ -88,6 +84,9 @@ public class OfflineReaderActivity extends ReaderActivity {
             }
         });
 
+        int page = savedInstanceState != null ? savedInstanceState.getInt("currentPage", 1) : 1;
+        int currentPage = page - 1;
+
         if (landscape) {
             new Thread(() -> {
                 // Indexes are generated one time, here, in a non-iterative fashion (all the pages are preloaded here).
@@ -105,7 +104,7 @@ public class OfflineReaderActivity extends ReaderActivity {
                 }
 
                 for (int i = 0; i < isLandscape.length; i++) {
-                    if (isLandscape[i]) indexes.add(new Pair<>(i, null));
+                    if (isLandscape[i] || i == 0) indexes.add(new Pair<>(i, null));
                     else {
                         if (i + 1 >= isLandscape.length || isLandscape[i + 1]) indexes.add(new Pair<>(i, null));
                         else {
@@ -116,18 +115,27 @@ public class OfflineReaderActivity extends ReaderActivity {
                 }
 
                 adapter = new OfflinePagesAdapter(OfflineReaderActivity.this, baseUrl, urls, ReaderPagesAdapter.NAVIGATION_ONESHOT, landscape, indexes);
+                adapter.setHasStableIds(true);
+
                 runOnUiThread(() -> pager.setAdapter(adapter));
+
+                int pageToSet = 0;
 
                 String[] pages = new String[indexes.size()];
                 for (int i = 0; i < indexes.size(); i++) {
                     Pair<Integer, Integer> p = indexes.get(i);
                     pages[i] = p.second == null ? getString(R.string.pageIndicator, p.first + 1) : getString(R.string.doublePageIndicator, p.first + 1, p.second + 1);
+
+                    if (currentPage == p.first || (p.second != null && currentPage == p.second))
+                        pageToSet = i;
                 }
 
+
+                final int savedPage  = pageToSet;
                 runOnUiThread(() -> {
                     LockSelectionSpinner();
                     pageSelection.setAdapter(new ArrayAdapter<>(OfflineReaderActivity.this, R.layout.page_indicator_spinner_item, pages));
-                    pageSelection.setSelection(0);
+                    pager.setCurrentItem(savedPage, false);
                 });
             }).start();
         }
@@ -135,7 +143,7 @@ public class OfflineReaderActivity extends ReaderActivity {
             GeneratePageSelectionSpinnerAdapter();
             adapter = new OfflinePagesAdapter(OfflineReaderActivity.this, baseUrl, urls, ReaderPagesAdapter.NAVIGATION_ONESHOT, landscape, null);
             pager.setAdapter(adapter);
-            pageSelection.setSelection(0);
+            pager.setCurrentItem(currentPage, false);
         }
     }
 

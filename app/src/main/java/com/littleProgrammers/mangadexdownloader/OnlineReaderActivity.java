@@ -2,10 +2,8 @@ package com.littleProgrammers.mangadexdownloader;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
@@ -15,12 +13,14 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.littleProgrammers.mangadexdownloader.apiResults.AtHomeResults;
+import com.littleProgrammers.mangadexdownloader.utils.BetterSpinner;
 import com.littleProgrammers.mangadexdownloader.utils.FavouriteManager;
 import com.michelelorusso.dnsclient.DNSClient;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -33,20 +33,17 @@ public class OnlineReaderActivity extends ReaderActivity {
     String[] chapterNames;
     String[] chapterIDs;
     ObjectMapper mapper;
-
-    boolean startedPreloading;
-    final ArrayList<Boolean> isLandscape = new ArrayList<>();
-    ArrayList<Pair<Integer, Integer>> indexes = new ArrayList<>();
-
-    Spinner chapterSelection;
+    BetterSpinner chapterSelection;
     ImageButton chapterNext, chapterPrevious;
 
     boolean bookmarkingEnabled;
     int indexToBookmark;
 
     boolean setLastPage;
+    AtomicInteger targetPage = new AtomicInteger(-1);
 
     ReaderPagesAdapter adapter;
+    ArrayAdapter<String> indexAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +51,7 @@ public class OnlineReaderActivity extends ReaderActivity {
 
         chapterPrevious = findViewById(R.id.previousChapterButton);
         chapterNext = findViewById(R.id.nextChapterButton);
-        chapterSelection = findViewById(R.id.chapterSelection);
+        chapterSelection = new BetterSpinner(findViewById(R.id.chapterSelection));
 
         chapterPrevious.setOnClickListener(this::ChapterPrevious);
         chapterNext.setOnClickListener(this::ChapterNext);
@@ -72,19 +69,17 @@ public class OnlineReaderActivity extends ReaderActivity {
         mangaID = getIntent().getStringExtra("mangaID");
 
         bookmarkingEnabled = FavouriteManager.IsFavourite(this, mangaID);
+        if (savedInstanceState != null)
+            targetPage.set(savedInstanceState.getInt("currentPage", -1) - 1);
 
         chapterSelection.setAdapter(new ChapterSelectionAdapter(this, chapterNames));
-        chapterSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                startedPreloading = false;
-                FetchAtHome(position);
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+        chapterSelection.setOnItemSelectedListener((pos) -> {
+            if (adapter != null) adapter.detach();
+            FetchAtHome(pos);
         });
 
         String targetChapter = getIntent().getStringExtra("targetChapter");
+
         if (targetChapter == null)
             chapterSelection.setSelection(0);
         else {
@@ -96,27 +91,20 @@ public class OnlineReaderActivity extends ReaderActivity {
             }
         }
 
-        GeneratePageSelectionSpinnerAdapter();
-        pageSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (pageSelection.getTag() != null) {
-                    pageSelection.setTag(null);
-                }
-                else {
-                    LockPager();
-                    pager.setCurrentItem(position + 1);
-                }
-
-
-                if (bookmarkingEnabled && position >= pageSelection.getCount() - 2) {
-                    FavouriteManager.SetBookmarkForFavourite(OnlineReaderActivity.this, mangaID,
-                            chapterIDs[indexToBookmark == chapterSelection.getCount() - 1 ? indexToBookmark : indexToBookmark + 1],
-                            indexToBookmark == chapterSelection.getCount() - 1);
-                }
+        pageSelection.setOnItemSelectedListener(pos -> {
+            if (pageSelection.spinner.getTag() != null) {
+                pageSelection.spinner.setTag(null);
+                return;
             }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            LockPager();
+            pager.setCurrentItem(adapter.chapterPositionToRawPosition(pos), false);
+
+            // Update bookmark
+            if (bookmarkingEnabled && pos >= pageSelection.getCount() - 2) {
+                FavouriteManager.SetBookmarkForFavourite(OnlineReaderActivity.this, mangaID,
+                        chapterIDs[indexToBookmark == chapterSelection.getCount() - 1 ? indexToBookmark : indexToBookmark + 1],
+                        indexToBookmark == chapterSelection.getCount() - 1);
+            }
         });
 
         pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
@@ -148,16 +136,13 @@ public class OnlineReaderActivity extends ReaderActivity {
         if (savedInstanceState == null) {
             try {
                 client.getCache().evictAll();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            pageSelection.setSelection(0);
+            } catch (IOException ignored) {}
         }
 
         next.setOnClickListener((v) -> pager.setCurrentItem(pager.getCurrentItem() + 1));
         previous.setOnClickListener((v) -> pager.setCurrentItem(pager.getCurrentItem() - 1));
-        first.setOnClickListener((v) -> pager.setCurrentItem(adapter.getFirstPage()));
-        last.setOnClickListener((v) -> pager.setCurrentItem(adapter.getLastPage()));
+        first.setOnClickListener((v) -> pager.setCurrentItem(adapter.getFirstPage(), false));
+        last.setOnClickListener((v) -> pager.setCurrentItem(adapter.getLastPage(), false));
     }
 
     private void FetchAtHome(int position) {
@@ -175,6 +160,8 @@ public class OnlineReaderActivity extends ReaderActivity {
                     chapterNext.setEnabled(position < chapterSelection.getCount() - 1);
                     chapterPrevious.setEnabled(position > 0);
                     pageProgressIndicator.setIndeterminate(false);
+
+                    // TODO: retry button
                 });
             }
             @Override
@@ -214,26 +201,59 @@ public class OnlineReaderActivity extends ReaderActivity {
                             baseUrl, urls, client, ReaderPagesAdapter.BooleanToParameter(
                                     chapterPrevious.isEnabled(), chapterNext.isEnabled()), landscape);
                     adapter.setHasStableIds(true);
-                    adapter.setOnPageUpdatedCallback((indexes) -> {
-                        LockSelectionSpinner();
 
-                        String[] pages = new String[indexes.size()];
+                    int l = urls.length;
+                    final ArrayList<String> pages = new ArrayList<>(l);
+                    for (int i = 0; i < l; i++)
+                        pages.add(UpdatePageIndicator(i));
+
+                    indexAdapter = new IndexAdapter(OnlineReaderActivity.this, pages);
+                    pageSelection.setAdapter(indexAdapter);
+
+                    adapter.setOnPageUpdatedCallback((indexes, removed) -> runOnUiThread(() -> {
+                        int pos = pageSelection.getSelectedItemPosition();
+                        boolean matchString = false;
+                        Integer index = null;
+                        try {
+                            index = Integer.parseInt((String) pageSelection.getSelectedItem());
+                        } catch (NumberFormatException e) {
+                            matchString = true;
+                        }
+
+                        int targetPos = pos;
+
+                        final String[] newPages = new String[indexes.size()];
 
                         for (int i = 0; i < indexes.size(); i++) {
                             Pair<Integer, Integer> p = indexes.get(i);
-                            pages[i] = p.second == null ? getString(R.string.pageIndicator, p.first + 1) : getString(R.string.doublePageIndicator, p.first + 1, p.second + 1);
+                            newPages[i] = p.second == null ? getString(R.string.pageIndicator, p.first + 1) : getString(R.string.doublePageIndicator, p.first + 1, p.second + 1);
+
+                            if (matchString) {
+                                if (newPages[i].equals(pageSelection.getSelectedItem()))
+                                    targetPos = i;
+                            }
+                            else {
+                                if (index.equals(p.first + 1) || index.equals((p.second == null ? -2 : p.second) + 1))
+                                    targetPos = i;
+                            }
                         }
 
-                        runOnUiThread(() -> pageSelection.setAdapter(new ArrayAdapter<>(OnlineReaderActivity.this, R.layout.page_indicator_spinner_item, pages)));
-                    });
-                    pager.setAdapter(adapter);
-                    pager.setCurrentItem(lastFlag ? adapter.getLastPage() : adapter.getFirstPage(), false);
+                        indexAdapter.clear();
+                        indexAdapter.addAll(newPages);
+                        indexAdapter.notifyDataSetChanged();
 
-                    GeneratePageSelectionSpinnerAdapter();
-
-                    if (lastFlag) {
+                        if (pos == targetPos) return;
                         LockSelectionSpinner();
-                        pageSelection.setSelection(urls.length - 1);
+                        pageSelection.setSelection(targetPos);
+
+                    }));
+                    pager.setAdapter(adapter);
+
+                    if (targetPage.get() == -1)
+                        pager.setCurrentItem(lastFlag ? adapter.getLastPage() : adapter.getFirstPage(), false);
+                    else {
+                        pager.setCurrentItem(adapter.chapterPositionToRawPosition(targetPage.get()), false);
+                        targetPage.set(-1);
                     }
                 });
                 if (bookmarkingEnabled) {
@@ -259,15 +279,6 @@ public class OnlineReaderActivity extends ReaderActivity {
         first.setEnabled(e);
         last.setEnabled(e);
     }
-
-    private void UpdateButtonsState(final int index) {
-        first.setEnabled(index > 0);
-        last.setEnabled(index < urls.length - 1);
-
-        previous.setEnabled(chapterPrevious.isEnabled() || first.isEnabled());
-        next.setEnabled(chapterNext.isEnabled() || last.isEnabled());
-    }
-
 
     public void ChapterNext(View v) {
         if (chapterSelection.getSelectedItemPosition() < chapterSelection.getCount() - 1)

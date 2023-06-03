@@ -2,21 +2,20 @@ package com.littleProgrammers.mangadexdownloader;
 
 import android.app.Activity;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
 import androidx.core.util.Pair;
 
-import com.michelelorusso.dnsclient.DNSClient;
-
-import java.io.File;
 import java.util.ArrayList;
 
 public class OfflinePagesAdapter extends ReaderPagesAdapter {
     public OfflinePagesAdapter(Activity ctx, String folder, String[] files, int navigationMode, boolean landscape, ArrayList<Pair<Integer, Integer>> indexes) {
         super(ctx, folder, files, navigationMode, landscape);
-        if (landscape)
-            this.indexes = indexes;
+        if (landscape) {
+            this.indexes.clear();
+            this.indexes.addAll(indexes);
+        }
     }
 
     @Override

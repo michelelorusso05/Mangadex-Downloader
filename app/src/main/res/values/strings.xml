@@ -86,7 +86,6 @@
     <string name="settingsShowAtStart">Startup page</string>
 
     <string-array name="settingsShowAtStartupStrings">
-        <item>Nothing</item>
         <item>Mangadex Recommended</item>
         <item>Your favourites</item>
     </string-array>

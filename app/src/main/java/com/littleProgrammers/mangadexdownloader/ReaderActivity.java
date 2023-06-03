@@ -4,17 +4,20 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 import androidx.viewpager2.widget.ViewPager2;
+
+import com.littleProgrammers.mangadexdownloader.utils.BetterSpinner;
 
 public abstract class ReaderActivity extends AppCompatActivity {
     protected String baseUrl;
@@ -22,7 +25,7 @@ public abstract class ReaderActivity extends AppCompatActivity {
     protected boolean landscape;
     protected boolean showControls = true;
     protected ViewPager2 pager;
-    protected Spinner pageSelection;
+    protected BetterSpinner pageSelection;
     protected ImageButton previous, next, first, last;
     protected ProgressBar pageProgressIndicator;
 
@@ -44,7 +47,7 @@ public abstract class ReaderActivity extends AppCompatActivity {
 
         landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 
-        pageSelection = findViewById(R.id.progressView);
+        pageSelection = new BetterSpinner(findViewById(R.id.progressView));
         pageProgressIndicator = findViewById(R.id.pageProgress);
         pager = findViewById(R.id.pager);
 
@@ -57,6 +60,9 @@ public abstract class ReaderActivity extends AppCompatActivity {
         next.setOnClickListener(this::nextPage);
         first.setOnClickListener(this::firstPage);
         last.setOnClickListener(this::lastPage);
+
+        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("readerRTL", false))
+            pager.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
     }
 
     @Override
@@ -67,6 +73,9 @@ public abstract class ReaderActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+        if (pageSelection == null || pageSelection.getAdapter() == null) return;
+        int page = Integer.parseInt(((String) pageSelection.getSelectedItem()).split(" ")[0]);
+        outState.putInt("currentPage", page);
     }
 
     @Override
@@ -90,6 +99,29 @@ public abstract class ReaderActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        String volumenavigation = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("readerVolumeKeysNavigation", "dis");
+        if ("dis".equals(volumenavigation)) return super.onKeyDown(keyCode, event);
+        boolean inverted = "en_rev".equals(volumenavigation);
+
+        if ((keyCode == KeyEvent.KEYCODE_VOLUME_UP)){
+            if (inverted)
+                pager.setCurrentItem(pager.getCurrentItem() - 1);
+            else
+                pager.setCurrentItem(pager.getCurrentItem() + 1);
+            return true;
+        }
+        else if ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)){
+            if (inverted)
+                pager.setCurrentItem(pager.getCurrentItem() + 1);
+            else
+                pager.setCurrentItem(pager.getCurrentItem() - 1);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     protected void GeneratePageSelectionSpinnerAdapter() {
@@ -130,6 +162,6 @@ public abstract class ReaderActivity extends AppCompatActivity {
         pager.setTag("spinnerControl");
     }
     protected void LockSelectionSpinner() {
-        pageSelection.setTag("pagerLock");
+        pageSelection.spinner.setTag("pagerLock");
     }
 }

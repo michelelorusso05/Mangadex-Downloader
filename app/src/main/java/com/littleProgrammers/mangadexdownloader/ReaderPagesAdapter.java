@@ -16,20 +16,23 @@ import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
 import androidx.core.util.Pair;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jsibbold.zoomage.ZoomageView;
 import com.littleProgrammers.mangadexdownloader.utils.BitmapUtilities;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class ReaderPagesAdapter extends RecyclerView.Adapter<ReaderPagesAdapter.PageViewHolder> {
     Activity context;
     String baseUrl;
     String[] urls;
-    ArrayList<androidx.core.util.Pair<Integer, Integer>> indexes;
+    final ArrayList<Pair<Integer, Integer>> indexes;
 
     private final int navigationMode;
 
@@ -38,6 +41,7 @@ public abstract class ReaderPagesAdapter extends RecyclerView.Adapter<ReaderPage
     private final int windowMin;
     private final int windowMax;
     final boolean orientationLandscape;
+    final boolean rtl;
 
     final Queue<Boolean> isLandscape = new ConcurrentLinkedQueue<>();
 
@@ -48,7 +52,11 @@ public abstract class ReaderPagesAdapter extends RecyclerView.Adapter<ReaderPage
     public static final int NAVIGATION_RIGHT = 1 << 1;
     public static final int NAVIGATION_ONESHOT = 0;
 
-    Consumer<ArrayList<Pair<Integer, Integer>>> onPageUpdatedCallback;
+    @FunctionalInterface
+    interface OnIndexesUpdated {
+        void execute(ArrayList<Pair<Integer, Integer>> indexes, ArrayList<Pair<Integer, Integer>> removed);
+    }
+    OnIndexesUpdated onPageUpdatedCallback;
     @SuppressLint("deprecation")
     public ReaderPagesAdapter(Activity ctx,
                               String baseUrl,
@@ -81,6 +89,8 @@ public abstract class ReaderPagesAdapter extends RecyclerView.Adapter<ReaderPage
 
         this.navigationMode = navigationMode;
         this.orientationLandscape = landscape;
+
+        rtl = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("readerRTL", false);
     }
 
     @NonNull
@@ -110,25 +120,29 @@ public abstract class ReaderPagesAdapter extends RecyclerView.Adapter<ReaderPage
 
     @Override
     public long getItemId(int position) {
-        if (position == 0 || position == getItemCount() - 1) return NO_ID;
+        if ((position == 0 && checkNavigationParameter(NAVIGATION_LEFT)) || (position == getItemCount() - 1 && checkNavigationParameter(NAVIGATION_RIGHT))) return NO_ID;
+        if (!checkNavigationParameter(NAVIGATION_LEFT)) position++;
         return urls[indexes.get(position - 1).first].hashCode() ^ (indexes.get(position - 1).second != null ? urls[indexes.get(position - 1).second].hashCode() : 0);
     }
+
 
     @Override
     public void onBindViewHolder(@NonNull PageViewHolder holder, int position) {
         if (getItemViewType(position) != VIEW_TYPE_PAGE) return;
 
+        holder.itemView.setAlpha(1);
+
         holder.progressBar.setVisibility(View.VISIBLE);
-        holder.image.setImageBitmap(null);
+        //holder.image.setImageBitmap(null);
 
         Integer key = position;
         holder.progressBar.setTag(key);
 
-        position = rawPositionToChapterPosition(position);
+        position = rawPositionToChapterPosition(holder.getAdapterPosition());
 
         Dispatcher<Bitmap> dispatcher = new Dispatcher<>(2, (ArrayList<Bitmap> bitmaps) -> {
             new Thread(() -> {
-                Bitmap combined = BitmapUtilities.combineBitmaps(bitmaps.get(0), bitmaps.get(1), true);
+                Bitmap combined = BitmapUtilities.combineBitmaps(bitmaps.get(0), bitmaps.get(1), rtl);
 
                 context.runOnUiThread(() -> {
                     holder.progressBar.setVisibility(View.INVISIBLE);
@@ -138,15 +152,25 @@ public abstract class ReaderPagesAdapter extends RecyclerView.Adapter<ReaderPage
         });
 
 
-        loadBitmapAtPosition(indexes.get(position).first, (Bitmap b) -> dispatcher.UpdateProgress(b, 0));
-        Integer secondPos = indexes.get(position).second;
-        if (secondPos != null)
-            loadBitmapAtPosition(secondPos, (Bitmap b) -> dispatcher.UpdateProgress(b, 1));
-        else
-            dispatcher.UpdateProgress(null, 1);
-
+        synchronized (indexes) {
+            loadBitmapAtPosition(indexes.get(position).first, (Bitmap b) -> dispatcher.UpdateProgress(b, 0));
+            Integer secondPos = indexes.get(position).second;
+            if (secondPos != null)
+                loadBitmapAtPosition(secondPos, (Bitmap b) -> dispatcher.UpdateProgress(b, 1));
+            else
+                dispatcher.UpdateProgress(null, 1);
+        }
     }
-    public void setOnPageUpdatedCallback(Consumer<ArrayList<Pair<Integer, Integer>>> callback) {
+    @Override
+    public void onBindViewHolder(@NonNull PageViewHolder holder, int position, @NonNull List<Object> payloads) {
+        position = holder.getAdapterPosition();
+        if (payloads.isEmpty() || indexes.get(position).second != null) {
+            onBindViewHolder(holder, position);
+        }
+
+        // No need to update
+    }
+    public void setOnPageUpdatedCallback(OnIndexesUpdated callback) {
         onPageUpdatedCallback = callback;
     }
     interface LoadBitmap { void onLoadFinished(Bitmap b); }
@@ -155,13 +179,19 @@ public abstract class ReaderPagesAdapter extends RecyclerView.Adapter<ReaderPage
 
     static final int IMAGE_PRELOAD_BLOCK = 4;
     private int counter = 0;
-    private void constructIndexes(boolean more) {
+    private final AtomicBoolean shouldPushUpdates = new AtomicBoolean(true);
+    private boolean firstPage = true;
+
+    private synchronized void constructIndexes(boolean more) {
         if (!orientationLandscape) return;
+
+        ArrayList<Pair<Integer, Integer>> removedIndexes = new ArrayList<>(2);
 
         do {
             boolean cur = Boolean.TRUE.equals(isLandscape.poll());
 
-            if (cur) {
+            if (firstPage || cur) {
+                firstPage = false;
                 counter++;
             } else {
                 Boolean next = isLandscape.peek();
@@ -174,22 +204,36 @@ public abstract class ReaderPagesAdapter extends RecyclerView.Adapter<ReaderPage
                 if (next) {
                     counter++;
                 } else {
+                    notifyItemChanged(counter, "ChangeToDouble");
+
                     indexes.set(counter, new Pair<>(indexes.get(counter).first, indexes.get(counter + 1).first));
-                    context.runOnUiThread(() -> notifyItemChanged(counter));
+                    removedIndexes.add(indexes.get(counter));
                     counter++;
+                    notifyItemRemoved(counter);
                     indexes.remove(counter);
-                    context.runOnUiThread(() -> notifyItemRemoved(counter));
                     isLandscape.remove();
                 }
             }
         } while (isLandscape.size() > 1);
 
-        if (onPageUpdatedCallback != null) onPageUpdatedCallback.accept(indexes);
+        if (onPageUpdatedCallback != null && shouldPushUpdates.get()) onPageUpdatedCallback.execute(indexes, removedIndexes);
     }
     protected void startPreload() {
         preloadBlock(0);
     }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        detach();
+    }
+    public void detach() {
+        shouldPushUpdates.set(false);
+    }
+
     private void preloadBlock(int start) {
+        if (!shouldPushUpdates.get()) return;
+
         int last = start + IMAGE_PRELOAD_BLOCK;
         boolean more = true;
 
@@ -202,7 +246,7 @@ public abstract class ReaderPagesAdapter extends RecyclerView.Adapter<ReaderPage
         Dispatcher<Boolean> dispatcher = new Dispatcher<>(last - start, (booleans) -> {
             isLandscape.addAll(booleans);
 
-            constructIndexes(continuePreloading);
+            context.runOnUiThread(() -> constructIndexes(continuePreloading));
             if (continuePreloading)
                 preloadBlock(start + IMAGE_PRELOAD_BLOCK);
         });
@@ -277,6 +321,10 @@ public abstract class ReaderPagesAdapter extends RecyclerView.Adapter<ReaderPage
 
     public int rawPositionToChapterPosition(int position) {
         if (checkNavigationParameter(NAVIGATION_LEFT)) position--;
+        return position;
+    }
+    public int chapterPositionToRawPosition(int position) {
+        if (checkNavigationParameter(NAVIGATION_LEFT)) position++;
         return position;
     }
 
