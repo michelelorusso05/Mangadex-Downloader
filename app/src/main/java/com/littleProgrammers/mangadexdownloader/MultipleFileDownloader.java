@@ -28,6 +28,7 @@ public class MultipleFileDownloader {
     interface OnProgressUpdate { void progress(int progress, int total); }
     private OnProgressUpdate onProgressUpdate;
     private Runnable onDownloadCompleted;
+    private boolean stopped;
 
     private int concurrentDownloads;
     public MultipleFileDownloader(DNSClient client, String[] urls, File dst, int concurrentDownloads) {
@@ -73,6 +74,9 @@ public class MultipleFileDownloader {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     e.printStackTrace();
+
+                    if (stopped) return;
+
                     if (failedAttempts.incrementAndGet() <= MAX_FAILED_ATTEMPTS) {
                         call.clone().enqueue(this);
                     }
@@ -83,6 +87,8 @@ public class MultipleFileDownloader {
 
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) {
+                    if (stopped) return;
+
                     int curProgress = progress.incrementAndGet();
                     if (onProgressUpdate != null) onProgressUpdate.progress(curProgress, total);
                     if (curProgress == total) {
@@ -93,6 +99,10 @@ public class MultipleFileDownloader {
                 }
             });
         }
+    }
+    public void stop() {
+        client.CancelAllPendingRequests();
+        stopped = true;
     }
 
     private static String nameFromPosition(String originalFilename, int pos, int total) {

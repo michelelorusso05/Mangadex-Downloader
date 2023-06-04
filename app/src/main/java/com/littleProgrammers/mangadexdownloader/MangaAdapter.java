@@ -25,7 +25,6 @@ import com.google.android.material.imageview.ShapeableImageView;
 import com.littleProgrammers.mangadexdownloader.apiResults.Manga;
 import com.michelelorusso.dnsclient.DNSClient;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MangaAdapter extends RecyclerView.Adapter<MangaAdapter.viewHolder> {
@@ -53,8 +52,7 @@ public class MangaAdapter extends RecyclerView.Adapter<MangaAdapter.viewHolder> 
     }
 
     public MangaAdapter(Activity _ct) {
-        ct = _ct;
-        mangas = new Manga[0];
+        this(_ct, new Manga[0]);
     }
 
     @NonNull
@@ -82,6 +80,7 @@ public class MangaAdapter extends RecyclerView.Adapter<MangaAdapter.viewHolder> 
             final String manga = mapper.writeValueAsString(mangas[position]);
 
             holder.rowLayout.setOnClickListener(v -> {
+                ct.findViewById(R.id.searchBar).clearFocus();
                 Intent intent = new Intent(ct, ChapterDownloaderActivity.class);
                 intent.putExtra("MangaData", manga);
                 StaticData.sharedCover = null;

@@ -168,21 +168,20 @@ public class SearchActivity extends AppCompatActivity
                 searchOffset = 0;
                 getResults(FavouriteManager.GetFavouritesIDs(this));
             }
-            else if (savedQuery.equals("__trn")) {
+            else if (savedQuery.equals("__trn") || savedQuery.length() == 0) {
                 controlsContainer.setVisibility(View.INVISIBLE);
                 searchBar.setText("");
                 getResults(null);
             }
-            else if (savedQuery.length() != 0) {
+            else {
                 searchBar.setText(savedQuery);
                 getResults();
             }
         }
         else {
-            String startPage = PreferenceManager.getDefaultSharedPreferences(this).getString("startupView", "__mty");
+            String startPage = PreferenceManager.getDefaultSharedPreferences(this).getString("startupView", "__trn");
             switch (startPage) {
                 case "__mty":
-                    break;
                 case "__trn":
                     getResults(null);
                     break;
@@ -323,6 +322,7 @@ public class SearchActivity extends AppCompatActivity
                     MangaAdapter adapter = new MangaAdapter(SearchActivity.this, mResults.getData());
                     adapter.setHasStableIds(true);
                     recyclerView.setAdapter(adapter);
+                    recyclerView.setHasFixedSize(true);
 
                     searchButton.setEnabled(true);
                     favouriteButton.setEnabled(true);
@@ -434,6 +434,7 @@ public class SearchActivity extends AppCompatActivity
                 recyclerView.setVisibility(View.INVISIBLE);
                 nextButton.setEnabled(false);
                 previousButton.setEnabled(false);
+                ((NestedScrollView) findViewById(R.id.scrollView)).smoothScrollTo(0, 0);
                 break;
         }
     }

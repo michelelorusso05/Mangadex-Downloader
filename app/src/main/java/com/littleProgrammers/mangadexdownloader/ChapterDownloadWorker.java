@@ -28,10 +28,8 @@ import com.michelelorusso.dnsclient.DNSClient;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -52,10 +50,14 @@ public class ChapterDownloadWorker extends Worker {
     private int failedDownloads;
     private static final int MAX_FAILED_ATTEMPTS = 5;
     private final boolean hasNotificationPermissions;
+    private MultipleFileDownloader downloader;
 
     @Override
     public void onStopped() {
         super.onStopped();
+        if (downloader != null)
+            downloader.stop();
+
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
         notificationManager.cancel(uniqueID);
 
@@ -193,7 +195,7 @@ public class ChapterDownloadWorker extends Worker {
                 for (int i = 0; i < urls.length; i++)
                     urls[i] = baseUrl + hResults.getChapter().getHash() + "/" + images[i];
 
-                MultipleFileDownloader downloader = new MultipleFileDownloader(client, urls,
+                downloader = new MultipleFileDownloader(client, urls,
                         new File(context.getExternalFilesDir(null) + "/mangadexDownloaderTemp/" + selectedChapterID + "/"));
                 downloader.setOnDownloadCompleted(() -> OnDownloadEnd());
                 downloader.setOnDownloadFailCallback(() -> OnDownloadFail());
