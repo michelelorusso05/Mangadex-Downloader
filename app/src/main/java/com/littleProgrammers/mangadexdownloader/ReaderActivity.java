@@ -63,6 +63,8 @@ public abstract class ReaderActivity extends AppCompatActivity {
 
         if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("readerRTL", false))
             pager.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+
+        pager.setOffscreenPageLimit(1);
     }
 
     @Override
