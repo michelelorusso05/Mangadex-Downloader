@@ -40,6 +40,16 @@ public class BetterSpinner {
         userInitiatedAction = true;
         spinner.setSelection(position);
     }
+
+    /**
+     * Set selection without firing callback.
+     * @param position The new position.
+     */
+    public void setVisualSelection(int position)
+    {
+        userInitiatedAction = false;
+        spinner.setSelection(position);
+    }
     public int getCount() {
         return spinner.getCount();
     }

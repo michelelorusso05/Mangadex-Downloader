@@ -319,6 +319,12 @@ public abstract class ReaderPagesAdapter extends RecyclerView.Adapter<ReaderPage
         return n;
     }
 
+    public int rawIndexToChapterPage(int index)
+    {
+        int n = rawPositionToChapterPosition(index);
+        return indexes.get(n).first + 1;
+    }
+
     public int rawPositionToChapterPosition(int position) {
         if (checkNavigationParameter(NAVIGATION_LEFT)) position--;
         return position;

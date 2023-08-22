@@ -13,6 +13,18 @@
             app:useSimpleSummaryProvider="true"/>
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/settingsSearch">
+        <MultiSelectListPreference
+            app:key="contentFilter"
+            app:title="@string/settingsSearchContentRatingTitle"
+            app:summary="@string/settingsSearchContentRatingDesc"
+            app:icon="@drawable/outline_filter_alt_24"
+            app:entryValues="@array/contentRatingValues"
+            app:entries="@array/ratings"
+            app:defaultValue="@array/contentRatingDefaultValues"
+            />
+    </PreferenceCategory>
+
     <PreferenceCategory app:title="@string/settingsChapterCategory">
 
         <SwitchPreferenceCompat
@@ -28,14 +40,15 @@
             app:summary="@string/settingsHideExternalDescription"
             app:icon="@drawable/ic_baseline_link_off_24"
             android:widgetLayout="@layout/preference_material_switch"/>
-        <ListPreference
-            app:key="chapterLanguages"
+        <MultiSelectListPreference
+            app:key="languagePreference"
             app:title="@string/settingsChapterLanguageTitle"
+            app:summary="@string/settingsChapterLanguageDes"
             app:icon="@drawable/ic_baseline_translate_24"
             app:useSimpleSummaryProvider="true"
             app:entries="@array/languageEntries"
             app:entryValues="@array/languageValues"
-            app:defaultValue="en"/>
+            app:defaultValue="@array/languagesDefault"/>
 
     </PreferenceCategory>
 

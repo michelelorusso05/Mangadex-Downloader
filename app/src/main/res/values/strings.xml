@@ -18,7 +18,7 @@
     <string name="searchFound">Showing results from %1$d to %2$d out of %3$d</string>
     <string name="searchFoundEmpty">No results found…</string>
     <string name="activityDownloadName">Download a manga</string>
-    <string name="mangaNoEntries">There are no chapters in the selected language.</string>
+    <string name="mangaNoEntries">There are no chapters in the selected languages.</string>
     <string name="mangaNoEntriesFilter">There are no chapters for the current filters.</string>
     <string name="cantDownload">Wait for the server to respond before attempting to download</string>
     <string name="storageAccessDenied">The app can\'t download the mangas without the storage write permission</string>
@@ -37,7 +37,7 @@
     <string name="DialogExitConfirm">Exit anyway</string>
     <string name="DialogExitDescription">A download is currently in progress. If you exit, the download will be interrupted. Confirm?</string>
     <string name="DialogExitTitle">Wait a second…</string>
-    <string name="settingsChapterLanguageDes">Filter the search results by language.</string>
+    <string name="settingsChapterLanguageDes">Filter the available chapters by language</string>
     <string name="settingsChapterLanguageTitle">Chapter languages</string>
     <string name="errServerFailed">Server failed to respond, try again</string>
     <string name="settingsLowQualityCovers">Low quality covers</string>
@@ -74,12 +74,12 @@
     <string name="mangaNoEntriesSubtext">But life goes on.</string>
     <string name="stopDownload">Stop download</string>
     <string name="infoOtherProjects">Check out my other projects!</string>
-    <string name="infoOtherProjectsDescription">They\'re not so bad, I promise.</string>
+    <string name="infoOtherProjectsDescription">They\'re not THAT bad…</string>
     <string name="shareAsPDF">Share as PDF</string>
     <string name="buttonSearch">Search</string>
     <string name="buttonRandom">Random</string>
     <string name="settingsHideExternal">Hide external chapters</string>
-    <string name="settingsHideExternalDescription">This applies to all chapters that are not hosted on Mangadex (Bilibili, MangaPlus, …).</string>
+    <string name="settingsHideExternalDescription">This applies to all chapters that are not hosted on Mangadex (Bilibili, MangaPlus, …)</string>
     <string name="favourite">Favourite</string>
     <string name="buttonFavourites">Favourites</string>
     <string name="addFavouritesHint">Your favourite mangas will be shown here. To add one, simply tap on the bookmark icon in a manga page.</string>
@@ -114,13 +114,34 @@
     <string name="chapterNext">Next chapter</string>
     <string name="settingsReader">Reader settings</string>
     <string name="settingsReaderRTL">Enable Right-To-Left (RTL)</string>
-    <string name="settingsReaderRTLDesc">Reverse page order and scrolling, just like original mangas.</string>
+    <string name="settingsReaderRTLDesc">Reverse page order and scrolling, just like original mangas</string>
     <string name="settingsReaderVolumeButtons">Volume buttons navigation</string>
-    <string name="settingsReaderVolumeButtonsDesc">Enable in-reader page scrolling using volume buttons.</string>
+    <string name="settingsReaderVolumeButtonsDesc">Enable in-reader page scrolling using volume buttons</string>
 
     <string-array name="settingsVolumeButtonsOptions">
         <item>Disabled</item>
         <item>Enabled</item>
         <item>Enabled (reverse)</item>
     </string-array>
+
+    <string-array name="ratings">
+        <item>For everyone</item>
+        <item>Suggestive</item>
+        <item>Erotica</item>
+        <item>Adult content</item>
+    </string-array>
+
+    <string name="preparingPDF">Getting the PDF ready…</string>
+    <string name="ratingSafe">For everyone</string>
+    <string name="ratingSuggestive">Suggestive</string>
+    <string name="ratingErotica">Erotica</string>
+    <string name="ratingPornographic">Adult content</string>
+    <string name="settingsSearch">Search settings</string>
+    <string name="settingsSearchContentRatingTitle">Content rating filter</string>
+    <string name="settingsSearchContentRatingDesc">Select what categories of manga will show up in searches</string>
+    <string name="searchWarning">Content filters are disabled. Mind what you\'re searching up.</string>
+    <string name="dialogAvailableLanguagesTitle">Avaliable languages</string>
+    <string name="dialogAvailableLanguagesOriginal">(original language)</string>
+    <string name="dialogAvailableLanguagesOpenSettings">Language settings</string>
+    <string name="settingsDuplicateChaptersDisabled">Always enabled when multiple languages are selected</string>
 </resources>

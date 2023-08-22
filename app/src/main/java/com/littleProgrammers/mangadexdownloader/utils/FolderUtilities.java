@@ -84,9 +84,12 @@ public class FolderUtilities {
     public static float ExtractNumberFromFilename(@NonNull File f) {
         float n;
         try {
-            String s = f.getName().substring(0, f.getName().indexOf(" "));
+            int endIndex = f.getName().indexOf(" ");
+            if (endIndex == -1) endIndex = f.getName().lastIndexOf('.');
+            String s = f.getName().substring(0, endIndex);
             n = Float.parseFloat(s);
         } catch (IndexOutOfBoundsException | NumberFormatException e) {
+            e.printStackTrace();
             n = -1;
         }
         return n;

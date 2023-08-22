@@ -9,21 +9,24 @@
         <item>Español (Es)</item>
         <item>Español (Latin Americas)</item>
         <item>Français</item>
+        <item>Hrvatski</item>
         <item>Italiano</item>
         <item>Lietuvių</item>
         <item>Magyar</item>
         <item>Nederlands</item>
         <item>Norsk</item>
+        <item>Polski</item>
         <item>Português (BR)</item>
         <item>Português (PT)</item>
+        <item>Qazaq</item>
         <item>Română</item>
+        <item>Srpski</item>
+        <item>Srpskohrvatski</item>
         <item>Suomi</item>
         <item>Svenska</item>
         <item>Tiếng Việt Nam</item>
         <item>Türkçe</item>
         <item>Wikang Filipino</item>
-        <item>polski</item>
-        <item>srpskohrvatski</item>
         <item>Český Jazyk</item>
         <item>Ελληνικά</item>
         <item>Монгол Хэл</item>
@@ -52,21 +55,24 @@
         <item>es</item>
         <item>es-la</item>
         <item>fr</item>
+        <item>hr</item>
         <item>it</item>
         <item>lt</item>
         <item>hu</item>
         <item>nl</item>
         <item>no</item>
+        <item>pl</item>
         <item>pt-br</item>
         <item>pt</item>
+        <item>kk</item>
         <item>ro</item>
+        <item>sr</item>
+        <item>sh</item>
         <item>fi</item>
         <item>sv</item>
         <item>vi</item>
         <item>tr</item>
         <item>tl</item>
-        <item>pl</item>
-        <item>sh</item>
         <item>cs</item>
         <item>el</item>
         <item>mn</item>
@@ -90,9 +96,23 @@
         <item>__trn</item>
         <item>__fav</item>
     </string-array>
+    <string-array name="languagesDefault">
+        <item>en</item>
+    </string-array>
     <string-array name="settingsVolumeNavigationValues">
         <item>dis</item>
         <item>en</item>
         <item>en_rev</item>
     </string-array>
+    <string-array name="contentRatingValues">
+        <item>safe</item>
+        <item>suggestive</item>
+        <item>erotica</item>
+        <item>pornographic</item>
+    </string-array>
+    <array name="contentRatingDefaultValues">
+        <item>safe</item>
+        <item>suggestive</item>
+        <item>erotica</item>
+    </array>
 </resources>

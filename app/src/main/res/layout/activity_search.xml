@@ -106,6 +106,29 @@
                 android:textAlignment="center"
                 android:textSize="18sp" />
 
+            <androidx.cardview.widget.CardView
+                android:id="@+id/searchWarning"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="8dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="?attr/cardBackgroundColor"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="4dp"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
+                    android:text="@string/searchWarning"
+                    app:drawableStartCompat="@drawable/outline_18_up_rating_24" />
+
+            </androidx.cardview.widget.CardView>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/results"
                 android:layout_width="match_parent"

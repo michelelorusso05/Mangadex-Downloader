@@ -8,6 +8,11 @@
     <color name="very_light_orange">#FFFFFBFA</color>
     <color name="very_dark_orange">#FF1E1B1D</color>
 
+    <color name="rating_safe">#FF36D162</color>
+    <color name="rating_suggestive">#FFFFC933</color>
+    <color name="rating_erotica">#FFD46313</color>
+    <color name="rating_pornographic">#FF9E0E0B</color>
+
     <color name="btn_enabled">#FFF17A0A</color>
     <color name="btn_disabled">#7FF17A0A</color>
     <attr name="downloadedItemColor" />

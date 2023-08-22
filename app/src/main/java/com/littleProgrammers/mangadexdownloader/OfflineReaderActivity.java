@@ -1,5 +1,8 @@
 package com.littleProgrammers.mangadexdownloader;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -8,7 +11,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -17,27 +19,32 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.util.Pair;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.littleProgrammers.mangadexdownloader.utils.FolderUtilities;
 import com.littleProgrammers.mangadexdownloader.utils.PDFHelper;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class OfflineReaderActivity extends ReaderActivity {
     ActivityResultLauncher<Intent> launchShareForResult;
     private boolean pdfShareEnqueued;
     OfflinePagesAdapter adapter;
 
+    View progressView;
+    CircularProgressIndicator progressIndicator;
+    static Timer timer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Bundle extras = getIntent().getExtras();
+        assert extras != null;
         baseUrl = extras.getString("baseUrl");
         urls = extras.getStringArray("urls");
         if (urls == null) urls = new String[0];
@@ -58,11 +65,6 @@ public class OfflineReaderActivity extends ReaderActivity {
 
         pageSelection.spinner.setSaveEnabled(false);
         pageSelection.setOnItemSelectedListener(pos -> {
-            if (pageSelection.spinner.getTag() != null) {
-                pageSelection.spinner.setTag(null);
-                return;
-            }
-
             LockPager();
             pager.setCurrentItem(adapter.chapterPositionToRawPosition(pos));
         });
@@ -76,8 +78,7 @@ public class OfflineReaderActivity extends ReaderActivity {
                     pager.setTag(null);
                 }
                 else {
-                    LockSelectionSpinner();
-                    pageSelection.setSelection(pos);
+                    pageSelection.setVisualSelection(pos);
                 }
 
                 pageProgressIndicator.setProgress((int) ((100f / adapter.getTotalElements()) * (pos + 1)));
@@ -86,6 +87,8 @@ public class OfflineReaderActivity extends ReaderActivity {
 
         int page = savedInstanceState != null ? savedInstanceState.getInt("currentPage", 1) : 1;
         int currentPage = page - 1;
+
+        Log.d("Page", String.valueOf(currentPage));
 
         if (landscape) {
             new Thread(() -> {
@@ -131,20 +134,34 @@ public class OfflineReaderActivity extends ReaderActivity {
                 }
 
 
-                final int savedPage  = pageToSet;
+                final int savedPage = pageToSet;
+                Log.d("Saved page", String.valueOf(pageToSet));
                 runOnUiThread(() -> {
-                    LockSelectionSpinner();
                     pageSelection.setAdapter(new ArrayAdapter<>(OfflineReaderActivity.this, R.layout.page_indicator_spinner_item, pages));
                     pager.setCurrentItem(savedPage, false);
                 });
             }).start();
         }
         else {
+            Log.d("Saved page", String.valueOf(currentPage));
             GeneratePageSelectionSpinnerAdapter();
             adapter = new OfflinePagesAdapter(OfflineReaderActivity.this, baseUrl, urls, ReaderPagesAdapter.NAVIGATION_ONESHOT, landscape, null);
             pager.setAdapter(adapter);
             pager.setCurrentItem(currentPage, false);
         }
+
+        progressView = findViewById(R.id.pdfShareProgress);
+        progressIndicator = findViewById(R.id.pdfShareProgressBar);
+
+        if (timer != null) timer.cancel();
+        timer = new Timer();
+
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Log.d("AAA", String.valueOf(pager.getCurrentItem()));
+            }
+        }, 0, 100);
     }
 
     @Override
@@ -164,20 +181,41 @@ public class OfflineReaderActivity extends ReaderActivity {
     }
 
     private void CreateAndSharePDF() {
-        PDFHelper helper = new PDFHelper();
+
+        runOnUiThread(() -> {
+            progressView.setAlpha(0);
+            ObjectAnimator animation = ObjectAnimator.ofFloat(progressView, "alpha", 1f);
+            animation.setDuration(200);
+            animation.start();
+            progressView.setVisibility(View.VISIBLE);
+            progressIndicator.setIndeterminate(false);
+            progressIndicator.setMax(100);
+            progressIndicator.setProgress(0);
+        });
+
         File currentDir = new File(baseUrl);
-        helper.SetPDFName(currentDir.getName().substring(0, currentDir.getName().length() - 3));
-        helper.SetSourcePath(baseUrl);
-        helper.SetDestinationPath(new File(getExternalFilesDir(null), "exportedPDFs").getAbsolutePath());
+        String name = currentDir.getName().substring(0, currentDir.getName().length() - 3);
 
-        try {
-            helper.CreatePDF();
-        } catch (FileNotFoundException | MalformedURLException e) {
-            e.printStackTrace();
-            return;
-        }
+        File createdPDF = PDFHelper.GeneratePDF(new File(getExternalFilesDir(null), "exportedPDFs"), new File(baseUrl), name,
+                (p) -> runOnUiThread(() -> {
+                    if (p >= 0)
+                        progressIndicator.setProgressCompat(p.intValue(), true);
+                }));
 
-        File createdPDF = helper.getDownloadedPDFFilePath();
+        if (createdPDF == null) return;
+        runOnUiThread(() -> {
+            ObjectAnimator animation = ObjectAnimator.ofFloat(progressView, "alpha", 0f);
+            animation.setDuration(200);
+            animation.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    progressView.setVisibility(View.GONE);
+                }
+            });
+            animation.start();
+        });
+
         Intent intentShareFile = new ShareCompat.IntentBuilder(this)
                 .setType("application/pdf")
                 .setStream(FileProvider.getUriForFile(this, "com.littleProgrammers.mangadexdownloader.provider", createdPDF))

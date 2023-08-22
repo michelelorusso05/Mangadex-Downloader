@@ -1,53 +1,27 @@
 package com.littleProgrammers.mangadexdownloader.utils;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.pdf.PdfDocument;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-
-import com.itextpdf.io.image.ImageData;
-import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.kernel.geom.PageSize;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.AreaBreak;
-import com.itextpdf.layout.element.Image;
+import androidx.annotation.Nullable;
+import androidx.core.util.Consumer;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
-import java.util.Arrays;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class PDFHelper {
-    String pdfName;
-    String fileLocation;
-    String pdfDestination;
-
-    public PDFHelper() {
-        // Horray...?
-    }
-
-    // Set the file name
-    public void SetPDFName (String name) {
-        pdfName = name;
-    }
-
-    // Set the source folder (the one with the images)
-    public void SetSourcePath (String filePath)
+    public static File GeneratePDF(File targetDirectory, File sourceDir, String pdfName)
     {
-        fileLocation = filePath;
+        return GeneratePDF(targetDirectory, sourceDir, pdfName, null);
     }
-    // Set destination folder
-    public void SetDestinationPath (String filePath) { pdfDestination = filePath; }
-
-    // Create a PDF given the parameters
-    // Returns true if and only if the PDF was generated successfully
-    public boolean CreatePDF() throws FileNotFoundException, MalformedURLException {
-        // Initialize a new PDF document
-        // Create a new PDF file at the specified path
-
-        File targetDirectory = new File(pdfDestination);
-
+    @Nullable
+    public static File GeneratePDF(@NonNull File targetDirectory, File sourceDir, String pdfName, Consumer<Float> progressCallback)
+    {
         if (!targetDirectory.isDirectory()) {
             boolean success = targetDirectory.mkdirs();
             if (success) {
@@ -57,54 +31,44 @@ public class PDFHelper {
             }
         }
 
-        PdfDocument pdfDocument = new PdfDocument(new PdfWriter(targetDirectory + "/" + pdfName + ".pdf"));
+        File file = new File(targetDirectory, pdfName + ".pdf");
+        File[] images = FolderUtilities.GetOrderedFilesInPath(sourceDir);
 
-        File[] cachedImages = GetFilesInPath(new File(fileLocation));
+        if (images.length == 0) return null;
 
-        if (cachedImages.length == 0) {
-            SetPDFName("");
-            return false;
-        }
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            PdfDocument pdfDocument = new PdfDocument();
 
-        // Load first image from disk
-        ImageData imageData = ImageDataFactory.create(cachedImages[0].toString());
-        // The procedure for the first page is a little bit different
-        Image image = new Image(imageData);
-        Document document = new Document(pdfDocument, new PageSize(image.getImageWidth(), image.getImageHeight()));
+            BitmapFactory.Options opt = new BitmapFactory.Options();
+            opt.inMutable = false;
+            opt.inPreferredConfig = Bitmap.Config.RGB_565;
+            opt.inSampleSize = 2;
 
-        document.setMargins(0, 0, 0, 0);
-        document.add(image);
+            for (int i = 0; i < images.length; i++) {
+                Bitmap bitmap = BitmapFactory.decodeFile(images[i].getPath(), opt);
+                PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(bitmap.getWidth(), bitmap.getHeight(), (i + 1)).create();
+                PdfDocument.Page page = pdfDocument.startPage(pageInfo);
+                Canvas canvas = page.getCanvas();
+                canvas.drawBitmap(bitmap, 0f, 0f, null);
+                pdfDocument.finishPage(page);
+                bitmap.recycle();
 
-        for (int i = 1; i < cachedImages.length; i++)
-        {
-            // Load current image from disk
-            imageData = ImageDataFactory.create(cachedImages[i].toString());
+                if (progressCallback != null)
+                    progressCallback.accept((((float) (i + 1)) / images.length) * 100f);
+            }
 
-            image = new Image(imageData);
-            document.add(new AreaBreak(new PageSize(image.getImageWidth(), image.getImageHeight())));
-            document.add(image);
-        }
+            if (progressCallback != null)
+                progressCallback.accept(-1f);
 
-        // Close the document
-        document.close();
+            pdfDocument.writeTo(fileOutputStream);
+            pdfDocument.close();
 
-        return true;
-    }
-
-    // Returns the complete path to the last generated PDF
-    public File getDownloadedPDFFilePath()
-    {
-        if (pdfName.equals(""))
+        } catch (IOException e) {
+            e.printStackTrace();
             return null;
-        return new File(pdfDestination + "/" + pdfName + ".pdf");
-    }
+        }
 
-    private File[] GetFilesInPath(@NonNull File dirPath)
-    {
-        File[] files = dirPath.listFiles();
-        assert files != null;
-        Arrays.sort(files);
-
-        return files;
+        return file;
     }
 }

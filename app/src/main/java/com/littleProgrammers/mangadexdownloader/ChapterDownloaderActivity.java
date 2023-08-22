@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
-import android.transition.ChangeImageTransform;
 import android.transition.Fade;
 import android.util.DisplayMetrics;
 import android.util.Pair;
@@ -48,10 +47,14 @@ import androidx.work.WorkManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.littleProgrammers.mangadexdownloader.apiResults.Chapter;
 import com.littleProgrammers.mangadexdownloader.apiResults.ChapterResults;
 import com.littleProgrammers.mangadexdownloader.apiResults.Manga;
+import com.littleProgrammers.mangadexdownloader.apiResults.MangaAttributes;
+import com.littleProgrammers.mangadexdownloader.apiResults.Tag;
 import com.littleProgrammers.mangadexdownloader.utils.ChapterUtilities;
 import com.littleProgrammers.mangadexdownloader.utils.FavouriteManager;
 import com.littleProgrammers.mangadexdownloader.utils.FormattingUtilities;
@@ -64,6 +67,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.Set;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -91,13 +95,17 @@ public class ChapterDownloaderActivity extends AppCompatActivity
 
     ImageButton downloadButton, readButton;
     View continueReading;
+    ChipGroup tags;
 
     DNSClient client;
 
     boolean markedFavourite;
     int bookmarkFavouriteIndex = -1;
+    boolean shouldRefreshChapters;
 
     ActivityResultLauncher<String> requestPermissionLauncher;
+
+    Set<String> languages;
 
 
     private void createNotificationChannel() {
@@ -125,8 +133,6 @@ public class ChapterDownloaderActivity extends AppCompatActivity
             });
     }
 
-    // Only deprecated mehtod here is setSystemUiVisibility, which is only used for APIs that don't support setDecorFitsSystemWindows().
-    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -163,6 +169,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         cover = findViewById(R.id.cover);
         chapterSelection = findViewById(R.id.chapterSelection);
         continueReading = findViewById(R.id.continueReading);
+        tags = findViewById(R.id.tags);
 
         downloadButton = findViewById(R.id.buttonDownload);
         downloadButton.setEnabled(false);
@@ -238,6 +245,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         }
 
         try {
+            // Set author, name and description
             author.setText(selectedManga.getAttributes().getAuthorString());
             author.setMovementMethod(new ScrollingMovementMethod());
             title.setText(FormattingUtilities.FormatFromHtml(selectedManga.getAttributes().getTitleS()));
@@ -250,6 +258,23 @@ public class ChapterDownloaderActivity extends AppCompatActivity
             if (descriptionString != null && !descriptionString.isEmpty())
                 description.setText(FormattingUtilities.FormatFromHtml(FormattingUtilities.MarkdownLite(descriptionString)));
             description.setMovementMethod(new ScrollingMovementMethod());
+
+            // First chip is the content rating
+            Chip chip = (Chip) getLayoutInflater().inflate(R.layout.tag_chip, tags, false);
+            Pair<Integer, Integer> rating = MangaAttributes.getRatingString(selectedManga.getAttributes().getContentRating());
+            chip.setText(rating.first);
+            chip.setFocusable(false);
+            chip.setChipStrokeColorResource(rating.second);
+            chip.setTextColor(ContextCompat.getColor(this, rating.second));
+            tags.addView(chip);
+
+            // Other chips are the actual tags
+            for (Tag tag : selectedManga.getAttributes().getTags()) {
+                Chip tagChip = (Chip) getLayoutInflater().inflate(R.layout.tag_chip, tags, false);
+                tagChip.setText(tag.getAttributes().getName().get("en"));
+                tagChip.setFocusable(false);
+                tags.addView(tagChip);
+            }
 
             getCover();
             getMangaChapterList();
@@ -274,7 +299,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         getMenuInflater().inflate(R.menu.chapter_download_toolbar, menu);
         markedFavourite = FavouriteManager.IsFavourite(this, selectedManga.getId());
-        menu.getItem(0).setIcon(markedFavourite ? R.drawable.ic_baseline_bookmark_24 : R.drawable.ic_baseline_bookmark_disabled_24);
+        menu.getItem(1).setIcon(markedFavourite ? R.drawable.ic_baseline_bookmark_24 : R.drawable.ic_baseline_bookmark_disabled_24);
         return true;
     }
 
@@ -293,6 +318,28 @@ public class ChapterDownloaderActivity extends AppCompatActivity
             else
                 FavouriteManager.RemoveFavourite(this, selectedManga.getId());
         }
+        else if (item.getItemId() == R.id.action_show_languages) {
+
+            StringBuilder b = new StringBuilder();
+            b.append("\n- ").append(MangaAttributes.getLangString(this, selectedManga.getAttributes().getOriginalLanguage())).append(getString(R.string.dialogAvailableLanguagesOriginal));
+
+            for (String lang : selectedManga.getAttributes().getAvailableTranslatedLanguages())
+                b.append("\n- ").append(MangaAttributes.getLangString(this, lang));
+
+            new MaterialAlertDialogBuilder(this)
+                    .setIcon(R.drawable.ic_baseline_public_24)
+                    .setTitle(R.string.dialogAvailableLanguagesTitle)
+                    .setMessage(b.toString())
+                    .setNeutralButton(R.string.dialogAvailableLanguagesOpenSettings, (dialog, which) -> {
+                        Bundle opts = new Bundle();
+                        opts.putString("highlightSetting", "lang");
+                        shouldRefreshChapters = true;
+                        startActivity(new Intent(this, SettingsActivity.class), opts);
+                    })
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {})
+                    .create()
+                    .show();
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -304,6 +351,17 @@ public class ChapterDownloaderActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (shouldRefreshChapters)
+        {
+            try {
+                getMangaChapterList();
+            } catch (JSONException | InterruptedException e) {
+                e.printStackTrace();
+            }
+            shouldRefreshChapters = false;
+        }
+
         if (mangaChapters.size() != 0) {
             Pair<String, Boolean> savedBookmark = FavouriteManager.GetBookmarkForFavourite(this, selectedManga.getId());
 
@@ -354,16 +412,42 @@ public class ChapterDownloaderActivity extends AppCompatActivity
     }
 
     public void getMangaChapterList() throws JSONException, InterruptedException {
-        final String lang = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("chapterLanguages", "en");
-        if (!selectedManga.getAttributes().isLanguageAvailable(lang)) {
+        languages = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getStringSet("languagePreference", null);
+        assert languages != null;
+
+        StringBuilder langUrl = new StringBuilder();
+
+        boolean available = false;
+        for (String lang : languages)
+        {
+            if (selectedManga.getAttributes().isLanguageAvailable(lang))
+                available = true;
+
+            langUrl.append("translatedLanguage[]=").append(lang).append("&");
+        }
+        if (!available)
+        {
             chapterSelection.setAdapter(new ChapterSelectionAdapter(ChapterDownloaderActivity.this,
                     new Pair<>(getString(R.string.mangaNoEntries), getString(R.string.mangaNoEntriesSubtext))));
+            downloadButton.setVisibility(View.GONE);
+            readButton.setVisibility(View.GONE);
             return;
         }
 
         String mangaID = selectedManga.getId();
 
-        String baseUrl = "https://api.mangadex.org/manga/" + mangaID + "/feed?translatedLanguage[]=" + lang + "&order%5Bvolume%5D=asc&order%5Bchapter%5D=asc&order%5BpublishAt%5D=asc&includes[]=scanlation_group";
+        StringBuilder baseUrlBuilder = new StringBuilder("https://api.mangadex.org/manga/" + mangaID + "/feed?" + langUrl + "order%5Bvolume%5D=asc&order%5Bchapter%5D=asc&order%5BpublishAt%5D=asc&includes[]=scanlation_group");
+
+        Set<String> ratings = PreferenceManager.getDefaultSharedPreferences(ChapterDownloaderActivity.this).getStringSet("contentFilter", null);
+
+        if (ratings != null) {
+            for (String s : ratings) {
+                baseUrlBuilder.append("&contentRating[]=").append(s);
+            }
+        }
+
+        String baseUrl = baseUrlBuilder.toString();
+
         client.HttpRequestAsync(baseUrl.concat("&limit=250"), new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {}
@@ -414,14 +498,20 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         Pair<String, Boolean> savedBookmark = FavouriteManager.GetBookmarkForFavourite(this, selectedManga.getId());
         String bookmark = (savedBookmark != null) ? savedBookmark.first : null;
 
+        boolean allowDuplicates = languages.size() > 1 || !PreferenceManager.getDefaultSharedPreferences(this).getBoolean("chapterDuplicate", true);
+
         ChapterUtilities.FormatChapterList(ChapterDownloaderActivity.this, mangaChapters, new ChapterUtilities.FormattingOptions(
-                PreferenceManager.getDefaultSharedPreferences(this).getBoolean("chapterDuplicate", true),
+                allowDuplicates,
                 PreferenceManager.getDefaultSharedPreferences(this).getBoolean("hideExternal", true),
                 bookmark));
 
         if (mangaChapters.size() == 0) {
-            runOnUiThread(() -> chapterSelection.setAdapter(new ChapterSelectionAdapter(ChapterDownloaderActivity.this,
-                    new Pair<>(getString(R.string.mangaNoEntriesFilter), getString(R.string.mangaNoEntriesSubtext)))));
+            runOnUiThread(() -> {
+                chapterSelection.setAdapter(new ChapterSelectionAdapter(ChapterDownloaderActivity.this,
+                        new Pair<>(getString(R.string.mangaNoEntriesFilter), getString(R.string.mangaNoEntriesSubtext))));
+                downloadButton.setVisibility(View.GONE);
+                readButton.setVisibility(View.GONE);
+            });
             return;
         }
 

@@ -2,11 +2,8 @@ package com.littleProgrammers.mangadexdownloader;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.transition.ChangeImageTransform;
-import android.transition.Explode;
 import android.transition.Fade;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -17,7 +14,6 @@ import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,8 +23,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.core.splashscreen.SplashScreen;
+import androidx.core.text.HtmlCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -47,6 +43,7 @@ import com.michelelorusso.dnsclient.DNSClient;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -79,6 +76,13 @@ public class SearchActivity extends AppCompatActivity
             SetStatus(StatusType.BEGIN);
         if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("cat", false))
             findViewById(R.id.catWarning).setVisibility(View.VISIBLE);
+        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("cat", false))
+            findViewById(R.id.catWarning).setVisibility(View.GONE);
+
+        if (PreferenceManager.getDefaultSharedPreferences(this).getStringSet("contentFilter", new HashSet<>()).contains("pornographic"))
+            findViewById(R.id.searchWarning).setVisibility(View.VISIBLE);
+        else
+            findViewById(R.id.searchWarning).setVisibility(View.GONE);
     }
 
     @Override
@@ -240,13 +244,24 @@ public class SearchActivity extends AppCompatActivity
         favouriteButton.setEnabled(false);
 
         StringBuilder urlString = new StringBuilder("https://api.mangadex.org/manga?&limit=20&offset=" + searchOffset + "&includes[]=cover_art&includes[]=author");
+
+        Set<String> ratings = PreferenceManager.getDefaultSharedPreferences(SearchActivity.this).getStringSet("contentFilter", null);
+
+        if (ratings != null) {
+            for (String s : ratings) {
+                urlString.append("&contentRating[]=").append(s);
+            }
+        }
+
         if (customIDs == null)
-            urlString.append("&title=").append(searchBar.getText().toString().trim());
+            urlString.append("&title=").append(searchBar.getText().toString().replaceAll("[\\[\\]&=]+", ""));
         else {
             urlString.append("&order%5Btitle%5D=asc");
             for (String id : customIDs)
                 urlString.append("&ids[]=").append(id);
         }
+
+        Log.d("URL", urlString.toString());
 
         status.setText(R.string.searchLoading);
         SetStatus(StatusType.SEARCHING);
@@ -278,6 +293,7 @@ public class SearchActivity extends AppCompatActivity
                         SetStatus(StatusType.NAY_RESULTS);
                         searchButton.setEnabled(true);
                         favouriteButton.setEnabled(true);
+                        e.printStackTrace();
                     });
                     return;
                 }
@@ -348,12 +364,19 @@ public class SearchActivity extends AppCompatActivity
         TextView status = findViewById(R.id.status);
         randomButton.setEnabled(false);
 
-        String urlString = "https://api.mangadex.org/manga/random?includes[]=author&includes[]=cover_art";
+        StringBuilder urlString = new StringBuilder("https://api.mangadex.org/manga/random?includes[]=author&includes[]=cover_art");
+
+        Set<String> ratings = new HashSet<>(4);
+        PreferenceManager.getDefaultSharedPreferences(SearchActivity.this).getStringSet("contentFilter", ratings);
+
+        for (String s : ratings) {
+            urlString.append("&contentRating[]=").append(s);
+        }
 
         status.setText(R.string.searchLoading);
         SetStatus(StatusType.SEARCHING);
 
-        client.HttpRequestAsync(urlString, new Callback() {
+        client.HttpRequestAsync(urlString.toString(), new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 SearchActivity.this.runOnUiThread(() -> {

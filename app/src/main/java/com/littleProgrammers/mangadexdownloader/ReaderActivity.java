@@ -4,6 +4,8 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Debug;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,6 +17,7 @@ import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
+import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.littleProgrammers.mangadexdownloader.utils.BetterSpinner;
@@ -65,6 +68,9 @@ public abstract class ReaderActivity extends AppCompatActivity {
             pager.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
 
         pager.setOffscreenPageLimit(1);
+
+        pager.setSaveEnabled(false);
+        pageSelection.spinner.setSaveEnabled(false);
     }
 
     @Override
@@ -75,9 +81,10 @@ public abstract class ReaderActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (pageSelection == null || pageSelection.getAdapter() == null) return;
-        int page = Integer.parseInt(((String) pageSelection.getSelectedItem()).split(" ")[0]);
-        outState.putInt("currentPage", page);
+        if (pager == null || pager.getAdapter() == null) return;
+        int pos = ((ReaderPagesAdapter) pager.getAdapter()).rawIndexToChapterPage(pager.getCurrentItem());
+        outState.putInt("currentPage", pos);
+        Log.d("Saving", String.valueOf(pos));
     }
 
     @Override

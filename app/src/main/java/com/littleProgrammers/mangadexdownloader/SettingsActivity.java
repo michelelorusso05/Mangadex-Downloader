@@ -1,16 +1,20 @@
 package com.littleProgrammers.mangadexdownloader;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.MultiSelectListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
+import androidx.preference.SwitchPreferenceCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -53,6 +57,65 @@ public class SettingsActivity extends AppCompatActivity {
             if (extraParams.equals("cat"))
                 addPreferencesFromResource(R.xml.extra_preferences);
 
+            Context ctx = getContext();
+            assert ctx != null;
+
+            Set<String> l = PreferenceManager.getDefaultSharedPreferences(ctx).getStringSet("languagePreference", new HashSet<>());
+
+            updateDuplicateChapterState(l.size() > 1);
+
+            MultiSelectListPreference lPref = findPreference("languagePreference");
+
+            if (lPref != null) {
+                lPref.setOnPreferenceChangeListener((preference, value) -> {
+                    Set<?> selectedLanguages = (Set<?>) value;
+                    if (selectedLanguages.isEmpty())
+                        return false;
+
+                    updateDuplicateChapterState(selectedLanguages.size() > 1);
+                    return true;
+                });
+            }
+
+            MultiSelectListPreference rPref = findPreference("contentFilter");
+
+            if (rPref != null) {
+                rPref.setOnPreferenceChangeListener((preference, value) -> {
+                    Set<?> ratings = (Set<?>) value;
+                    return !ratings.isEmpty();
+                });
+            }
+
+            if (getArguments().getString("highlightSetting", "skip").equals("lang")) {
+                scrollToPreference("languagePreference");
+            }
+        }
+
+        private void updateDuplicateChapterState(boolean disabled)
+        {
+            SwitchPreferenceCompat duplicateChapters = findPreference("chapterDuplicate");
+
+            // Disabled state
+            if (duplicateChapters == null) duplicateChapters = findPreference("chapterDuplicateDummy");
+            assert duplicateChapters != null;
+
+            if (disabled)
+            {
+                duplicateChapters.setKey("chapterDuplicateDummy");
+                duplicateChapters.setChecked(true);
+                duplicateChapters.setEnabled(false);
+                duplicateChapters.setSummary(R.string.settingsDuplicateChaptersDisabled);
+            }
+            else
+            {
+                Context ctx = getContext();
+                assert ctx != null;
+
+                duplicateChapters.setChecked(PreferenceManager.getDefaultSharedPreferences(ctx).getBoolean("chapterDuplicate", true));
+                duplicateChapters.setKey("chapterDuplicate");
+                duplicateChapters.setEnabled(true);
+                duplicateChapters.setSummary(R.string.settingsChapterShowSameChapterDes);
+            }
         }
 
         @Override

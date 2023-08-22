@@ -71,6 +71,9 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
+        android:fadingEdge="vertical"
+        android:fadingEdgeLength="8dp"
+        android:requiresFadingEdge="vertical"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="@+id/home_toolbar"
         app:layout_constraintStart_toEndOf="@+id/cover"
@@ -103,17 +106,40 @@
                 android:textAlignment="viewStart"
                 android:textSize="24sp" />
 
+            <HorizontalScrollView
+                android:id="@+id/tagsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fadingEdge="horizontal"
+                android:fadingEdgeLength="8dp"
+                android:requiresFadingEdge="horizontal"
+                android:scrollbarSize="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cover">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/tags"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    app:singleLine="true" />
+            </HorizontalScrollView>
+
             <TextView
                 android:id="@+id/mangaDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="24dp"
                 android:fadingEdge="vertical"
                 android:fadingEdgeLength="32dp"
                 android:gravity="start"
                 android:isScrollContainer="false"
                 android:overScrollMode="never"
-                android:requiresFadingEdge="none"
+                android:requiresFadingEdge="vertical"
                 android:scrollbars="vertical"
                 android:text="@string/defaultDescription"
                 android:textAlignment="gravity"

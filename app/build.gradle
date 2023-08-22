@@ -14,16 +14,15 @@ android {
         release {
         }
     }
-    compileSdkVersion 33
-    buildToolsVersion "30.0.3"
+
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.littleProgrammers.mangadexdownloader"
-        minSdkVersion 22
-        targetSdkVersion 33
-        versionCode 5
-        versionName "5.9"
-
+        minSdk 22
+        targetSdk 34
+        versionCode 6
+        versionName "Play Store rc1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -35,24 +34,30 @@ android {
         release {
             // Enables code shrinking, obfuscation, and optimization for only
             // your project's release build type.
-            minifyEnabled false
+            minifyEnabled true
 
             // Enables resource shrinking, which is performed by the
             // Android Gradle plugin.
             shrinkResources false
+
             debuggable false
             signingConfig signingConfigs.debug
+
+            proguardFiles getDefaultProguardFile(
+                    'proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
         }
         debug {
             signingConfig signingConfigs.debug
             debuggable true
+            minifyEnabled false
         }
     }
     namespace 'com.littleProgrammers.mangadexdownloader'
 }
 
 dependencies {
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
+    implementation(platform('org.jetbrains.kotlin:kotlin-bom:1.9.0'))
     implementation 'androidx.core:core-ktx:1.10.1'
 
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
@@ -60,7 +65,7 @@ dependencies {
     implementation 'androidx.work:work-runtime:2.8.1'
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.preference:preference:1.2.0'
+    implementation 'androidx.preference:preference:1.2.1'
     implementation "androidx.concurrent:concurrent-futures:1.1.0"
     implementation 'androidx.core:core-splashscreen:1.0.1'
 
@@ -68,17 +73,13 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
-    implementation 'com.itextpdf:io:7.0.0'
-    implementation 'com.itextpdf:kernel:7.0.0'
-    implementation 'com.itextpdf:layout:7.0.0'
-
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.11'
     implementation 'com.squareup.okhttp3:okhttp-dnsoverhttps:5.0.0-alpha.11'
     implementation 'dnsjava:dnsjava:3.5.2'
 
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.11.1'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.11.1'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.1'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
 
 
     implementation project(path: ':DNSClient')
