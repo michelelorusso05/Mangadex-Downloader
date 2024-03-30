@@ -1,23 +1,27 @@
 package com.littleProgrammers.mangadexdownloader;
 
+import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.Debug;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.preference.PreferenceManager;
-import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.littleProgrammers.mangadexdownloader.utils.BetterSpinner;
@@ -42,13 +46,34 @@ public abstract class ReaderActivity extends AppCompatActivity {
         opt.inPreferredConfig = Bitmap.Config.RGB_565;
         opt.inSampleSize = 1;
     }
+    private WindowInsetsControllerCompat windowInsetsController;
+    private ActionBar actionBar;
+    private Button showControlsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        windowInsetsController =
+                WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        // Configure the behavior of the hidden system bars.
+        windowInsetsController.setSystemBarsBehavior(
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        );
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reader);
 
+        Toolbar t = findViewById(R.id.toolbar);
+        setSupportActionBar(t);
+        actionBar = getSupportActionBar();
+        assert actionBar != null;
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
         landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+
+        showControlsButton = findViewById(R.id.showControls);
+        showControlsButton.setOnClickListener((v) -> {
+            exitFullscreen();
+        });
 
         pageSelection = new BetterSpinner(findViewById(R.id.progressView));
         pageProgressIndicator = findViewById(R.id.pageProgress);
@@ -101,13 +126,34 @@ public abstract class ReaderActivity extends AppCompatActivity {
             return true;
         }
         else if (item.getItemId() == R.id.action_show_hide_controls) {
-            showControls = !showControls;
+            if (showControls)
+                enterFullscreen();
+            else
+                exitFullscreen();
+
             item.setIcon(showControls ? R.drawable.ic_baseline_navigation_on_24 : R.drawable.ic_baseline_navigation_off_24);
-            View controls = findViewById(R.id.controls);
-            controls.setVisibility(showControls ? View.VISIBLE : View.INVISIBLE);
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void enterFullscreen() {
+        showControls = false;
+        // showControlsButton.setVisibility(View.VISIBLE);
+        View controls = findViewById(R.id.controls);
+        controls.setVisibility(View.INVISIBLE);
+        // windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
+        // WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        // actionBar.hide();
+    }
+    private void exitFullscreen() {
+        showControls = true;
+        // showControlsButton.setVisibility(View.GONE);
+        View controls = findViewById(R.id.controls);
+        controls.setVisibility(View.VISIBLE);
+        // windowInsetsController.show(WindowInsetsCompat.Type.systemBars());
+        // WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
+        // actionBar.show();
     }
 
     @Override
@@ -116,14 +162,14 @@ public abstract class ReaderActivity extends AppCompatActivity {
         if ("dis".equals(volumenavigation)) return super.onKeyDown(keyCode, event);
         boolean inverted = "en_rev".equals(volumenavigation);
 
-        if ((keyCode == KeyEvent.KEYCODE_VOLUME_UP)){
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             if (inverted)
                 pager.setCurrentItem(pager.getCurrentItem() - 1);
             else
                 pager.setCurrentItem(pager.getCurrentItem() + 1);
             return true;
         }
-        else if ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)){
+        else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
             if (inverted)
                 pager.setCurrentItem(pager.getCurrentItem() + 1);
             else
@@ -140,12 +186,6 @@ public abstract class ReaderActivity extends AppCompatActivity {
             pages[i] = UpdatePageIndicator(i);
 
         pageSelection.setAdapter(new ArrayAdapter<>(this, R.layout.page_indicator_spinner_item, pages));
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
     }
 
     protected String UpdatePageIndicator(int index) {

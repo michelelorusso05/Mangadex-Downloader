@@ -3,6 +3,7 @@
 
     <style name="Theme.MangadexDownloader" parent="Theme.Material3.DayNight">
         <item name="android:colorBackground">@color/very_dark_orange</item>
+        <item name="semitransparentBackgroundColor">#7F1E1B1D</item>
         <item name="colorPrimary">#FF6740</item>
         <item name="colorOnPrimary">?android:attr/colorBackground</item>
         <item name="colorPrimaryContainer">#352123</item>
@@ -18,13 +19,19 @@
 
         <item name="toolbarStyle">@style/Theme.Custom.Toolbar</item>
 
-        <item name="cardBackgroundColor">#FF2C2024</item>
+        <item name="cardBackgroundColor">#FF2F2125</item>
+        <item name="onCardColor">#FF4F3135</item>
+        <item name="onCardTextColor">#FFDFCFBF</item>
 
         <item name="alertDialogTheme">@style/AppTheme.MyOldAlertDialog</item>
     </style>
 
     <style name="Theme.Custom.Toolbar" parent="Widget.Material3.Toolbar">
         <item name="android:background">@color/very_dark_orange</item>
+    </style>
+
+    <style name="Theme.MangadexDownloader.FullscreenColoredStatusBar" parent="Theme.MangadexDownloader.Fullscreen">
+        <item name="android:statusBarColor">@color/very_dark_orange</item>
     </style>
 
     <style name="Theme.MangadexDownloader.Fullscreen" parent="Theme.MangadexDownloader.NoActionBar">

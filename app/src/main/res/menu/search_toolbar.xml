@@ -13,6 +13,4 @@
         android:title="@string/settings"
         app:showAsAction="always"
         />
-
-
 </menu>

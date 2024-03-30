@@ -12,19 +12,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
-import android.transition.Fade;
 import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,34 +33,30 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
+import androidx.viewpager2.widget.ViewPager2;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.littleProgrammers.mangadexdownloader.apiResults.Chapter;
 import com.littleProgrammers.mangadexdownloader.apiResults.ChapterResults;
 import com.littleProgrammers.mangadexdownloader.apiResults.Manga;
 import com.littleProgrammers.mangadexdownloader.apiResults.MangaAttributes;
-import com.littleProgrammers.mangadexdownloader.apiResults.Tag;
 import com.littleProgrammers.mangadexdownloader.utils.ChapterUtilities;
+import com.littleProgrammers.mangadexdownloader.utils.CompatUtils;
 import com.littleProgrammers.mangadexdownloader.utils.FavouriteManager;
 import com.littleProgrammers.mangadexdownloader.utils.FormattingUtilities;
 import com.michelelorusso.dnsclient.DNSClient;
 
-import org.json.JSONException;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
 
@@ -76,36 +67,27 @@ import okhttp3.Response;
 
 public class ChapterDownloaderActivity extends AppCompatActivity
 {
-    private ObjectMapper mapper;
 
     // Unique notification id
     public static final int NOTIFICATION_ID = 6271;
 
     // Manga to download chapters of (passed through intent)
     Manga selectedManga;
-
-    // Array to hold filtered chapters
-    ArrayList<Chapter> mangaChapters = new ArrayList<>();
-
     TextView title;
     TextView author;
-    TextView description;
     ImageView cover;
-    Spinner chapterSelection;
-
-    ImageButton downloadButton, readButton;
-    View continueReading;
-    ChipGroup tags;
 
     DNSClient client;
 
     boolean markedFavourite;
-    int bookmarkFavouriteIndex = -1;
     boolean shouldRefreshChapters;
 
     ActivityResultLauncher<String> requestPermissionLauncher;
 
     Set<String> languages;
+
+    ChapterListViewModel model;
+    Integer cachedChapterPos;
 
 
     private void createNotificationChannel() {
@@ -121,7 +103,6 @@ public class ChapterDownloaderActivity extends AppCompatActivity
             // or other notification behaviors after this
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
-            // notificationManager.cancelAll();
         }
          requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -129,54 +110,26 @@ public class ChapterDownloaderActivity extends AppCompatActivity
                 e.putBoolean("refusedNotifications", !isGranted);
                 e.apply();
 
-                DownloadChapter(null);
+                DownloadChapter(cachedChapterPos);
             });
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-
-        Fade fade = new Fade();
-
-        getWindow().setSharedElementsUseOverlay(false);
-
-        // Set an enter transition
-        getWindow().setEnterTransition(new Fade());
-        getWindow().setSharedElementExitTransition(fade);
-        // Set an exit transition
-        getWindow().setExitTransition(null);
 
         // Make status bar transparent
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
             getWindow().setDecorFitsSystemWindows(false);
-        }
-        else {
+        else
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        }
+
         getWindow().setStatusBarColor(Color.TRANSPARENT);
+        setContentView(R.layout.activity_download_new);
 
-        setContentView(R.layout.activity_download);
-
-        client = new DNSClient(DNSClient.PresetDNS.CLOUDFLARE);
-
-        // UI binding
-        title = findViewById(R.id.mangaTitle);
-        author = findViewById(R.id.authorView);
-        description = findViewById(R.id.mangaDescription);
-        cover = findViewById(R.id.cover);
-        chapterSelection = findViewById(R.id.chapterSelection);
-        continueReading = findViewById(R.id.continueReading);
-        tags = findViewById(R.id.tags);
-
-        downloadButton = findViewById(R.id.buttonDownload);
-        downloadButton.setEnabled(false);
-
-        readButton = findViewById(R.id.buttonRead);
-        readButton.setEnabled(false);
-
+        // Set custom toolbar
         Toolbar t = findViewById(R.id.home_toolbar);
         setSupportActionBar(t);
         ActionBar actionBar = getSupportActionBar();
@@ -189,7 +142,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
             Insets systemBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             params.setMargins(systemBarInsets.left, systemBarInsets.top, systemBarInsets.right, 0);
 
-            params = (ViewGroup.MarginLayoutParams) findViewById(R.id.linearLayout).getLayoutParams();
+            params = (ViewGroup.MarginLayoutParams) findViewById(R.id.fragmentContainer).getLayoutParams();
             params.setMargins(params.getMarginStart(), 0, params.getMarginEnd(),
                     insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom +
                             (int) (16 * ((float) getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT)));
@@ -197,102 +150,70 @@ public class ChapterDownloaderActivity extends AppCompatActivity
             return WindowInsetsCompat.CONSUMED;
         });
 
-        ChapterSelectionAdapter adapter = new ChapterSelectionAdapter(ChapterDownloaderActivity.this,
-                new Pair<>(getString(R.string.fetchingString), getString(R.string.wait)));
-        chapterSelection.setAdapter(adapter);
-        chapterSelection.setEnabled(false);
-
-        chapterSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (mangaChapters.size() == 0) return;
-                if (mangaChapters.get(position).getAttributes().getExternalUrl() != null)
-                    downloadButton.setVisibility(View.GONE);
-                else
-                    downloadButton.setVisibility(View.VISIBLE);
-                if (position != bookmarkFavouriteIndex)
-                    continueReading.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
-        downloadButton.setOnClickListener(this::DownloadChapter);
-        readButton.setOnClickListener(this::ReadChapter);
-
-        mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
-        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true);
-
+        // Retrieve Manga object from args/savedState
         // UI initialization (and recover from previous instance if needed)
         if (savedInstanceState == null) {
-            if (getIntent().hasExtra("MangaData")) {
-                try {
-                    selectedManga = mapper.readValue(getIntent().getStringExtra("MangaData"), Manga.class);
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
-            }
+            Bundle bundle = getIntent().getExtras();
+            assert bundle != null && bundle.containsKey("MangaData");
+            selectedManga = CompatUtils.GetSerializable(bundle, "MangaData", Manga.class);
         }
         else {
-            try {
-                selectedManga = mapper.readValue(savedInstanceState.getString("MangaData"), Manga.class);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
+            assert savedInstanceState.containsKey("MangaData");
+            selectedManga = CompatUtils.GetSerializable(savedInstanceState, "MangaData", Manga.class);
         }
 
-        try {
-            // Set author, name and description
-            author.setText(selectedManga.getAttributes().getAuthorString());
-            author.setMovementMethod(new ScrollingMovementMethod());
-            title.setText(FormattingUtilities.FormatFromHtml(selectedManga.getAttributes().getTitleS()));
+        // Initialize Web client
+        client = StaticData.getClient(this);
 
-            HashMap<String, String> desc = selectedManga.getAttributes().getDescription();
-            String descriptionString = (desc.containsKey("en")) ?
-                    desc.get("en") :
-                    desc.entrySet().iterator().next().getValue();
+        title = findViewById(R.id.mangaTitle);
+        author = findViewById(R.id.authorView);
+        cover = findViewById(R.id.cover);
 
-            if (descriptionString != null && !descriptionString.isEmpty())
-                description.setText(FormattingUtilities.FormatFromHtml(FormattingUtilities.MarkdownLite(descriptionString)));
-            description.setMovementMethod(new ScrollingMovementMethod());
+        author.setText(selectedManga.getAttributes().getAuthorString());
+        author.setMovementMethod(new ScrollingMovementMethod());
+        title.setText(FormattingUtilities.FormatFromHtml(selectedManga.getAttributes().getTitleS()));
+        ViewPager2 pager = findViewById(R.id.fragmentContainer);
+        pager.setAdapter(new MangaViewActivityFragmentManager(this, selectedManga));
+        pager.setOffscreenPageLimit(2);
 
-            // First chip is the content rating
-            Chip chip = (Chip) getLayoutInflater().inflate(R.layout.tag_chip, tags, false);
-            Pair<Integer, Integer> rating = MangaAttributes.getRatingString(selectedManga.getAttributes().getContentRating());
-            chip.setText(rating.first);
-            chip.setFocusable(false);
-            chip.setChipStrokeColorResource(rating.second);
-            chip.setTextColor(ContextCompat.getColor(this, rating.second));
-            tags.addView(chip);
+        TabLayout tabLayout = findViewById(R.id.tabSelection);
 
-            // Other chips are the actual tags
-            for (Tag tag : selectedManga.getAttributes().getTags()) {
-                Chip tagChip = (Chip) getLayoutInflater().inflate(R.layout.tag_chip, tags, false);
-                tagChip.setText(tag.getAttributes().getName().get("en"));
-                tagChip.setFocusable(false);
-                tags.addView(tagChip);
-            }
+        new TabLayoutMediator(tabLayout, pager, (tab, position) -> {
+            tab.setIcon(MangaViewActivityFragmentManager.tabIconResIDs[position]);
+            tab.setText(MangaViewActivityFragmentManager.tabLabelResIDs[position]);
+        }).attach();
 
-            getCover();
-            getMangaChapterList();
-        } catch (JSONException | InterruptedException e) {
-            e.printStackTrace();
-        }
+        getCover();
+
+        model = new ViewModelProvider(this).get(ChapterListViewModel.class);
+
+        if (model.getUiState().getValue() == null || model.getUiState().getValue().isSearchCompleted() != ChapterListViewModel.ChapterListState.SEARCH_COMPLETED)
+            GetMangaChapterList();
 
         createNotificationChannel();
     }
 
+    /*
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        ViewPager2 fragmentContainer = findViewById(R.id.fragmentContainer);
+        fragmentContainer.post(() -> {
+            int pixels = fragmentContainer.getHeight();
+            float dp = CompatUtils.convertPixelsToDp(pixels, this);
+
+            if (dp < 64)
+                findViewById(R.id.tabSelection).setVisibility(View.GONE);
+        });
+    }
+    */
+
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        try {
-            outState.putString("MangaData", mapper.writeValueAsString(selectedManga));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+
+        outState.putSerializable("MangaData", selectedManga);
     }
 
     @Override
@@ -319,7 +240,6 @@ public class ChapterDownloaderActivity extends AppCompatActivity
                 FavouriteManager.RemoveFavourite(this, selectedManga.getId());
         }
         else if (item.getItemId() == R.id.action_show_languages) {
-
             StringBuilder b = new StringBuilder();
             b.append("\n- ").append(MangaAttributes.getLangString(this, selectedManga.getAttributes().getOriginalLanguage())).append(getString(R.string.dialogAvailableLanguagesOriginal));
 
@@ -343,50 +263,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onBackPressed() {
-        finish();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if (shouldRefreshChapters)
-        {
-            try {
-                getMangaChapterList();
-            } catch (JSONException | InterruptedException e) {
-                e.printStackTrace();
-            }
-            shouldRefreshChapters = false;
-        }
-
-        if (mangaChapters.size() != 0) {
-            Pair<String, Boolean> savedBookmark = FavouriteManager.GetBookmarkForFavourite(this, selectedManga.getId());
-
-            if (savedBookmark != null) {
-                final boolean queueNext = savedBookmark.second;
-                for (int i = 0; i < mangaChapters.size(); i++) {
-                    if (mangaChapters.get(i).getId().equals(savedBookmark.first)) {
-                        if (queueNext && i < mangaChapters.size() - 1)
-                            bookmarkFavouriteIndex = i + 1;
-                        else
-                            bookmarkFavouriteIndex = i;
-                        break;
-                    }
-                }
-            }
-            if (bookmarkFavouriteIndex == -1)
-                chapterSelection.setSelection(chapterSelection.getCount() - 1);
-            else {
-                chapterSelection.setSelection(bookmarkFavouriteIndex);
-                continueReading.setVisibility(View.VISIBLE);
-            }
-        }
-    }
-
-    private void getCover() throws JSONException {
+    private void getCover() {
         // Load already cached image
         if (StaticData.sharedCover != null) {
             cover.setImageBitmap(StaticData.sharedCover);
@@ -404,14 +281,18 @@ public class ChapterDownloaderActivity extends AppCompatActivity
                 Toast.makeText(this, R.string.errNoConnection, Toast.LENGTH_SHORT).show();
                 return;
             }
+
+            StaticData.sharedCover = bm;
+
             cover.setImageBitmap(bm);
             ImageView background = findViewById(R.id.coverBackground);
             if (background != null)
                 background.setImageBitmap(bm);
-        }));
+        }), ReaderActivity.opt);
     }
 
-    public void getMangaChapterList() throws JSONException, InterruptedException {
+    public void GetMangaChapterList() {
+        ArrayList<Chapter> chapters = new ArrayList<>();
         languages = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getStringSet("languagePreference", null);
         assert languages != null;
 
@@ -427,10 +308,7 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         }
         if (!available)
         {
-            chapterSelection.setAdapter(new ChapterSelectionAdapter(ChapterDownloaderActivity.this,
-                    new Pair<>(getString(R.string.mangaNoEntries), getString(R.string.mangaNoEntriesSubtext))));
-            downloadButton.setVisibility(View.GONE);
-            readButton.setVisibility(View.GONE);
+            model.updateChapterList(chapters, ChapterListViewModel.ChapterListState.SEARCH_COMPLETED, 0);
             return;
         }
 
@@ -450,20 +328,22 @@ public class ChapterDownloaderActivity extends AppCompatActivity
 
         client.HttpRequestAsync(baseUrl.concat("&limit=250"), new Callback() {
             @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {}
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                runOnUiThread(() -> model.updateChapterList(new ArrayList<>(), ChapterListViewModel.ChapterListState.SEARCH_ERROR, 0));
+            }
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                ChapterResults cResults = mapper.readValue(Objects.requireNonNull(response.body()).string(), ChapterResults.class);
+                ChapterResults cResults = StaticData.getMapper().readValue(Objects.requireNonNull(response.body()).string(), ChapterResults.class);
                 final int totalChapters = cResults.getTotal();
 
                 // We can't fit all the chapters in one request
                 if (totalChapters > 250) {
-                    mangaChapters = new ArrayList<>(Arrays.asList(new Chapter[totalChapters]));
+                    chapters.addAll(Arrays.asList(new Chapter[totalChapters]));
 
                     // Copy the first 250 elements
                     for (int i = 0; i < 250; i++)
-                        mangaChapters.set(i, cResults.getData()[i]);
+                        chapters.set(i, cResults.getData()[i]);
 
                     // Query the others
                     final int[] remainingChapters = {totalChapters - 250};
@@ -471,64 +351,61 @@ public class ChapterDownloaderActivity extends AppCompatActivity
                         final int offset = i;
                         client.HttpRequestAsync(baseUrl.concat("&limit=250&offset=").concat(String.valueOf(i)), new Callback() {
                             @Override
-                            public void onFailure(@NonNull Call call, @NonNull IOException e) {}
+                            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                                runOnUiThread(() -> model.updateChapterList(new ArrayList<>(), ChapterListViewModel.ChapterListState.SEARCH_ERROR, 0));
+                            }
                             @Override
                             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                                ChapterResults _cResults = mapper.readValue(Objects.requireNonNull(response.body()).string(), ChapterResults.class);
+                                ChapterResults _cResults = StaticData.getMapper().readValue(Objects.requireNonNull(response.body()).string(), ChapterResults.class);
                                 // Copy the retrieved elements
                                 for (int j = 0; j < _cResults.getData().length; j++)
-                                    mangaChapters.set(offset + j, _cResults.getData()[j]);
+                                    chapters.set(offset + j, _cResults.getData()[j]);
 
                                 remainingChapters[0] -= 250;
                                 if (remainingChapters[0] < 0)
-                                    OnChapterRetrievingEnd();
+                                    OnChapterRetrievingEnd(chapters);
                             }
-                        });
+                        }, false);
                     }
                 }
                 else {
-                    mangaChapters = new ArrayList<>(Arrays.asList(cResults.getData()));
-                    OnChapterRetrievingEnd();
+                    chapters.addAll(Arrays.asList(cResults.getData()));
+                    OnChapterRetrievingEnd(chapters);
                 }
             }
-        });
+        }, false);
     }
 
-    public void OnChapterRetrievingEnd() {
+    private void OnChapterRetrievingEnd(ArrayList<Chapter> chapters) {
         Pair<String, Boolean> savedBookmark = FavouriteManager.GetBookmarkForFavourite(this, selectedManga.getId());
         String bookmark = (savedBookmark != null) ? savedBookmark.first : null;
 
-        boolean allowDuplicates = languages.size() > 1 || !PreferenceManager.getDefaultSharedPreferences(this).getBoolean("chapterDuplicate", true);
+        boolean allowDuplicates = ((languages.size() > 1) || (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("chapterDuplicate", true)));
 
-        ChapterUtilities.FormatChapterList(ChapterDownloaderActivity.this, mangaChapters, new ChapterUtilities.FormattingOptions(
+        ChapterUtilities.FormatChapterList(ChapterDownloaderActivity.this, chapters, new ChapterUtilities.FormattingOptions(
                 allowDuplicates,
                 PreferenceManager.getDefaultSharedPreferences(this).getBoolean("hideExternal", true),
                 bookmark));
 
-        if (mangaChapters.size() == 0) {
-            runOnUiThread(() -> {
-                chapterSelection.setAdapter(new ChapterSelectionAdapter(ChapterDownloaderActivity.this,
-                        new Pair<>(getString(R.string.mangaNoEntriesFilter), getString(R.string.mangaNoEntriesSubtext))));
-                downloadButton.setVisibility(View.GONE);
-                readButton.setVisibility(View.GONE);
-            });
-            return;
-        }
-
         // Move the oneshots at the beginning of the array
         int currentIteration = 0;
-        while (mangaChapters.get(mangaChapters.size() - 1).getAttributes().getChapter() == null
-                && currentIteration < mangaChapters.size()) {
-            Chapter c = mangaChapters.remove(mangaChapters.size() - 1);
-            mangaChapters.add(0, c);
+        while (chapters.get(chapters.size() - 1).getAttributes().getChapter() == null
+                && currentIteration < chapters.size()) {
+            Chapter c = chapters.remove(chapters.size() - 1);
+            chapters.add(0, c);
             currentIteration++;
         }
 
+        int bookmarkFavouriteIndex = 0;
+
+        if (currentIteration != chapters.size())
+            bookmarkFavouriteIndex = currentIteration;
+
         if (savedBookmark != null) {
             final boolean queueNext = savedBookmark.second;
-            for (int i = 0; i < mangaChapters.size(); i++) {
-                if (mangaChapters.get(i).getId().equals(savedBookmark.first)) {
-                    if (queueNext && i < mangaChapters.size() - 1)
+            for (int i = 0; i < chapters.size(); i++) {
+                if (chapters.get(i).getId().equals(savedBookmark.first)) {
+                    if (queueNext && i < chapters.size() - 1)
                         bookmarkFavouriteIndex = i + 1;
                     else
                         bookmarkFavouriteIndex = i;
@@ -538,31 +415,68 @@ public class ChapterDownloaderActivity extends AppCompatActivity
         }
 
         final int index = bookmarkFavouriteIndex;
-        ChapterDownloaderActivity.this.runOnUiThread(() -> {
-            ChapterSelectionAdapter adapter = new ChapterSelectionAdapter(ChapterDownloaderActivity.this, mangaChapters.toArray(new Chapter[0]));
-            chapterSelection.setAdapter(adapter);
-            if (index == -1)
-                chapterSelection.setSelection(0);
-            else {
-                chapterSelection.setSelection(index);
-                continueReading.setVisibility(View.VISIBLE);
-            }
-
-            downloadButton.setEnabled(true);
-            readButton.setEnabled(true);
-            chapterSelection.setEnabled(true);
-        });
+        runOnUiThread(() -> model.updateChapterList(chapters, ChapterListViewModel.ChapterListState.SEARCH_COMPLETED, index));
     }
 
-    public void DownloadChapter(View view) {
+    public void OpenURL(String url) {
+        new MaterialAlertDialogBuilder(ChapterDownloaderActivity.this)
+                .setTitle(R.string.noPagesDialogTitle)
+                .setMessage(FormattingUtilities.FormatFromHtml(ChapterDownloaderActivity.this.getString(R.string.noPagesDialog, url)))
+
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(url));
+                    ChapterDownloaderActivity.this.startActivity(i);
+                })
+
+                // A null listener allows the button to dismiss the dialog and take no further action.
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+    public void ReadChapter(Integer pos) {
+        ChapterListViewModel.ChapterListState m = model.getUiState().getValue();
+        assert m != null;
+
+        ArrayList<Chapter> foundChapters = m.getMangaChapters();
+        Chapter selectedChapter = foundChapters.get(pos);
+
+        ArrayList<Chapter> dummyChapters = new ArrayList<>(foundChapters);
+        ChapterUtilities.FormatChapterList(ChapterDownloaderActivity.this, dummyChapters, new ChapterUtilities.FormattingOptions(
+                false,
+                true,
+                selectedChapter.getId()
+        ));
+        String[] chapterNames = new String[dummyChapters.size()];
+        String[] chapterIDs = new String[dummyChapters.size()];
+        for (int i = 0; i < dummyChapters.size(); i++) {
+            chapterNames[i] = dummyChapters.get(i).getAttributes().getFormattedName();
+            chapterIDs[i] = dummyChapters.get(i).getId();
+        }
+
+        Intent intent = new Intent(ChapterDownloaderActivity.this, OnlineReaderActivity.class);
+        intent.putExtra("chapterNames", chapterNames);
+        intent.putExtra("chapterIDs", chapterIDs);
+        intent.putExtra("targetChapter", selectedChapter.getId());
+        intent.putExtra("mangaID", selectedManga.getId());
+
+        startActivity(intent);
+    }
+    public void DownloadChapter(Integer pos) {
+        ChapterListViewModel.ChapterListState m = model.getUiState().getValue();
+        assert m != null;
+
+        ArrayList<Chapter> foundChapters = m.getMangaChapters();
+        Chapter selectedChapter = foundChapters.get(pos);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(
-                this, Manifest.permission.POST_NOTIFICATIONS) !=
+                ChapterDownloaderActivity.this, android.Manifest.permission.POST_NOTIFICATIONS) !=
                 PackageManager.PERMISSION_GRANTED) {
-            boolean disableNotifications = this.getSharedPreferences("com.littleProgrammers.mangadexdownloader", Context.MODE_PRIVATE).getBoolean("refusedNotifications", false);
+            boolean disableNotifications = ChapterDownloaderActivity.this.getSharedPreferences("com.littleProgrammers.mangadexdownloader", Context.MODE_PRIVATE).getBoolean("refusedNotifications", false);
 
             if (!disableNotifications)
             {
-                new MaterialAlertDialogBuilder(this)
+                cachedChapterPos = pos;
+                new MaterialAlertDialogBuilder(ChapterDownloaderActivity.this)
                         .setTitle(R.string.notificationsExplainationTitle)
                         .setMessage(R.string.notificationsExplainationDesc)
                         .setPositiveButton(android.R.string.ok, (dialog, which) -> requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS))
@@ -571,18 +485,15 @@ public class ChapterDownloaderActivity extends AppCompatActivity
             }
             else
             {
-                Toast.makeText(this, R.string.downloadStarted, Toast.LENGTH_SHORT).show();
+                Toast.makeText(ChapterDownloaderActivity.this, R.string.downloadStarted, Toast.LENGTH_SHORT).show();
             }
         }
 
-
-        Chapter selectedChapter = mangaChapters.get(chapterSelection.getSelectedItemPosition());
-
-        if (checkForNoPages(selectedChapter)) return;
+        if (selectedChapter.getAttributes().getExternalUrl() != null) return;
 
         String chapterID = selectedChapter.getId();
 
-        WorkManager wm = WorkManager.getInstance(this);
+        WorkManager wm = WorkManager.getInstance(ChapterDownloaderActivity.this);
 
         Data.Builder data = new Data.Builder();
         data.putString("Chapter", chapterID);
@@ -595,53 +506,5 @@ public class ChapterDownloaderActivity extends AppCompatActivity
                 .build();
 
         wm.enqueueUniqueWork(chapterID, ExistingWorkPolicy.KEEP, downloadWorkRequest);
-    }
-
-    public void ReadChapter(View view) {
-        Chapter selectedChapter = mangaChapters.get(chapterSelection.getSelectedItemPosition());
-
-        if (checkForNoPages(selectedChapter)) return;
-
-        ArrayList<Chapter> dummyChapters = new ArrayList<>(mangaChapters);
-        ChapterUtilities.FormatChapterList(this, dummyChapters, new ChapterUtilities.FormattingOptions(
-                false,
-                true,
-                selectedChapter.getId()
-        ));
-        String[] chapterNames = new String[dummyChapters.size()];
-        String[] chapterIDs = new String[dummyChapters.size()];
-        for (int i = 0; i < dummyChapters.size(); i++) {
-            chapterNames[i] = dummyChapters.get(i).getAttributes().getFormattedName();
-            chapterIDs[i] = dummyChapters.get(i).getId();
-        }
-
-        Intent intent = new Intent(getApplicationContext(), OnlineReaderActivity.class);
-        intent.putExtra("chapterNames", chapterNames);
-        intent.putExtra("chapterIDs", chapterIDs);
-        intent.putExtra("targetChapter", selectedChapter.getId());
-        intent.putExtra("mangaID", selectedManga.getId());
-
-        startActivity(intent);
-    }
-
-    private boolean checkForNoPages(@NonNull Chapter chapter) {
-        String externalUrl = chapter.getAttributes().getExternalUrl();
-        if (externalUrl != null) {
-            new MaterialAlertDialogBuilder(ChapterDownloaderActivity.this)
-                    .setTitle(R.string.noPagesDialogTitle)
-                    .setMessage(FormattingUtilities.FormatFromHtml(getString(R.string.noPagesDialog, externalUrl)))
-
-                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                        Intent i = new Intent(Intent.ACTION_VIEW);
-                        i.setData(Uri.parse(externalUrl));
-                        startActivity(i);
-                    })
-
-                    // A null listener allows the button to dismiss the dialog and take no further action.
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .show();
-            return true;
-        }
-        return false;
     }
 }

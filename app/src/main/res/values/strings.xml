@@ -19,7 +19,7 @@
     <string name="searchFoundEmpty">No results found…</string>
     <string name="activityDownloadName">Download a manga</string>
     <string name="mangaNoEntries">There are no chapters in the selected languages.</string>
-    <string name="mangaNoEntriesFilter">There are no chapters for the current filters.</string>
+    <string name="mangaNoEntriesFilter">No chapters for the chosen filters</string>
     <string name="cantDownload">Wait for the server to respond before attempting to download</string>
     <string name="storageAccessDenied">The app can\'t download the mangas without the storage write permission</string>
     <string name="noPages">The selected chapter has no pages to download</string>
@@ -108,7 +108,7 @@
     <string name="notificationsExplainationTitle">Hear me out</string>
     <string name="notificationsExplainationDesc">Mangadex Downloader uses notifications to update you on your current downloads.\n\nYou can suppress them if you want, but if you do so, doubt and uncertainty about your downloads will haunt you for the rest of your life.\n\n(You can always change this setting in your phone\'s options).</string>
     <string name="downloadStarted">Download started</string>
-    <string name="downloadRetry">Retry</string>
+    <string name="downloadRetry">Try again</string>
     <string name="downloadMoreInfo">Check your internet connection.</string>
     <string name="chapterPrevious">Previous chapter</string>
     <string name="chapterNext">Next chapter</string>
@@ -140,8 +140,123 @@
     <string name="settingsSearchContentRatingTitle">Content rating filter</string>
     <string name="settingsSearchContentRatingDesc">Select what categories of manga will show up in searches</string>
     <string name="searchWarning">Content filters are disabled. Mind what you\'re searching up.</string>
-    <string name="dialogAvailableLanguagesTitle">Avaliable languages</string>
+    <string name="dialogAvailableLanguagesTitle">Available languages</string>
     <string name="dialogAvailableLanguagesOriginal">(original language)</string>
     <string name="dialogAvailableLanguagesOpenSettings">Language settings</string>
     <string name="settingsDuplicateChaptersDisabled">Always enabled when multiple languages are selected</string>
+
+    <string-array name="tags">
+        <item>Oneshot</item>
+        <item>Thriller</item>
+        <item>Award Winning</item>
+        <item>Reincarnation</item>
+        <item>Sci-Fi</item>
+        <item>Time Travel</item>
+        <item>Genderswap</item>
+        <item>Loli</item>
+        <item>Traditional Games</item>
+        <item>Official Colored</item>
+        <item>Historical</item>
+        <item>Monsters</item>
+        <item>Action</item>
+        <item>Demons</item>
+        <item>Psychological</item>
+        <item>Ghosts</item>
+        <item>Animals</item>
+        <item>Long Strip</item>
+        <item>Romance</item>
+        <item>Ninja</item>
+        <item>Comedy</item>
+        <item>Mecha</item>
+        <item>Anthology</item>
+        <item>Boys\' Love</item>
+        <item>Incest</item>
+        <item>Crime</item>
+        <item>Survival</item>
+        <item>Zombies</item>
+        <item>Reverse Harem</item>
+        <item>Sports</item>
+        <item>Superhero</item>
+        <item>Martial Arts</item>
+        <item>Fan Colored</item>
+        <item>Samurai</item>
+        <item>Magical Girls</item>
+        <item>Mafia</item>
+        <item>Adventure</item>
+        <item>Self-Published</item>
+        <item>Virtual Reality</item>
+        <item>Office Workers</item>
+        <item>Video Games</item>
+        <item>Post-Apocalyptic</item>
+        <item>Sexual Violence</item>
+        <item>Crossdressing</item>
+        <item>Magic</item>
+        <item>Girls\' Love</item>
+        <item>Harem</item>
+        <item>Military</item>
+        <item>Wuxia</item>
+        <item>Isekai</item>
+        <item>4-Koma</item>
+        <item>Doujinshi</item>
+        <item>Philosophical</item>
+        <item>Gore</item>
+        <item>Drama</item>
+        <item>Medical</item>
+        <item>School Life</item>
+        <item>Horror</item>
+        <item>Fantasy</item>
+        <item>Villainess</item>
+        <item>Vampires</item>
+        <item>Delinquents</item>
+        <item>Monster Girls</item>
+        <item>Shota</item>
+        <item>Police</item>
+        <item>Web Comic</item>
+        <item>Slice of Life</item>
+        <item>Aliens</item>
+        <item>Cooking</item>
+        <item>Supernatural</item>
+        <item>Mystery</item>
+        <item>Adaptation</item>
+        <item>Music</item>
+        <item>Full Color</item>
+        <item>Tragedy</item>
+        <item>Gyaru</item>
+    </string-array>
+
+    <string-array name="related_manga_type">
+        <item>Monochrome</item>
+        <item>Main story</item>
+        <item>Adapted from</item>
+        <item>Based on</item>
+        <item>Prequel</item>
+        <item>Side story</item>
+        <item>Doujinshi</item>
+        <item>Same franchise</item>
+        <item>Shared universe</item>
+        <item>Sequel</item>
+        <item>Spin-off</item>
+        <item>Alternate story</item>
+        <item>Alternate version</item>
+        <item>Preserialization</item>
+        <item>Colored</item>
+        <item>Serialization</item>
+    </string-array>
+
+    <string name="sectionOverview">Overview</string>
+    <string name="sectionChapters">Chapters</string>
+    <string name="sectionRelated">Related</string>
+    <string name="author">Author</string>
+    <string name="artist">Artist</string>
+    <string name="genres">Genres</string>
+    <string name="themes">Themes</string>
+    <string name="format">Format</string>
+    <string name="contentRating">Content rating</string>
+    <string name="demographic">Demographic</string>
+    <string name="valueNotSpecified">Unspecified</string>
+    <string name="valueEmpty">(empty)</string>
+    <string name="volume_numbered">Volume %1$s</string>
+    <string name="volume_none">No volume</string>
+    <string name="action_change_filters">Change filters</string>
+    <string name="noRelatedMangas">No related mangas found</string>
 </resources>

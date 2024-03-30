@@ -91,6 +91,14 @@ public class DNSClient {
         new DNSPreset("https://cloudflare-dns.com/dns-query", "1.1.1.1", "1.0.0.1")
     };
 
+    private static final CacheControl noCache;
+
+    static {
+        noCache = new CacheControl.Builder()
+                .noCache()
+                .build();
+    }
+
 
     /**
      * Creates a DNSClient.
@@ -227,11 +235,25 @@ public class DNSClient {
      * @see Callback
      */
     public void HttpRequestAsync(String url, @NonNull Callback callback) {
-        Request request = new Request.Builder()
-                .url(url)
+        HttpRequestAsync(url, callback, true);
+    }
+    /**
+     * Enqueues an asynchronous request.
+     * @param url The target url for the request.
+     * @param callback The callback to be executed after the response was received.
+     * @param cache If cache should be enabled for this request.
+     * @see Callback
+     */
+    public void HttpRequestAsync(String url, @NonNull Callback callback, boolean cache) {
+        Request.Builder b = new Request.Builder()
                 //.header("Connection", "keep-alive")
                 //.header("Transfer-Encoding", "chunked")
-                .build();
+                .url(url);
+
+        if (!cache)
+            b.cacheControl(noCache);
+
+        Request request = b.build();
 
         client.newCall(request)
                 .enqueue(new Callback() {
@@ -276,7 +298,7 @@ public class DNSClient {
                 Log.d("Cache response", response.cacheResponse() != null ? (response.networkResponse() == null ? "Response was from cache" : "Response was a conditional GET") : "Response was from server");
                 response.close();
             }
-        });
+        }, false);
     }
     /**
      * Gets an image from an URL, and executes a callback after receiving in which the resulting Bitmap can be processed.

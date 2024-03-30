@@ -77,7 +77,7 @@
     <string name="buttonRandom">A caso</string>
     <string name="settingsHideExternal">Nascondi capitoli esterni</string>
     <string name="settingsHideExternalDescription">Si applica ai capitoli non presenti su Mangadex (Bilibili, MangaPlus, …)</string>
-    <string name="mangaNoEntriesFilter">Non ci sono capitoli per i filtri attuali.</string>
+    <string name="mangaNoEntriesFilter">Nessun capitolo con i filtri selezionati</string>
     <string name="favourite">Preferito</string>
     <string name="buttonFavourites">Preferiti</string>
     <string name="addFavouritesHint">I tuoi manga preferiti saranno mostrati qui. Per aggiungerne uno, clicca sull\'icona del segnalibro nella pagina di un manga.</string>
@@ -142,4 +142,119 @@
     <string name="dialogAvailableLanguagesOriginal">" (lingua originale)"</string>
     <string name="dialogAvailableLanguagesOpenSettings">Impostazioni di lingua</string>
     <string name="settingsDuplicateChaptersDisabled">Sempre attivo quando sono selezionate più lingue</string>
+
+    <string-array name="tags">
+        <item>Pubblicazione singola</item>
+        <item>Thriller</item>
+        <item>Premiato</item>
+        <item>Reincarnazione</item>
+        <item>Fantascienza</item>
+        <item>Viaggio nel tempo</item>
+        <item>Generi invertiti</item>
+        <item>Loli</item>
+        <item>Giochi tradizionali</item>
+        <item>A colori ufficiale</item>
+        <item>Storico</item>
+        <item>Mostri</item>
+        <item>Azione</item>
+        <item>Demoni</item>
+        <item>Psicologico</item>
+        <item>Fantasmi</item>
+        <item>Animali</item>
+        <item>Striscia lunga</item>
+        <item>Romantico</item>
+        <item>Ninja</item>
+        <item>Comico</item>
+        <item>Mecha</item>
+        <item>Antologia</item>
+        <item>Amore tra ragazzi</item>
+        <item>Incesto</item>
+        <item>Crimine</item>
+        <item>Sopravvivenza</item>
+        <item>Zombie</item>
+        <item>Harem rovesciato</item>
+        <item>Sport</item>
+        <item>Supereroi</item>
+        <item>Arti marziali</item>
+        <item>A colori non ufficiale</item>
+        <item>Samurai</item>
+        <item>Ragazze magiche</item>
+        <item>Mafia</item>
+        <item>Avventura</item>
+        <item>Auto-pubblicazione</item>
+        <item>Realtà virtuale</item>
+        <item>Lavoro in ufficio</item>
+        <item>Videogiochi</item>
+        <item>Post-apocalittico</item>
+        <item>Violenza sessuale</item>
+        <item>Travestimento</item>
+        <item>Magia</item>
+        <item>Amore tra ragazze</item>
+        <item>Harem</item>
+        <item>Militare</item>
+        <item>Wuxia</item>
+        <item>Isekai</item>
+        <item>4-Koma</item>
+        <item>Doujinshi</item>
+        <item>Filosofico</item>
+        <item>Violenza esplicita</item>
+        <item>Dramma</item>
+        <item>Medico</item>
+        <item>Vita scolastica</item>
+        <item>Orrore</item>
+        <item>Fantasia</item>
+        <item>Malvagità</item>
+        <item>Vampiri</item>
+        <item>Delinquenti</item>
+        <item>Ragazze mostro</item>
+        <item>Shota</item>
+        <item>Polizia</item>
+        <item>Fumetto Web</item>
+        <item>Slice of life</item>
+        <item>Alieni</item>
+        <item>Cucina</item>
+        <item>Soprannaturale</item>
+        <item>Misterioso</item>
+        <item>Adattamento</item>
+        <item>Musica</item>
+        <item>Tutto a colori</item>
+        <item>Tragedia</item>
+        <item>Gyaru</item>
+    </string-array>
+
+    <string-array name="related_manga_type">
+        <item>Bianco e nero</item>
+        <item>Storia principale</item>
+        <item>Adattato da</item>
+        <item>Basato su</item>
+        <item>Prequel</item>
+        <item>Storia secondaria</item>
+        <item>Doujinshi</item>
+        <item>Stesso franchise</item>
+        <item>Stesso universo</item>
+        <item>Sequel</item>
+        <item>Spin-off</item>
+        <item>Storia alternativa</item>
+        <item>Versione alternativa</item>
+        <item>Preserializzazione</item>
+        <item>A colori</item>
+        <item>Serializzazione</item>
+    </string-array>
+
+    <string name="sectionOverview">Panoramica</string>
+    <string name="sectionChapters">Capitoli</string>
+    <string name="sectionRelated">Correlati</string>
+    <string name="author">Autore</string>
+    <string name="artist">Vignettista</string>
+    <string name="genres">Generi</string>
+    <string name="themes">Temi</string>
+    <string name="format">Formato</string>
+    <string name="contentRating">Classificazione</string>
+    <string name="demographic">Pubblico</string>
+    <string name="valueNotSpecified">Non specificato</string>
+    <string name="valueEmpty">(vuoto)</string>
+    <string name="volume_numbered">Volume %1$s</string>
+    <string name="volume_none">Non raggruppati</string>
+    <string name="action_change_filters">Cambia filtri</string>
+    <string name="noRelatedMangas">Nessun manga correlato trovato</string>
 </resources>

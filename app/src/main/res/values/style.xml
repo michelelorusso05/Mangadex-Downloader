@@ -7,4 +7,27 @@
                 @drawable/splash_theme
         </item>
     </style>
+
+    <style name="TagChip" parent="Widget.Material3.Chip.Suggestion">
+        <item name="android:checkable">false</item>
+        <item name="android:clickable">false</item>
+        <item name="android:focusable">false</item>
+        <item name="rippleColor">@null</item>
+        <item name="chipStrokeWidth">0dp</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="chipBackgroundColor">?attr/cardBackgroundColor</item>
+    </style>
+    <style name="SmallChip" parent="TagChip">
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="chipStartPadding">4dp</item>
+        <item name="chipEndPadding">4dp</item>
+        <item name="chipMinTouchTargetSize">0dp</item>
+        <item name="chipMinHeight">0dp</item>
+        <item name="textStartPadding">0dp</item>
+        <item name="textEndPadding">0dp</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?attr/onCardTextColor</item>
+        <item name="chipBackgroundColor">?attr/onCardColor</item>
+    </style>
 </resources>

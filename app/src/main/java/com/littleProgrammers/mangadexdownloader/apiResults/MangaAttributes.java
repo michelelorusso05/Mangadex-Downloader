@@ -6,9 +6,10 @@ import android.util.Pair;
 
 import com.littleProgrammers.mangadexdownloader.R;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class MangaAttributes {
+public class MangaAttributes implements Serializable {
 
     public static HashMap<String, Pair<Integer, Integer>> contentRatingStrings;
     public static HashMap<String, String> languages;
@@ -46,8 +47,18 @@ public class MangaAttributes {
     HashMap<String, String> description = new HashMap<>();
     String originalLanguage;
 
+    public String getPublicationDemographic() {
+        return publicationDemographic;
+    }
+
+    public void setPublicationDemographic(String publicationDemographic) {
+        this.publicationDemographic = publicationDemographic;
+    }
+
+    String publicationDemographic;
     String authorID;
     String authorString = null;
+    String artistString = null;
     String coverUrl;
 
     public String getCoverUrl() {
@@ -72,6 +83,13 @@ public class MangaAttributes {
 
     public void setAuthorString(String authorString) {
         this.authorString = authorString;
+    }
+    public String getArtistString() {
+        return artistString;
+    }
+
+    public void setArtistString(String artistString) {
+        this.artistString = artistString;
     }
 
     public String[] getAvailableTranslatedLanguages() {

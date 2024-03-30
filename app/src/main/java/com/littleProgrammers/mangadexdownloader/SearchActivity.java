@@ -93,7 +93,7 @@ public class SearchActivity extends AppCompatActivity
 
         super.onCreate(savedInstanceState);
 
-        client = new DNSClient(DNSClient.PresetDNS.CLOUDFLARE);
+        client = StaticData.getClient(this);
 
         getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
 
@@ -141,7 +141,7 @@ public class SearchActivity extends AppCompatActivity
 
         recyclerView.setAdapter(new MangaAdapter(this));
         boolean landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-        int columns = landscape ? 4 : 2;
+        int columns = landscape ? 2 : 1;
         recyclerView.setLayoutManager(new GridLayoutManager(SearchActivity.this, columns));
 
         SetStatus(StatusType.BEGIN);
@@ -159,12 +159,6 @@ public class SearchActivity extends AppCompatActivity
             return false;
         });
 
-        mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
-        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true);
-        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-
         if (savedInstanceState != null) {
             String savedQuery = savedInstanceState.getString("searchQuery", "");
             if (savedQuery.equals("__fav")) {
@@ -172,7 +166,7 @@ public class SearchActivity extends AppCompatActivity
                 searchOffset = 0;
                 getResults(FavouriteManager.GetFavouritesIDs(this));
             }
-            else if (savedQuery.equals("__trn") || savedQuery.length() == 0) {
+            else if (savedQuery.equals("__trn") || savedQuery.isEmpty()) {
                 controlsContainer.setVisibility(View.INVISIBLE);
                 searchBar.setText("");
                 getResults(null);
@@ -235,7 +229,7 @@ public class SearchActivity extends AppCompatActivity
     public void getResults(@Nullable final Set<String> customList) {
         customIDs = customList;
 
-        if (customList != null && customList.size() == 0) {
+        if (customList != null && customList.isEmpty()) {
             SetStatus(StatusType.FAVOURITE_EMPTY);
             return;
         }
@@ -243,10 +237,9 @@ public class SearchActivity extends AppCompatActivity
         searchButton.setEnabled(false);
         favouriteButton.setEnabled(false);
 
-        StringBuilder urlString = new StringBuilder("https://api.mangadex.org/manga?&limit=20&offset=" + searchOffset + "&includes[]=cover_art&includes[]=author");
+        StringBuilder urlString = new StringBuilder("https://api.mangadex.org/manga?&limit=20&offset=" + searchOffset + "&includes[]=cover_art&includes[]=author&includes[]=artist");
 
         Set<String> ratings = PreferenceManager.getDefaultSharedPreferences(SearchActivity.this).getStringSet("contentFilter", null);
-
         if (ratings != null) {
             for (String s : ratings) {
                 urlString.append("&contentRating[]=").append(s);
@@ -260,8 +253,6 @@ public class SearchActivity extends AppCompatActivity
             for (String id : customIDs)
                 urlString.append("&ids[]=").append(id);
         }
-
-        Log.d("URL", urlString.toString());
 
         status.setText(R.string.searchLoading);
         SetStatus(StatusType.SEARCHING);
@@ -286,7 +277,7 @@ public class SearchActivity extends AppCompatActivity
 
                 MangaResults _mResults;
                 try {
-                    _mResults = mapper.readValue(bodyString, MangaResults.class);
+                    _mResults = StaticData.getMapper().readValue(bodyString, MangaResults.class);
                 } catch (JsonParseException | JsonMappingException e) {
                     runOnUiThread(() -> {
                         status.setText(getString(R.string.serverManteinance));
@@ -306,23 +297,7 @@ public class SearchActivity extends AppCompatActivity
                 });
 
                 for (Manga manga : mResults.getData()) {
-                    for (Relationship relationship : manga.getRelationships()) {
-                        if (relationship.getType().equals("author")) {
-                            String author = (relationship.getAttributes() != null) ? relationship.getAttributes().get("name").textValue() : "-";
-                            if (manga.getAttributes().getAuthorString() == null)
-                                manga.getAttributes().setAuthorString(author);
-                            else {
-                                String a = manga.getAttributes().getAuthorString()
-                                        .concat(", ")
-                                        .concat(author);
-                                manga.getAttributes().setAuthorString(a);
-                            }
-                        }
-                        else if (relationship.getType().equals("cover_art")) {
-                            String coverUrl = relationship.getAttributes().get("fileName").textValue();
-                            manga.getAttributes().setCoverUrl(coverUrl);
-                        }
-                    }
+                    manga.autofillInformation();
                 }
                 runOnUiThread(() -> {
                     int resultsLength = mResults.getData().length;
@@ -345,7 +320,7 @@ public class SearchActivity extends AppCompatActivity
                 });
                 response.close();
             }
-        });
+        }, false);
     }
     public void QueryNext() {
         searchOffset += 20;
@@ -388,7 +363,7 @@ public class SearchActivity extends AppCompatActivity
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                MangaResults mResults = mapper.readValue(Objects.requireNonNull(response.body()).string(), MangaResults.class);
+                MangaResults mResults = StaticData.getMapper().readValue(Objects.requireNonNull(response.body()).string(), MangaResults.class);
 
                 if (mResults.getResult().equals("error")) {
                     SearchActivity.this.runOnUiThread(() -> {
@@ -400,26 +375,14 @@ public class SearchActivity extends AppCompatActivity
                     return;
                 }
 
-                for (Relationship relationship : mResults.getData()[0].getRelationships()) {
-                    if (relationship.getType().equals("author")) {
-                        String author = relationship.getAttributes().get("name").textValue();
-                        mResults.getData()[0].getAttributes().setAuthorString(author);
-                    }
-                    else if (relationship.getType().equals("cover_art")) {
-                        String coverUrl = relationship.getAttributes().get("fileName").textValue();
-                        mResults.getData()[0].getAttributes().setCoverUrl(coverUrl);
-                    }
-                }
+                Manga randomManga = mResults.getData()[0];
+                randomManga.autofillInformation();
 
                 SearchActivity.this.runOnUiThread(() -> {
-                    try {
-                        StaticData.sharedCover = null;
-                        Intent intent = new Intent(getApplicationContext(), ChapterDownloaderActivity.class);
-                        intent.putExtra("MangaData", mapper.writeValueAsString(mResults.getData()[0]));
-                        startActivity(intent);
-                    } catch (JsonProcessingException e) {
-                        e.printStackTrace();
-                    }
+                    StaticData.sharedCover = null;
+                    Intent intent = new Intent(getApplicationContext(), ChapterDownloaderActivity.class);
+                    intent.putExtra("MangaData", randomManga);
+                    startActivity(intent);
                     status.setText(R.string.searchDefault);
                     SetStatus(StatusType.BEGIN);
 
@@ -427,7 +390,7 @@ public class SearchActivity extends AppCompatActivity
                 });
 
             }
-        });
+        }, false);
     }
 
     public enum StatusType {

@@ -1,11 +1,39 @@
 package com.littleProgrammers.mangadexdownloader.apiResults;
 
-import java.util.HashMap;
+import android.content.Context;
 
-public class Tag {
+import com.littleProgrammers.mangadexdownloader.R;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
+public class Tag implements Serializable {
     String id;
     String type;
     TagAttributes attributes;
+
+    static HashMap<String, Integer> idToStringResourceIndex;
+
+    private static void initLUP(Context context) {
+        String[] arr = context.getResources().getStringArray(R.array.tag_ids);
+
+        idToStringResourceIndex = new HashMap<>(arr.length);
+
+        for (int i = 0; i < arr.length; i++)
+            idToStringResourceIndex.put(arr[i], i);
+    }
+    public String getTranslatedName(Context context) {
+        if (idToStringResourceIndex == null)
+            initLUP(context);
+
+        Integer index = idToStringResourceIndex.get(getId());
+
+        if (index == null)
+            return getAttributes().getName().get("en");
+
+        return context.getResources().getStringArray(R.array.tags)[index];
+    }
 
     public String getId() {
         return id;
@@ -31,7 +59,7 @@ public class Tag {
         this.attributes = attributes;
     }
 
-    public static class TagAttributes {
+    public static class TagAttributes implements Serializable {
         HashMap<String, String> name = new HashMap<>();
         HashMap<String, String> description = new HashMap<>();
         String group;

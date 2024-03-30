@@ -138,11 +138,6 @@ public class ChapterDownloadWorker extends Worker {
         if (hasNotificationPermissions)
             notificationManager.notify(uniqueID, builder.build());
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
-        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true);
-
         client.HttpRequestAsync("https://api.mangadex.org/at-home/server/" + selectedChapterID, new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -165,7 +160,7 @@ public class ChapterDownloadWorker extends Worker {
                 if (!response.isSuccessful()) {
                     OnDownloadFail();
                 }
-                AtHomeResults hResults = mapper.readValue(Objects.requireNonNull(response.body()).string(), AtHomeResults.class);
+                AtHomeResults hResults = StaticData.getMapper().readValue(Objects.requireNonNull(response.body()).string(), AtHomeResults.class);
                 response.close();
 
                 // Clean temporary directory

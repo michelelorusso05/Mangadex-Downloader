@@ -43,7 +43,7 @@ public class OnlinePagesAdapter extends ReaderPagesAdapter {
                 response.close();
                 callback.onLoadFinished(bm);
             }
-        });
+        }, true);
     }
 
     @Override
@@ -75,6 +75,6 @@ public class OnlinePagesAdapter extends ReaderPagesAdapter {
                 }
                 callback.accept(options.outWidth >= options.outHeight);
             }
-        });
+        }, true);
     }
 }

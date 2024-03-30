@@ -446,7 +446,7 @@ public class ZoomageView extends AppCompatImageView implements OnScaleGestureLis
     /**
      * Remember our starting values so we can animate our image back to its original position.
      */
-    private void setStartValues() {
+    public void setStartValues() {
         startValues = new float[9];
         startMatrix = new Matrix(getImageMatrix());
         startMatrix.getValues(startValues);

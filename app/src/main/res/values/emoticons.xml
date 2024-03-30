@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Used when no results are available -->
+    <string-array name="emoticons_confused" translatable="false">
+        <item>(~_~;)</item>
+        <item>(・.・;)</item>
+        <item>(⁄ ⁄•⁄ω⁄•⁄ ⁄)</item>
+        <item>＼(°ロ＼)</item>
+        <item>(ーー;)</item>
+        <item>¯\\_(ツ)_/¯</item>
+        <item>(´･ω･`)</item>
+        <item>ʕ–㉨–ʔ</item>
+    </string-array>
+    <!-- Used for errors, such as no internet connection -->
+    <string-array name="emoticons_angry" translatable="false">
+        <item>(ಠ__ಠ)</item>
+        <item>(＃ﾟДﾟ)</item>
+    </string-array>
+</resources>

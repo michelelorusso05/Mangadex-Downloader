@@ -19,6 +19,9 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.util.Pair;
+import androidx.core.view.MenuProvider;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.progressindicator.CircularProgressIndicator;
@@ -27,8 +30,6 @@ import com.littleProgrammers.mangadexdownloader.utils.PDFHelper;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class OfflineReaderActivity extends ReaderActivity {
     ActivityResultLauncher<Intent> launchShareForResult;
@@ -37,7 +38,6 @@ public class OfflineReaderActivity extends ReaderActivity {
 
     View progressView;
     CircularProgressIndicator progressIndicator;
-    static Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,16 +152,6 @@ public class OfflineReaderActivity extends ReaderActivity {
 
         progressView = findViewById(R.id.pdfShareProgress);
         progressIndicator = findViewById(R.id.pdfShareProgressBar);
-
-        if (timer != null) timer.cancel();
-        timer = new Timer();
-
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Log.d("AAA", String.valueOf(pager.getCurrentItem()));
-            }
-        }, 0, 100);
     }
 
     @Override

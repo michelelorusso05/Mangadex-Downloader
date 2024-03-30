@@ -1,6 +1,8 @@
 package com.littleProgrammers.mangadexdownloader.apiResults;
 
-public class Chapter {
+import java.io.Serializable;
+
+public class Chapter implements Serializable {
     String id;
     String type;
     ChapterAttributes attributes;

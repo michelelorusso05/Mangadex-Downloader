@@ -59,10 +59,6 @@ public class OnlineReaderActivity extends ReaderActivity {
         findViewById(R.id.chapterNavigation).setVisibility(View.VISIBLE);
 
         client = StaticData.getClient(getApplicationContext());
-        mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
-        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true);
 
         chapterNames = getIntent().getStringArrayExtra("chapterNames");
         chapterIDs = getIntent().getStringArrayExtra("chapterIDs");
@@ -166,7 +162,7 @@ public class OnlineReaderActivity extends ReaderActivity {
             }
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                AtHomeResults hResults = mapper.readValue(Objects.requireNonNull(response.body()).charStream(), AtHomeResults.class);
+                AtHomeResults hResults = StaticData.getMapper().readValue(Objects.requireNonNull(response.body()).charStream(), AtHomeResults.class);
                 response.close();
 
                 String _baseUrl;
@@ -264,7 +260,7 @@ public class OnlineReaderActivity extends ReaderActivity {
 
                 setLastPage = false;
             }
-        });
+        }, true);
     }
 
     private void SetChapterControlsEnabled(boolean e) {

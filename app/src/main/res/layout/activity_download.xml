@@ -101,7 +101,7 @@
             android:ellipsize="none"
             android:gravity="start"
             android:maxLines="3"
-            android:text="@string/noMangaSelected"
+            android:text="Isekai Idol: Isekai de Idol de Byuu Shitara Seijo Atsukai Sarete Shimaimashita"
             android:textSize="34sp"
             android:textStyle="bold"
             android:transitionName="title"

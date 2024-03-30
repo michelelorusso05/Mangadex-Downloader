@@ -19,12 +19,14 @@
             android:name=".OnlineReaderActivity"
             android:exported="false"
             android:label="@string/readerActivityTitle"
-            android:parentActivityName=".ChapterDownloaderActivity"/>
+            android:parentActivityName=".ChapterDownloaderActivity"
+            android:theme="@style/Theme.MangadexDownloader.FullscreenColoredStatusBar"/>
         <activity
             android:name=".OfflineReaderActivity"
             android:exported="false"
             android:label="@string/readerActivityTitle"
-            android:parentActivityName=".DownloadedFiles"/>
+            android:parentActivityName=".DownloadedFiles"
+            android:theme="@style/Theme.MangadexDownloader.FullscreenColoredStatusBar"/>
         <activity
             android:name=".DownloadedFiles"
             android:exported="false"

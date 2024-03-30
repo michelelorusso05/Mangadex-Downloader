@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.os.Build;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -114,8 +115,9 @@ public abstract class ReaderPagesAdapter extends RecyclerView.Adapter<ReaderPage
     @Override
     public void onViewRecycled(@NonNull PageViewHolder holder) {
         super.onViewRecycled(holder);
-        if (holder.image != null)
+        if (holder.image != null) {
             holder.image.setImageBitmap(null);
+        }
     }
 
     @Override
