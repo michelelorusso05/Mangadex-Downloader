@@ -1,25 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/MangadexDownloader.CardView"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:outlineProvider="none"
-    app:cardBackgroundColor="?attr/cardBackgroundColor"
     android:layout_marginHorizontal="8dp"
-    app:cardCornerRadius="0dp"
-    app:cardElevation="0dp"
-    app:strokeWidth="0dp">
+    app:cardCornerRadius="0dp">
 
-    <View
+    <com.google.android.material.divider.MaterialDivider
         android:id="@+id/dividerView"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_weight="1"
-        android:alpha="0.5"
-        android:background="@android:color/darker_gray"/>
+        android:layout_marginEnd="24dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -34,6 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_vertical"
+            android:layout_marginEnd="16dp"
             android:orientation="vertical">
 
             <TextView
@@ -50,27 +45,25 @@
                 android:id="@+id/scanlationGroup"
                 android:layout_width="match_parent"
                 android:layout_height="20dp"
-                android:alpha="0.6"
                 android:ellipsize="end"
-                android:maxLines="1" />
+                android:maxLines="1"
+                android:textColor="?attr/colorOnSurfaceVariant" />
 
         </LinearLayout>
 
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
+            style="@style/Widget.Material3.Button.IconButton"
             android:id="@+id/buttonDownload"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/ripple_button_24"
-            android:contentDescription="@string/settingsDownloadDataSaverOn"
-            android:src="@drawable/ic_baseline_save_alt_24" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/icon_download" />
 
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
+            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
             android:id="@+id/buttonRead"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/ripple_button_24"
-            android:contentDescription="@string/errAlreadyDownloading"
-            android:src="@drawable/ic_baseline_auto_stories_24" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/icon_read" />
 
     </LinearLayout>
 

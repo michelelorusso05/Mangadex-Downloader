@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingStart="16dp"
-    android:paddingTop="16dp"
-    android:paddingEnd="16dp"
-    tools:context=".MangaDescriptionFragment">
+    tools:context=".FragmentMangaDescription">
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fadingEdgeLength="16dp"
-        android:requiresFadingEdge="vertical">
+        android:layout_height="match_parent"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:scrollbarSize="0dp">
 
         <LinearLayout
+            android:id="@+id/scrollableContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -28,11 +28,10 @@
                 android:layout_height="wrap_content"
                 android:text="@string/defaultDescription"
                 android:textAlignment="viewStart"
-                android:textSize="18sp" />
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="32dp" />
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="32dp"
+                android:textColor="?attr/colorOnSurfaceVariant"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -51,15 +50,18 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="@string/author"
+                        android:textSize="16sp"
                         android:textStyle="bold"
-                        app:drawableTopCompat="@drawable/ink_pen_24px" />
+                        app:drawableTopCompat="@drawable/icon_author"
+                        app:drawableTint="?attr/colorSecondary" />
 
                     <TextView
                         android:id="@+id/authorNameView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="Araki Hirohiko" />
+                        android:text="Araki Hirohiko"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -73,15 +75,18 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="@string/artist"
+                        android:textSize="16sp"
                         android:textStyle="bold"
-                        app:drawableTopCompat="@drawable/brush_24px" />
+                        app:drawableTopCompat="@drawable/icon_artist"
+                        app:drawableTint="?attr/colorSecondary" />
 
                     <TextView
                         android:id="@+id/artistNameView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="Araki Hirohiko" />
+                        android:text="Araki Hirohiko"
+                        android:textColor="?attr/colorOnSurfaceVariant"/>
                 </LinearLayout>
 
             </LinearLayout>
@@ -105,7 +110,7 @@
                 android:id="@+id/contentRatingChip"
                 style="@style/TagChip"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"/>
 
             <Space
                 android:layout_width="match_parent"
@@ -190,97 +195,19 @@
                 android:id="@+id/demographicChip"
                 style="@style/TagChip"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="32dp" />
+                android:layout_height="wrap_content" />
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="16dp" />
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/readButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        app:cardBackgroundColor="?attr/cardBackgroundColor"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="0dp">
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:icon="@drawable/icon_no_chapters"
+        app:layout_anchor="@id/scrollView"
+        app:layout_anchorGravity="end|bottom|right"/>
 
-        <LinearLayout
-            android:id="@+id/clickableLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="?attr/selectableItemBackground"
-            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/continueReading"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:alpha="0.5"
-                android:text="@string/continueFromBookmark"
-                android:textSize="16sp"
-                android:visibility="gone"
-                tools:ignore="TextContrastCheck" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="8dp">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical"
-                    android:orientation="vertical"
-                    android:paddingStart="8dp"
-                    android:paddingTop="4dp"
-                    android:paddingEnd="8dp"
-                    android:paddingBottom="4dp">
-
-                    <TextView
-                        android:id="@+id/chapterTitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="28dp"
-                        android:ellipsize="end"
-                        android:gravity="center_vertical"
-                        android:maxLines="1"
-                        android:text="@string/fetchingString"
-                        android:textAlignment="gravity"
-                        android:textSize="20sp" />
-
-                    <TextView
-                        android:id="@+id/scanlationGroup"
-                        android:layout_width="match_parent"
-                        android:layout_height="20dp"
-                        android:alpha="0.6"
-                        android:ellipsize="end"
-                        android:maxLines="1"
-                        android:text="@string/wait" />
-
-                </LinearLayout>
-
-                <ImageButton
-                    android:id="@+id/readIcon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginStart="12dp"
-                    android:layout_marginEnd="12dp"
-                    android:background="@null"
-                    android:src="@drawable/ic_baseline_auto_stories_24"/>
-            </LinearLayout>
-        </LinearLayout>
-
-    </androidx.cardview.widget.CardView>
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -6,38 +6,45 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
+        android:name=".Application"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:enableOnBackInvokedCallback="true"
         android:localeConfig="@xml/locales_config"
         android:theme="@style/Theme.MangadexDownloader"
         tools:targetApi="tiramisu">
         <activity
-            android:name=".OnlineReaderActivity"
+            android:name=".ActivityCoverViewer"
+            android:exported="false"
+            android:label="@string/activity_view_covers"
+            android:parentActivityName=".ActivityManga"
+            android:theme="@style/Theme.MangadexDownloader"/>
+        <activity
+            android:name=".ActivityOnlineReader"
             android:exported="false"
             android:label="@string/readerActivityTitle"
-            android:parentActivityName=".ChapterDownloaderActivity"
-            android:theme="@style/Theme.MangadexDownloader.FullscreenColoredStatusBar"/>
+            android:parentActivityName=".ActivityManga"
+            android:theme="@style/Theme.MangadexDownloader"/>
         <activity
-            android:name=".OfflineReaderActivity"
+            android:name=".ActivityOfflineReader"
             android:exported="false"
             android:label="@string/readerActivityTitle"
-            android:parentActivityName=".DownloadedFiles"
-            android:theme="@style/Theme.MangadexDownloader.FullscreenColoredStatusBar"/>
+            android:parentActivityName=".ActivityDownloadedFiles"
+            android:theme="@style/Theme.MangadexDownloader"/>
         <activity
-            android:name=".DownloadedFiles"
+            android:name=".ActivityDownloadedFiles"
             android:exported="false"
+            android:theme="@style/Theme.MangadexDownloader"
             android:label="@string/openDownloadFolder"
-            android:parentActivityName=".SearchActivity" />
+            android:parentActivityName=".ActivitySearch"/>
 
         <activity
-            android:name=".SearchActivity"
-            android:windowSoftInputMode="adjustNothing"
+            android:name=".ActivitySearch"
             android:exported="true"
-            android:theme="@style/Theme.MangadexDownloader.Starting">
+            android:theme="@style/Theme.MangadexDownloader">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -47,25 +54,24 @@
                 android:resource="@xml/shortcuts" />
         </activity>
         <activity
-            android:name=".ChapterDownloaderActivity"
+            android:name=".ActivityManga"
             android:label="@string/activityDownloadName"
-            android:parentActivityName=".SearchActivity"
-            android:theme="@style/Theme.MangadexDownloader.Fullscreen"/>
+            android:parentActivityName=".ActivitySearch"
+            android:theme="@style/Theme.MangadexDownloader" />
         <activity
-            android:name=".SettingsActivity"
+            android:name=".ActivitySettings"
             android:label="@string/settings"
-            android:parentActivityName=".SearchActivity" />
+            android:parentActivityName=".ActivitySearch"
+            android:theme="@style/Theme.MangadexDownloader" />
 
-        <receiver android:name=".DownloadStopper"
-            android:exported="false"
-            >
+        <receiver android:name=".BroadcastReceiverDownloadStop"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.michelelorusso.mangadexdownloader.STOP_DOWNLOAD" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".DownloadRetryer"
-            android:exported="false"
-            >
+        <receiver android:name=".BroadcastReceiverDownloadRetry"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.michelelorusso.mangadexdownloader.RETRY_DOWNLOAD" />
             </intent-filter>

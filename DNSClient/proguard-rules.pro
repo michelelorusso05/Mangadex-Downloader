@@ -22,3 +22,6 @@
 
 -dontwarn org.slf4j.impl.**
 -dontwarn sun.net.spi.nameservice.**
+
+-keep class com.littleProgrammers.mangadexdownloader.apiResults.** { *; }
+-keep class com.michelelorusso.dnsclient.** { *; }

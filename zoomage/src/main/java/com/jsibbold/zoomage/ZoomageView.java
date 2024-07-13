@@ -90,12 +90,9 @@ public class ZoomageView extends AppCompatImageView implements OnScaleGestureLis
     private boolean doubleTapDetected = false;
     private boolean singleTapDetected = false;
 
-    public interface OnSingleTap {
-        void Execute(MotionEvent e);
-    }
-    private OnSingleTap tapEvent;
+    private Runnable tapEvent;
 
-    public void SetOnSingleTapConfirmedEvent (OnSingleTap e) {
+    public void SetOnSingleTapConfirmedEvent (Runnable e) {
         tapEvent = e;
     }
 
@@ -899,7 +896,7 @@ public class ZoomageView extends AppCompatImageView implements OnScaleGestureLis
         public boolean onSingleTapConfirmed(MotionEvent e) {
             singleTapDetected = false;
             if (tapEvent != null) {
-                tapEvent.Execute(e);
+                tapEvent.run();
                 return true;
             }
             return false;

@@ -17,7 +17,7 @@
     <string name="searchLoading">Searching…</string>
     <string name="searchFound">Showing results from %1$d to %2$d out of %3$d</string>
     <string name="searchFoundEmpty">No results found…</string>
-    <string name="activityDownloadName">Download a manga</string>
+    <string name="activityDownloadName">Read a manga</string>
     <string name="mangaNoEntries">There are no chapters in the selected languages.</string>
     <string name="mangaNoEntriesFilter">No chapters for the chosen filters</string>
     <string name="cantDownload">Wait for the server to respond before attempting to download</string>
@@ -32,7 +32,7 @@
     <string name="settingsDownloadDataSaverOn">Prefer low quality images to save data and download faster</string>
     <string name="settingsDownloadDataSaverOff">Prefer high quality images over lower quality ones</string>
     <string name="settings">Settings</string>
-    <string name="noName">(no name)</string>
+    <string name="noName">Chapter %1$s</string>
     <string name="DialogExitCancel">Cancel</string>
     <string name="DialogExitConfirm">Exit anyway</string>
     <string name="DialogExitDescription">A download is currently in progress. If you exit, the download will be interrupted. Confirm?</string>
@@ -259,4 +259,19 @@
     <string name="volume_none">No volume</string>
     <string name="action_change_filters">Change filters</string>
     <string name="noRelatedMangas">No related mangas found</string>
+    <string name="activity_view_covers">View covers</string>
+    <string name="volume_null">No volume</string>
+    <string name="group_null">No group</string>
+    <string name="chapter_oneshot">Oneshot</string>
+    <string name="chapter_oneshots">Oneshots</string>
+    <string name="about_shounen_title">About Shōnen</string>
+    <string name="about_shounen_body">Shōnen manga (少年漫画) are targeted towards teenage boys.\n\nOut of the four main manga categories they are the most popular, as they are read by everyone, not just by young boys.\n\nShōnen manga are usually published in magazines dedicated just to this category, with the most popular being the Weekly Shōnen Jump.</string>
+    <string name="about_shoujo_title">About Shōjo</string>
+    <string name="about_shoujo_body">Shōjo manga (少女漫画) are targeted towards teenage girls.\n\nShōjo manga are usually published on magazines that focus on a single narrative genre or on a specific age range.</string>
+    <string name="about_seinen_title">About Seinen</string>
+    <string name="about_seinen_body">Seinen manga (青年漫画) are targeted towards adult men.\n\nSeinen manga can focus on any topic, such as politics, scienze, fiction, action, fantasy, relationships, sports or even comedy.</string>
+    <string name="about_josei_title">About Josei</string>
+    <string name="about_josei_body">Josei manga (女性漫画) are targeted towards adult women.\n\nPopularized around the 80s, Josei manga usually focus on topics that range from romance to drama and can even contain adult content.</string>
+    <string name="err_no_conn_short">No internet</string>
+    <string name="err_no_chapters_short">No chapters</string>
 </resources>

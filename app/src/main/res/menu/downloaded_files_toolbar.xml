@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_downloadedfiles_help"
-        android:icon="@drawable/ic_baseline_help_outline_24"
+        android:icon="@drawable/icon_help"
         android:title="@string/help"
         app:showAsAction="always"
         />

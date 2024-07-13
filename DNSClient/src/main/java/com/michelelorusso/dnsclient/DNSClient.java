@@ -287,7 +287,6 @@ public class DNSClient {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 action.Execute(null, false);
-                Log.d("GetImageBitmapAsync", "Failed to fetch image " + call.request().url());
             }
 
             @Override
@@ -295,7 +294,6 @@ public class DNSClient {
                 ResponseBody body = Objects.requireNonNull(response.body());
                 Bitmap bm = BitmapFactory.decodeStream(body.byteStream(), null, opts);
                 action.Execute(bm, true);
-                Log.d("Cache response", response.cacheResponse() != null ? (response.networkResponse() == null ? "Response was from cache" : "Response was a conditional GET") : "Response was from server");
                 response.close();
             }
         }, false);
@@ -472,5 +470,9 @@ public class DNSClient {
                     .header("Cache-Control", cacheControl.toString())
                     .build();
         }
+    }
+
+    public OkHttpClient getClient() {
+        return client;
     }
 }

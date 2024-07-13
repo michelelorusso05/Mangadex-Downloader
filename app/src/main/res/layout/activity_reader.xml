@@ -1,229 +1,245 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".OnlineReaderActivity">
+    tools:context=".ActivityOnlineReader"
+    android:fitsSystemWindows="false">
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/pager"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        android:layout_height="match_parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/controls"
+        android:id="@+id/overlay"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar">
+        android:layout_height="match_parent">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/chapterNavigation"
+        <View
+            android:id="@+id/background"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="?attr/colorSurfaceContainer"
+            android:backgroundTint="#9FFFFFFF"
+            android:backgroundTintMode="multiply"
+            app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:backgroundTint="#7FFFFFFF"
-            android:backgroundTintMode="multiply"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="?attr/actionBarTheme"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/controls"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/chapterNavigation"
+                style="@style/MangadexDownloader.CardView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#9FFFFFFF"
+                android:backgroundTintMode="multiply"
+                android:visibility="gone"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/previousChapterButton"
+                        style="@style/Widget.Material3.Button.IconButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/btndescriptionPrevious"
+                        app:icon="@drawable/icon_prev_page" />
+
+                    <Spinner
+                        android:id="@+id/chapterSelection"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:gravity="center"
+                        android:spinnerMode="dialog"
+                        tools:ignore="SpeakableTextPresentCheck" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/nextChapterButton"
+                        style="@style/Widget.Material3.Button.IconButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/btndescriptionNext"
+                        app:icon="@drawable/icon_next_page" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/navigation"
+                style="@style/MangadexDownloader.CardView"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="#9FFFFFFF"
+                android:backgroundTintMode="multiply"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <LinearLayout
+                    android:id="@+id/navigationInner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/firstButton"
+                        style="@style/Widget.Material3.Button.IconButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/btndescriptionFirst"
+                        app:icon="@drawable/icon_first_page" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/previousButton"
+                        style="@style/Widget.Material3.Button.IconButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/btndescriptionPrevious"
+                        app:icon="@drawable/icon_prev_page" />
+
+
+                    <Spinner
+                        android:id="@+id/progressView"
+                        android:layout_width="96dp"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:gravity="center"
+                        android:spinnerMode="dropdown"
+                        tools:ignore="SpeakableTextPresentCheck" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/nextButton"
+                        style="@style/Widget.Material3.Button.IconButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/btndescriptionNext"
+                        app:icon="@drawable/icon_next_page" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/lastButton"
+                        style="@style/Widget.Material3.Button.IconButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/btndescriptionLast"
+                        app:icon="@drawable/icon_last_page" />
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/pdfShareProgress"
+            style="@style/MangadexDownloader.CardView"
+            android:layout_width="288dp"
+            android:layout_height="48dp"
             android:visibility="gone"
-            app:cardBackgroundColor="?attr/cardBackgroundColor"
             app:cardCornerRadius="24dp"
             app:cardElevation="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/toolbar">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
+                android:layout_height="match_parent"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
                 android:orientation="horizontal">
 
-                <ImageButton
-                    android:id="@+id/previousChapterButton"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/ripple_button_24"
-                    android:contentDescription="@string/btndescriptionPrevious"
-                    app:srcCompat="@drawable/ic_baseline_keyboard_arrow_left_24"
-                    app:tint="?attr/colorControlNormal" />
-
-                <Spinner
-                    android:id="@+id/chapterSelection"
+                <TextView
+                    android:id="@+id/textView2"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
+                    android:layout_marginStart="16dp"
                     android:layout_weight="1"
-                    android:background="@null"
-                    android:gravity="center"
-                    android:spinnerMode="dialog"
-                    tools:ignore="SpeakableTextPresentCheck" />
+                    android:gravity="center_vertical"
+                    android:text="@string/preparingPDF"
+                    android:textSize="16sp" />
 
-                <ImageButton
-                    android:id="@+id/nextChapterButton"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/ripple_button_24"
-                    android:contentDescription="@string/btndescriptionNext"
-                    app:srcCompat="@drawable/ic_baseline_keyboard_arrow_right_24"
-                    app:tint="?attr/colorControlNormal" />
-
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/pdfShareProgressBar"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center_vertical"
+                    android:indeterminate="true"
+                    app:indicatorSize="30dp"
+                    app:trackCornerRadius="24dp" />
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/navigation"
-            android:layout_width="288dp"
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <Button
+            android:id="@+id/showControls"
+            style="?attr/materialIconButtonOutlinedStyle"
+            android:layout_width="48dp"
             android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-            android:backgroundTint="#7FFFFFFF"
-            android:backgroundTintMode="multiply"
-            app:cardBackgroundColor="?attr/cardBackgroundColor"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="0dp"
+            android:contentDescription="@string/btndescriptionNext"
+            android:visibility="gone"
+            app:icon="@drawable/icon_enable_controls"
+            app:iconTint="?attr/colorControlNormal"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <LinearLayout
-                android:id="@+id/navigationInner"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <ImageButton
-                    android:id="@+id/firstButton"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/ripple_button_24"
-                    android:contentDescription="@string/btndescriptionFirst"
-                    app:srcCompat="@drawable/ic_baseline_first_page_24"
-                    app:tint="?attr/colorControlNormal" />
-
-                <ImageButton
-                    android:id="@+id/previousButton"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/ripple_button_24"
-                    android:contentDescription="@string/btndescriptionPrevious"
-                    app:srcCompat="@drawable/ic_baseline_keyboard_arrow_left_24"
-                    app:tint="?attr/colorControlNormal" />
-
-                <Spinner
-                    android:id="@+id/progressView"
-                    android:layout_width="96dp"
-                    android:layout_height="match_parent"
-                    android:background="@null"
-                    android:gravity="center"
-                    android:spinnerMode="dropdown"
-                    tools:ignore="SpeakableTextPresentCheck" />
-
-                <ImageButton
-                    android:id="@+id/nextButton"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/ripple_button_24"
-                    android:contentDescription="@string/btndescriptionNext"
-                    app:srcCompat="@drawable/ic_baseline_keyboard_arrow_right_24"
-                    app:tint="?attr/colorControlNormal" />
-
-                <ImageButton
-                    android:id="@+id/lastButton"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/ripple_button_24"
-                    android:contentDescription="@string/btndescriptionLast"
-                    app:srcCompat="@drawable/ic_baseline_last_page_24"
-                    app:tint="?attr/colorControlNormal" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ProgressBar
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/pageProgress"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="-8dp"
+        android:layout_marginHorizontal="32dp"
         android:indeterminate="true"
         android:indeterminateBehavior="cycle"
         android:max="100"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:indeterminateAnimationType="disjoint"
+        app:layout_constraintEnd_toEndOf="@+id/navigation"
+        app:layout_constraintStart_toStartOf="@+id/navigation"
+        app:layout_constraintTop_toBottomOf="@+id/navigation"
+        app:trackCornerRadius="4dp"
+        app:trackStopIndicatorSize="2dp"
+        android:layout_gravity="bottom"
+        android:visibility="gone"/>
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/pdfShareProgress"
-        android:layout_width="288dp"
-        android:layout_height="48dp"
-        android:visibility="gone"
-        app:cardBackgroundColor="?attr/cardBackgroundColor"
-        app:cardCornerRadius="24dp"
-        app:cardElevation="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/textView2"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginStart="16dp"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:text="@string/preparingPDF"
-                android:textSize="16sp" />
-
-            <com.google.android.material.progressindicator.CircularProgressIndicator
-                android:id="@+id/pdfShareProgressBar"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="center_vertical"
-                android:indeterminate="true"
-                app:indicatorSize="30dp"
-                app:trackCornerRadius="24dp" />
-        </LinearLayout>
-
-    </androidx.cardview.widget.CardView>
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/showControls"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:visibility="gone"
-        style="?attr/materialIconButtonOutlinedStyle"
-        android:contentDescription="@string/btndescriptionNext"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:icon="@drawable/ic_baseline_navigation_on_24"
-        app:iconTint="?attr/colorControlNormal" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

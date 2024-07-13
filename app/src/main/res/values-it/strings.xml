@@ -17,7 +17,7 @@
     <string name="searchLoading">Sto cercando…</string>
     <string name="searchFound">Risultati da %1$d a %2$d su un totale di %3$d</string>
     <string name="searchFoundEmpty">Nessun risultato trovato…</string>
-    <string name="activityDownloadName">Scarica un manga</string>
+    <string name="activityDownloadName">Leggi un manga</string>
     <string name="mangaNoEntries">Non ci sono capitoli nelle lingue selezionate.</string>
     <string name="cantDownload">Aspetta la risposta dal server prima di provare a scaricare</string>
     <string name="storageAccessDenied">L\'app non può scaricare i manga senza i permessi di scrittura all\'archivio interno</string>
@@ -31,7 +31,7 @@
     <string name="settingsDownloadDataSaverOn">Preferisci immagini a bassa qualità per un uso ridotto dei dati e per scaricare più velocemente</string>
     <string name="settingsDownloadDataSaverOff">Preferisci immagini ad alta qualità invece di quelle a bassa qualità</string>
     <string name="settings">Impostazioni</string>
-    <string name="noName">(senza nome)</string>
+    <string name="noName">Capitolo %1$s</string>
     <string name="DialogExitCancel">Annulla</string>
     <string name="DialogExitConfirm">Esci comunque</string>
     <string name="DialogExitDescription">Attualmente è in corso un download. Se esci, il download verrà interrotto. Confermi?</string>
@@ -87,7 +87,8 @@
         <item>Consigliati di Mangadex</item>
         <item>I tuoi preferiti</item>
     </string-array>
-    <string name="settingsChooseWhatToShow">Scegli schermata di default</string>
+
+    <string name="settingsChooseWhatToShow">Scegli cosa mostrare all\'avvio dell\'app</string>
     <string name="controlsToggle">Mostra/Nascondi controlli</string>
     <string name="continueFromBookmark">Continua a leggere</string>
     <string name="btndescriptionPrevious">Precedente</string>
@@ -257,4 +258,19 @@
     <string name="volume_none">Non raggruppati</string>
     <string name="action_change_filters">Cambia filtri</string>
     <string name="noRelatedMangas">Nessun manga correlato trovato</string>
+    <string name="activity_view_covers">Vedi copertine</string>
+    <string name="volume_null">Nessun volume</string>
+    <string name="group_null">Nessun gruppo</string>
+    <string name="chapter_oneshot">Oneshot</string>
+    <string name="chapter_oneshots">Oneshot</string>
+    <string name="about_shounen_title">In materia di Shōnen</string>
+    <string name="about_shounen_body">I manga Shōnen (少年漫画) hanno come pubblico di riferimento ragazzi adolescenti.\n\nDelle quattro categorie di manga sono quelli più popolari, in quanto letti da tutti, non solo da giovani.\n\nI manga Shōnen sono in genere pubblicati in blocco su riviste dedicate solo a questa categoria; il più popolare è il Weekly Shōnen Jump.</string>
+    <string name="about_shoujo_title">In materia di Shōjo</string>
+    <string name="about_shoujo_body">I manga Shōjo (少女漫画) hanno come pubblico di riferimento ragazze adolescenti e giovani donne.\n\nI manga Shōjo sono in genere pubblicati in blocco su riviste che possono concentrarsi su un determinato genere narrativo o su una determinata fascia d\'età.</string>
+    <string name="about_seinen_title">In materia di Seinen</string>
+    <string name="about_seinen_body">I manga Seinen (青年漫画) hanno come pubblico di riferimento uomini adulti.\n\nI manga Seinen possono concentrarsi su argomenti di ogni genere, come politica, scienza, finzione, azione, fantasy, relazioni, sport o anche comicità.</string>
+    <string name="about_josei_title">In materia di Josei</string>
+    <string name="about_josei_body">I manga Josei (女性漫画) hanno come pubblico di riferimento donne adulte.\n\nNati intorno agli anni 80, i manga Josei si concentrano su argomenti che vanno dal romanticismo al dramma e possono presentare anche contenuti per adulti.</string>
+    <string name="err_no_conn_short">Connessione assente</string>
+    <string name="err_no_chapters_short">Nessun capitolo</string>
 </resources>

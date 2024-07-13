@@ -6,7 +6,7 @@
         <ListPreference
             app:key="startupView"
             app:title="@string/settingsChooseWhatToShow"
-            app:icon="@drawable/ic_baseline_home_24"
+            app:icon="@drawable/icon_home"
             app:defaultValue="__trn"
             app:entryValues="@array/settingsShowAtStartupValues"
             app:entries="@array/settingsShowAtStartupStrings"
@@ -18,7 +18,7 @@
             app:key="contentFilter"
             app:title="@string/settingsSearchContentRatingTitle"
             app:summary="@string/settingsSearchContentRatingDesc"
-            app:icon="@drawable/outline_filter_alt_24"
+            app:icon="@drawable/icon_filter"
             app:entryValues="@array/contentRatingValues"
             app:entries="@array/ratings"
             app:defaultValue="@array/contentRatingDefaultValues"
@@ -31,20 +31,20 @@
             app:key="chapterDuplicate"
             app:summary="@string/settingsChapterShowSameChapterDes"
             app:title="@string/settingsChapterShowSameChapter"
-            app:icon="@drawable/ic_baseline_allow_duplicate_24"
+            app:icon="@drawable/icon_duplicate_chapters"
             app:defaultValue="true"
             android:widgetLayout="@layout/preference_material_switch"/>
         <SwitchPreferenceCompat
             app:key="hideExternal"
             app:title="@string/settingsHideExternal"
             app:summary="@string/settingsHideExternalDescription"
-            app:icon="@drawable/ic_baseline_link_off_24"
+            app:icon="@drawable/icon_disable_external_chapters"
             android:widgetLayout="@layout/preference_material_switch"/>
         <MultiSelectListPreference
             app:key="languagePreference"
             app:title="@string/settingsChapterLanguageTitle"
             app:summary="@string/settingsChapterLanguageDes"
-            app:icon="@drawable/ic_baseline_translate_24"
+            app:icon="@drawable/icon_translation"
             app:useSimpleSummaryProvider="true"
             app:entries="@array/languageEntries"
             app:entryValues="@array/languageValues"
@@ -58,13 +58,13 @@
             app:key="readerRTL"
             app:title="@string/settingsReaderRTL"
             app:summary="@string/settingsReaderRTLDesc"
-            app:icon="@drawable/outline_reverse_arrows_24"
+            app:icon="@drawable/icon_rtl"
             android:widgetLayout="@layout/preference_material_switch"/>
 
         <ListPreference
             app:key="readerVolumeKeysNavigation"
             app:title="@string/settingsReaderVolumeButtons"
-            app:icon="@drawable/baseline_volume_24"
+            app:icon="@drawable/icon_volume_buttons"
             app:defaultValue="dis"
             app:entryValues="@array/settingsVolumeNavigationValues"
             app:entries="@array/settingsVolumeButtonsOptions"
@@ -79,7 +79,7 @@
             app:summaryOff="@string/settingsDownloadDataSaverOff"
             app:summaryOn="@string/settingsDownloadDataSaverOn"
             app:title="@string/settingsDownloadDataSaver"
-            app:icon="@drawable/ic_baseline_data_saver_on_24"
+            app:icon="@drawable/icon_data_saver"
             android:widgetLayout="@layout/preference_material_switch"/>
 
     </PreferenceCategory>
@@ -91,7 +91,7 @@
             app:summaryOff="@string/settingsLowQualityCoversOff"
             app:summaryOn="@string/settingsLowQualityCoversOn"
             app:title="@string/settingsLowQualityCovers"
-            app:icon="@drawable/ic_baseline_photo_size_select_large_24"
+            app:icon="@drawable/icon_low_quality_covers"
             android:widgetLayout="@layout/preference_material_switch"/>
 
     </PreferenceCategory>
@@ -102,13 +102,13 @@
             app:key="info"
             app:title="@string/about"
             app:summary="@string/aboutDescription"
-            app:icon="@drawable/ic_baseline_info_24" />
+            app:icon="@drawable/icon_info" />
 
         <Preference
             app:key="webpage"
             app:title="@string/infoOtherProjects"
             app:summary="@string/infoOtherProjectsDescription"
-            app:icon="@drawable/ic_baseline_public_24"
+            app:icon="@drawable/icon_languages"
             >
             <intent
                 android:action="android.intent.action.VIEW"

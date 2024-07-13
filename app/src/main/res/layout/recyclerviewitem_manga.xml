@@ -1,24 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<com.google.android.material.card.MaterialCardView
+    style="@style/MangadexDownloader.CardView"
+    android:id="@+id/rowLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="8dp"
-    android:layout_marginVertical="8dp"
-    app:cardBackgroundColor="?attr/cardBackgroundColor"
     app:cardCornerRadius="24dp"
-    app:cardElevation="0dp">
+    android:clickable="true"
+    android:focusable="true"
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginBottom="16dp"
+    android:descendantFocusability="blocksDescendants">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/rowLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
         tools:ignore="UnusedAttribute">
 
         <com.google.android.material.imageview.ShapeableImageView
@@ -36,7 +35,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.35"
-            app:shapeAppearanceOverlay="@style/roundedImageView" />
+            app:shapeAppearanceOverlay="@style/roundedImageView"
+            app:srcCompat="@drawable/cover_placeholder"/>
 
         <LinearLayout
             android:id="@+id/linearLayout3"
@@ -60,7 +60,8 @@
                 android:maxLines="2"
                 android:textSize="22sp"
                 android:textStyle="bold"
-                android:transitionName="title" />
+                android:transitionName="title"
+                android:textColor="?attr/colorOnSurface"/>
 
             <TextView
                 android:id="@+id/cardAuthor"
@@ -69,12 +70,12 @@
                 android:ellipsize="end"
                 android:gravity="start"
                 android:maxLines="1"
-                android:text=""
                 android:textSize="16sp"
                 android:transitionName="author"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/cover"
-                app:layout_constraintTop_toBottomOf="@+id/cardTitle" />
+                app:layout_constraintTop_toBottomOf="@+id/cardTitle"
+                android:textColor="?attr/colorOnSurfaceVariant"/>
         </LinearLayout>
 
         <com.google.android.material.chip.ChipGroup
@@ -126,12 +127,23 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-            android:textSize="16sp"
+            android:clickable="false"
             android:alpha="0.8"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/cover"
-            app:layout_constraintTop_toBottomOf="@+id/chipGroup" />
+            app:layout_constraintTop_toBottomOf="@+id/chipGroup"
+            android:textColor="?attr/colorOnSurfaceVariant"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            app:layout_constraintBottom_toBottomOf="@+id/description"
+            app:layout_constraintEnd_toEndOf="@id/description"
+            app:layout_constraintStart_toStartOf="@+id/description"
+            android:background="@drawable/vertical_gradient"
+            android:backgroundTint="?attr/colorSurfaceContainerLow"
+            android:backgroundTintMode="multiply"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

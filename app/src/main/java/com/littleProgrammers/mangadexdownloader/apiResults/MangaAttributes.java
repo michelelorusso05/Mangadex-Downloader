@@ -25,7 +25,7 @@ public class MangaAttributes implements Serializable {
     public static Pair<Integer, Integer> getRatingString(String key) {
         Pair<Integer, Integer> r = contentRatingStrings.get(key);
         if (r != null) return r;
-        return Pair.create(R.string.errorUnknown, R.color.white);
+        return Pair.create(R.string.errorUnknown, android.R.color.white);
     }
 
     public static String getLangString(Context ctx, String key) {

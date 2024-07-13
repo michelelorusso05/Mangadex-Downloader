@@ -15,8 +15,15 @@ import java.util.ListIterator;
 
 public class ChapterUtilities {
     @NonNull
-    private static String FormatTitle(Context ctx, String title) {
-        return (title == null || title.isEmpty()) ? ctx.getString(R.string.noName).concat(" ") : title;
+    private static String FormatTitle(Context ctx, String title, String placeholder) {
+        if (title == null || title.isEmpty()) {
+            if (placeholder == null || placeholder.isEmpty())
+                return ctx.getString(R.string.chapter_oneshot);
+            else
+                return ctx.getString(R.string.noName, placeholder).concat(" ");
+        }
+        else
+            return title;
     }
     @NonNull
     private static String FormatChapter(String chapter) {
@@ -30,7 +37,7 @@ public class ChapterUtilities {
             if (options.hideExternal && current.getAttributes().getExternalUrl() != null) iterator.remove();
             else SetChapterNameAndGroup(ctx, current);
         }
-        if (options.allowDuplicate || mangaChapters.size() == 0) return;
+        if (options.allowDuplicate || mangaChapters.isEmpty()) return;
 
         Chapter targetChapter = FindChapterWithID(mangaChapters, options.keepThisForMe);
         if (targetChapter != null)
@@ -57,10 +64,12 @@ public class ChapterUtilities {
             toAdd = wList.get(0);
         else {
             for (Chapter c : wList) {
-                if (c.getId().equals(targetChapter.getId()) ||
-                        c.getAttributes().getScanlationGroupID().equals(targetChapter.getAttributes().getScanlationGroupID())) {
+                if (c.getId().equals(targetChapter.getId())) {
                     toAdd = c;
                     break;
+                }
+                if (c.getAttributes().getScanlationGroupID().equals(targetChapter.getAttributes().getScanlationGroupID())) {
+                    toAdd = c;
                 }
             }
             if (toAdd == null) toAdd = wList.get(0);
@@ -76,7 +85,7 @@ public class ChapterUtilities {
 
     private static void SetChapterNameAndGroup(@NonNull Context ctx, @NonNull Chapter current) {
         String currentChapter = current.getAttributes().getChapter();
-        String currentTitle = FormatTitle(ctx, current.getAttributes().getTitle());
+        String currentTitle = FormatTitle(ctx, current.getAttributes().getTitle(), currentChapter);
 
         String fName = FormatChapter(currentChapter) + currentTitle;
         current.getAttributes().setFormattedName(fName);
@@ -89,7 +98,7 @@ public class ChapterUtilities {
         }
         if (current.getAttributes().getScanlationGroupString() == null) {
             current.getAttributes().setScanlationGroupID("012345678901234567890123456789012345");
-            current.getAttributes().setScanlationGroupString("-");
+            current.getAttributes().setScanlationGroupString(ctx.getString(R.string.group_null));
         }
     }
 

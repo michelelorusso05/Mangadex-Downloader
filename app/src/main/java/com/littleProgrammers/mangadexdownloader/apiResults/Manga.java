@@ -29,14 +29,18 @@ public class Manga implements Serializable {
     }
 
     public Spanned getCanonicalDescription() {
-        HashMap<String, String> desc = attributes.getDescription();
-        String descriptionString = (desc.containsKey("en")) ?
-                desc.get("en") :
-                desc.entrySet().iterator().next().getValue();
+        String descriptionString = getDescription();
         if (descriptionString != null && !descriptionString.isEmpty())
             return FormattingUtilities.FormatFromHtml(FormattingUtilities.MarkdownLite(descriptionString));
 
         return null;
+    }
+
+    public String getDescription() {
+        HashMap<String, String> desc = attributes.getDescription();
+        if (desc == null)
+            return null;
+        return (desc.containsKey("en")) ? desc.get("en") : desc.entrySet().iterator().next().getValue();
     }
 
     public void setAttributes(MangaAttributes attributes) {

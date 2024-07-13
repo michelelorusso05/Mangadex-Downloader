@@ -1,28 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/MangadexDownloader.CardView"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fileLayout"
+    android:id="@+id/rowLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/cardBackgroundColor"
     android:clickable="true"
+    android:longClickable="true"
     android:focusable="true"
     android:orientation="vertical">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/rowLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/cardBackgroundColor"
-        android:foreground="?attr/selectableItemBackground"
-        android:longClickable="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="UnusedAttribute">
-
 
         <TextView
             android:id="@+id/chapterName"
@@ -52,7 +48,7 @@
             android:alpha="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/chapterName"
-            app:srcCompat="@drawable/ic_baseline_high_quality_24"
+            app:srcCompat="@drawable/icon_high_quality"
             app:tint="?attr/colorControlNormal"
             tools:ignore="ContentDescription" />
 
@@ -70,18 +66,16 @@
             app:layout_constraintStart_toEndOf="@+id/hqIcon"
             app:layout_constraintTop_toBottomOf="@+id/chapterName" />
 
-        <View
+        <com.google.android.material.divider.MaterialDivider
             android:id="@+id/dividerView"
             android:layout_width="0dp"
-            android:layout_height="1dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
             android:layout_marginEnd="32dp"
-            android:alpha="0.2"
-            android:background="@android:color/darker_gray"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

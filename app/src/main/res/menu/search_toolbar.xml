@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_downloadedfiles"
-        android:icon="@drawable/ic_baseline_cloud_download_24"
+        android:icon="@drawable/icon_downloaded_files"
         android:title="@string/openDownloadFolder"
         app:showAsAction="ifRoom"
         />
     <item
         android:id="@+id/action_settings"
-        android:icon="@drawable/ic_baseline_settings_24"
+        android:icon="@drawable/icon_settings"
         android:title="@string/settings"
         app:showAsAction="always"
         />

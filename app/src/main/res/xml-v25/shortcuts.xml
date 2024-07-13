@@ -2,31 +2,31 @@
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
     <shortcut
         android:shortcutId="downloadedFiles"
-        android:icon="@drawable/ic_baseline_file_download_24"
+        android:icon="@mipmap/ic_shortcut_download"
         android:enabled="true"
         android:shortcutLongLabel="@string/openDownloadFolder"
         android:shortcutShortLabel="@string/openDownloadFolder">
 
         <intent
             android:action="android.intent.action.MAIN"
-            android:targetClass="com.littleProgrammers.mangadexdownloader.SearchActivity"
+            android:targetClass="com.littleProgrammers.mangadexdownloader.ActivitySearch"
             android:targetPackage="com.littleProgrammers.mangadexdownloader" />
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetClass="com.littleProgrammers.mangadexdownloader.DownloadedFiles"
+            android:targetClass="com.littleProgrammers.mangadexdownloader.ActivityDownloadedFiles"
             android:targetPackage="com.littleProgrammers.mangadexdownloader" />
 
     </shortcut>
     <shortcut
         android:shortcutId="search"
-        android:icon="@drawable/ic_baseline_search_24"
+        android:icon="@mipmap/ic_shortcut_search"
         android:enabled="true"
         android:shortcutLongLabel="@string/mangaSearchHint"
         android:shortcutShortLabel="@string/buttonSearch">
 
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetClass="com.littleProgrammers.mangadexdownloader.SearchActivity"
+            android:targetClass="com.littleProgrammers.mangadexdownloader.ActivitySearch"
             android:targetPackage="com.littleProgrammers.mangadexdownloader" />
 
     </shortcut>

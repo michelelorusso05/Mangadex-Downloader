@@ -1,5 +1,7 @@
 package com.littleProgrammers.mangadexdownloader.apiResults;
 
+import java.util.ArrayList;
+
 public class MangaResults {
     public String getResult() {
         return result;
@@ -17,11 +19,11 @@ public class MangaResults {
         this.response = response;
     }
 
-    public Manga[] getData() {
+    public ArrayList<Manga> getData() {
         return data;
     }
 
-    public void setData(Manga[] data) {
+    public void setData(ArrayList<Manga> data) {
         this.data = data;
     }
 
@@ -51,7 +53,7 @@ public class MangaResults {
 
     String result;
     String response;
-    Manga[] data;
+    ArrayList<Manga> data;
     int limit;
     int offset;
     int total;

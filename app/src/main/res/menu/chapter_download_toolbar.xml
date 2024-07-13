@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_show_languages"
-        android:icon="@drawable/ic_baseline_public_24"
+        android:icon="@drawable/icon_languages"
         android:title="@string/settingsChapterLanguageTitle"
         app:showAsAction="ifRoom"
         />
     <item
         android:id="@+id/action_favourite"
-        android:icon="@drawable/ic_baseline_bookmark_disabled_24"
+        android:icon="@drawable/icon_bookmark"
         android:title="@string/favourite"
         app:showAsAction="always"
         />

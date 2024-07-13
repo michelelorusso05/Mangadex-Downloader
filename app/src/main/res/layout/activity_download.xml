@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ChapterDownloaderActivity">
+    tools:context=".ActivityManga">
 
     <ImageView
         android:id="@+id/coverBackground"
@@ -76,7 +76,7 @@
         android:transitionName="cover"
         app:layout_constraintDimensionRatio="h,2:3"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/home_toolbar"
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
         app:layout_constraintWidth_percent="0.35"
         app:shapeAppearanceOverlay="@style/roundedImageView"
         tools:ignore="ImageContrastCheck" />
@@ -91,7 +91,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/cover"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/cover"
-        app:layout_constraintTop_toBottomOf="@+id/home_toolbar">
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
 
         <TextView
             android:id="@+id/mangaTitle"
@@ -101,7 +101,6 @@
             android:ellipsize="none"
             android:gravity="start"
             android:maxLines="3"
-            android:text="Isekai Idol: Isekai de Idol de Byuu Shitara Seijo Atsukai Sarete Shimaimashita"
             android:textSize="34sp"
             android:textStyle="bold"
             android:transitionName="title"
@@ -209,7 +208,7 @@
                     android:layout_height="48dp"
                     android:background="@drawable/ripple_button_24"
                     android:contentDescription="@string/settingsDownloadDataSaverOn"
-                    android:src="@drawable/ic_baseline_save_alt_24"
+                    android:src="@drawable/icon_download"
                     tools:ignore="ButtonStyle" />
 
                 <ImageButton
@@ -218,21 +217,30 @@
                     android:layout_height="48dp"
                     android:background="@drawable/ripple_button_24"
                     android:contentDescription="@string/errAlreadyDownloading"
-                    android:src="@drawable/ic_baseline_auto_stories_24"
+                    android:src="@drawable/icon_read"
                     tools:ignore="ButtonStyle" />
             </LinearLayout>
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/home_toolbar"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@android:color/transparent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/home_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@android:color/transparent" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
