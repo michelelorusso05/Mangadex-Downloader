@@ -1,13 +1,18 @@
 package com.littleProgrammers.mangadexdownloader.apiResults;
 
-import android.text.Spanned;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-import com.littleProgrammers.mangadexdownloader.utils.FormattingUtilities;
+import com.littleProgrammers.mangadexdownloader.utils.CompatUtils;
 
 import java.io.Serializable;
-import java.util.HashMap;
 
-public class Manga implements Serializable {
+public class Manga implements Serializable, Parcelable {
+    String id;
+    String type;
+    MangaAttributes attributes;
+    Relationship[] relationships;
+
     public String getId() {
         return id;
     }
@@ -28,61 +33,8 @@ public class Manga implements Serializable {
         return attributes;
     }
 
-    public Spanned getCanonicalDescription() {
-        String descriptionString = getDescription();
-        if (descriptionString != null && !descriptionString.isEmpty())
-            return FormattingUtilities.FormatFromHtml(FormattingUtilities.MarkdownLite(descriptionString));
-
-        return null;
-    }
-
-    public String getDescription() {
-        HashMap<String, String> desc = attributes.getDescription();
-        if (desc == null)
-            return null;
-        return (desc.containsKey("en")) ? desc.get("en") : desc.entrySet().iterator().next().getValue();
-    }
-
     public void setAttributes(MangaAttributes attributes) {
         this.attributes = attributes;
-    }
-
-    /**
-     * Autofills author, artist and cover art information
-     */
-    public void autofillInformation() {
-        StringBuilder authorString = new StringBuilder();
-        StringBuilder artistString = new StringBuilder();
-
-        for (Relationship relationship : getRelationships()) {
-            switch (relationship.getType()) {
-                case "author": {
-                    String name = (relationship.getAttributes() != null) ? relationship.getAttributes().get("name").textValue() : "-";
-
-                    if (authorString.length() == 0)
-                        authorString.append(name);
-                    else
-                        authorString.append(", ").append(name);
-                    break;
-                }
-                case "artist": {
-                    String name = (relationship.getAttributes() != null) ? relationship.getAttributes().get("name").textValue() : "-";
-
-                    if (artistString.length() == 0)
-                        artistString.append(name);
-                    else
-                        artistString.append(", ").append(name);
-                    break;
-                }
-                case "cover_art":
-                    String coverUrl = relationship.getAttributes().get("fileName").textValue();
-                    attributes.setCoverUrl(coverUrl);
-                    break;
-            }
-        }
-
-        attributes.setAuthorString(authorString.toString());
-        attributes.setArtistString(artistString.toString());
     }
 
     public Relationship[] getRelationships() {
@@ -93,8 +45,39 @@ public class Manga implements Serializable {
         this.relationships = relationships;
     }
 
-    String id;
-    String type;
-    MangaAttributes attributes;
-    Relationship[] relationships;
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.id);
+        dest.writeString(this.type);
+        dest.writeParcelable(this.attributes, flags);
+        dest.writeTypedArray(this.relationships, flags);
+    }
+
+    public Manga() {
+    }
+
+    protected Manga(Parcel in) {
+        this.id = in.readString();
+        this.type = in.readString();
+        this.attributes = CompatUtils.GetParcelableFromParcel(in, MangaAttributes.class);
+        this.relationships = in.createTypedArray(Relationship.CREATOR);
+    }
+
+    public static final Creator<Manga> CREATOR = new Creator<Manga>() {
+        @Override
+        public Manga createFromParcel(Parcel source) {
+            return new Manga(source);
+        }
+
+        @Override
+        public Manga[] newArray(int size) {
+            return new Manga[size];
+        }
+    };
 }

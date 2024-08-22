@@ -13,16 +13,22 @@ import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.Data;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 import com.littleProgrammers.mangadexdownloader.utils.CompatUtils;
 import com.littleProgrammers.mangadexdownloader.utils.StaticData;
 import com.michelelorusso.dnsclient.DNSClient;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 
 public class FragmentMangaChapters extends Fragment {
@@ -37,6 +43,7 @@ public class FragmentMangaChapters extends Fragment {
     private View progressBar;
     private boolean chaptersAvailableHint;
     ViewModelChapterList model;
+    AdapterRecyclerChapters adapter;
 
     public FragmentMangaChapters() {
     }
@@ -92,10 +99,13 @@ public class FragmentMangaChapters extends Fragment {
                     SetChapterRetrieveState(STATE_EMPTY);
                     return;
                 }
-                AdapterRecyclerChapters adapter = new AdapterRecyclerChapters(context, chapterListState.getMangaChapters(),
+                adapter = new AdapterRecyclerChapters(context, chapterListState.getMangaChapters(),
                         (s) -> ((ActivityManga) context).OpenURL(s),
                         (i) -> ((ActivityManga) context).ReadChapter(i),
-                        (i) -> ((ActivityManga) context).DownloadChapter(i)
+                        (i) -> {
+                            ((ActivityManga) context).DownloadChapter(i);
+                            ObserveWorker(chapterListState.getMangaChapters().get(i).getId());
+                        }
                 );
                 recyclerView.setAdapter(adapter);
 
@@ -108,6 +118,8 @@ public class FragmentMangaChapters extends Fragment {
                 manager.scrollToPositionWithOffset(positionToScrollTo, 1);
 
                 SetChapterRetrieveState(STATE_COMPLETE);
+
+                ObserveExtistingWorkers();
             }
             else if (state == ViewModelChapterList.ChapterListState.SEARCH_ERROR) {
                 SetChapterRetrieveState(STATE_FAIL);
@@ -120,7 +132,7 @@ public class FragmentMangaChapters extends Fragment {
             public WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat insets) {
                 Insets i = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
 
-                v.setPadding(0, 0, 0, i.bottom + CompatUtils.convertDpToPixel(16, context));
+                v.setPadding(0, 0, 0, i.bottom + CompatUtils.ConvertDpToPixel(16, context));
 
                 return insets;
             }
@@ -154,7 +166,7 @@ public class FragmentMangaChapters extends Fragment {
                 progressBar.setVisibility(View.GONE);
 
                 errorView.setText(R.string.errNoConnection);
-                emoticonView.setText(CompatUtils.getRandomStringFromStringArray(context, R.array.emoticons_angry));
+                emoticonView.setText(CompatUtils.GetRandomStringFromStringArray(context, R.array.emoticons_angry));
                 break;
             case STATE_EMPTY:
                 recyclerView.setVisibility(View.GONE);
@@ -163,8 +175,77 @@ public class FragmentMangaChapters extends Fragment {
                 progressBar.setVisibility(View.GONE);
 
                 errorView.setText(R.string.mangaNoEntriesFilter);
-                emoticonView.setText(CompatUtils.getRandomStringFromStringArray(context, R.array.emoticons_confused));
+                emoticonView.setText(CompatUtils.GetRandomStringFromStringArray(context, R.array.emoticons_confused));
                 break;
+        }
+    }
+
+    private void ObserveWorker(String chapterId) {
+        WorkManager wm = WorkManager.getInstance(context);
+
+        LiveData<WorkInfo> info = wm.getWorkInfoByIdLiveData(UUID.fromString(chapterId));
+
+        info.observe(requireActivity(), this::ObserveWorkerImpl);
+    }
+
+    private void ObserveExtistingWorkers() {
+        WorkManager wm = WorkManager.getInstance(context);
+
+        LiveData<List<WorkInfo>> infos = wm.getWorkInfosByTagLiveData("chapter");
+
+        wm.pruneWork();
+
+        infos.observe(requireActivity(), workInfos -> {
+            for (WorkInfo workInfo : workInfos) {
+                if (adapter.HasChapter(workInfo.getId().toString()))
+                    ObserveWorkerImpl(workInfo);
+            }
+        });
+    }
+
+    private void ObserveWorkerImpl(WorkInfo workInfo) {
+        if (workInfo == null) return;
+
+        boolean running = workInfo.getState() == WorkInfo.State.RUNNING;
+
+        Data data = running ? workInfo.getProgress() : workInfo.getOutputData();
+
+        if (!data.getKeyValueMap().isEmpty()) {
+            String id = data.getString("id");
+            float progress = data.getFloat("progress", 0);
+            int state = data.getInt("state", WorkerChapterDownload.PROGRESS_ONGOING);
+
+            adapter.UpdateProgress(id, state, progress);
+        }
+        else {
+            int s;
+            float p;
+
+            switch (workInfo.getState()) {
+                case SUCCEEDED:
+                    s = WorkerChapterDownload.PROGRESS_SUCCESS;
+                    p = 100;
+                    break;
+                case CANCELLED:
+                    s = WorkerChapterDownload.PROGRESS_CANCELED;
+                    p = -2;
+                    break;
+                case FAILED:
+                    s = WorkerChapterDownload.PROGRESS_FAILURE;
+                    p = -2;
+                    break;
+                case RUNNING:
+                case ENQUEUED:
+                case BLOCKED:
+                    s = WorkerChapterDownload.PROGRESS_ENQUEUED;
+                    p = -2;
+                    break;
+                default:
+                    throw new IllegalStateException("How did we get here?");
+            }
+
+
+            adapter.UpdateProgress(workInfo.getId().toString(), s, p);
         }
     }
 }

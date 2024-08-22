@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class FolderUtilities {
+    /** @noinspection IOStreamConstructor*/
     public static void CopyFile(File src, File dst) throws IOException {
         try (InputStream in = new FileInputStream(src)) {
             try (OutputStream out = new FileOutputStream(dst)) {

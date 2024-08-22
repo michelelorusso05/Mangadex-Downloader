@@ -1,29 +1,13 @@
 <resources>
     <string name="app_name" translatable="false">Mangadex Downloader</string>
     <string name="mangaSearchHint">Search for mangas…</string>
-    <string name="fetchingString">Fetching info…</string>
-    <string name="failString">The selected manga doesn\'t exist</string>
     <string name="noMangaSelected">No manga selected… yet</string>
-    <string name="coverDescription">Manga Cover</string>
-    <string name="startDownload">Download</string>
-    <string name="alreadyDownloading">You can only download one chapter at a time</string>
-    <string name="defaultDescription">There is nothing here…</string>
     <string name="openDownloadFolder">Downloaded files</string>
-    <string name="downloadedFilesDialog">The mangas you have downloaded are located in Internal Storage/Downloaded mangas. Simply open a file manager of your choice and you\'ll find the files you have downloaded.</string>
     <string name="downloading">A download is now in progress</string>
     <string name="errNoConnection">No internet connection</string>
     <string name="downloadCompleted">Download completed</string>
-    <string name="searchDefault">You can search for a random manga with the button above.</string>
-    <string name="searchLoading">Searching…</string>
-    <string name="searchFound">Showing results from %1$d to %2$d out of %3$d</string>
-    <string name="searchFoundEmpty">No results found…</string>
     <string name="activityDownloadName">Read a manga</string>
-    <string name="mangaNoEntries">There are no chapters in the selected languages.</string>
     <string name="mangaNoEntriesFilter">No chapters for the chosen filters</string>
-    <string name="cantDownload">Wait for the server to respond before attempting to download</string>
-    <string name="storageAccessDenied">The app can\'t download the mangas without the storage write permission</string>
-    <string name="noPages">The selected chapter has no pages to download</string>
-    <string name="successPDF">PDF created successfully</string>
     <string name="settingsChapterCategory">Chapter selection</string>
     <string name="settingsChapterShowSameChapter">Allow duplicate chapters</string>
     <string name="settingsChapterShowSameChapterDes">Allow multiple entries uploaded by different groups for the same chapter</string>
@@ -33,30 +17,12 @@
     <string name="settingsDownloadDataSaverOff">Prefer high quality images over lower quality ones</string>
     <string name="settings">Settings</string>
     <string name="noName">Chapter %1$s</string>
-    <string name="DialogExitCancel">Cancel</string>
-    <string name="DialogExitConfirm">Exit anyway</string>
-    <string name="DialogExitDescription">A download is currently in progress. If you exit, the download will be interrupted. Confirm?</string>
-    <string name="DialogExitTitle">Wait a second…</string>
     <string name="settingsChapterLanguageDes">Filter the available chapters by language</string>
     <string name="settingsChapterLanguageTitle">Chapter languages</string>
     <string name="errServerFailed">Server failed to respond, try again</string>
-    <string name="settingsLowQualityCovers">Low quality covers</string>
-    <string name="settingsCoverCategory">Cover settings</string>
-    <string name="settingsLowQualityCoversOff">Preview high quality covers</string>
-    <string name="settingsLowQualityCoversOn">Preview low quality covers</string>
     <string name="noPagesDialogTitle">Hold on just a second</string>
     <string name="noPagesDialog">The chapter you selected is not hosted on mangadex.org. It\'s instead located here:&lt;br /&gt;&lt;br /&gt;&lt;b&gt;%1$s&lt;/b&gt;&lt;br /&gt;&lt;br /&gt;If you proceed, you\'ll be redirected to that website.</string>
-    <string name="emptyList">It\'s empty here…</string>
-    <string name="searchBegin">Thanks to all the hard working people at mangadex.org!</string>
-    <string name="DNSNotFound">DNS could not be reached</string>
     <string name="errorUnknown">An unknown error occourred</string>
-    <string name="deleteChapter">Delete chapter</string>
-    <string name="deleteChapterDescription">Are you sure you want to delete this chapter?</string>
-    <string name="deleteChapterDontAskAgain">Don\'t ask again</string>
-    <string name="genericConfirm">Yes</string>
-    <string name="deleteManga">Delete manga</string>
-    <string name="deleteMangaDescription">Are you sure you want to delete this manga and ALL of the downloaded chapters?</string>
-    <string name="hintDelete">(Long click on downloaded manga/chapter to delete it)</string>
     <string name="downloadFailed">Download failed</string>
     <string name="about">About</string>
     <string name="aboutDescription">Find more about who made this app possible</string>
@@ -64,47 +30,26 @@
     <string name="aboutRealTitle">Thanks to</string>
     <string name="aboutRealParagraph">I want to thank Gabriele, who sacrificed his phone to help me test and debug; Letizia, a fellow manga connosseur, who enjoys reading as much as I do and my brother, who supported me in the development of this app.\n\n - Michele</string>
     <string name="cat">cat</string>
-    <string name="read">Read</string>
     <string name="readerActivityTitle">Read a chapter</string>
     <string name="pageIndicator" translatable="false">%1$d</string>
     <string name="doublePageIndicator" translatable="false">%1$d - %2$d</string>
-    <string name="errAlreadyDownloading">You are already downloading this chapter</string>
-    <string name="originalLanguage">Original language: %1$s (%2$s)</string>
     <string name="wait">Hold on tight…</string>
-    <string name="mangaNoEntriesSubtext">But life goes on.</string>
     <string name="stopDownload">Stop download</string>
     <string name="infoOtherProjects">Check out my other projects!</string>
     <string name="infoOtherProjectsDescription">They\'re not THAT bad…</string>
     <string name="shareAsPDF">Share as PDF</string>
     <string name="buttonSearch">Search</string>
-    <string name="buttonRandom">Random</string>
     <string name="settingsHideExternal">Hide external chapters</string>
     <string name="settingsHideExternalDescription">This applies to all chapters that are not hosted on Mangadex (Bilibili, MangaPlus, …)</string>
     <string name="favourite">Favourite</string>
-    <string name="buttonFavourites">Favourites</string>
-    <string name="addFavouritesHint">Your favourite mangas will be shown here. To add one, simply tap on the bookmark icon in a manga page.</string>
-    <string name="settingsShowAtStart">Startup page</string>
 
-    <string-array name="settingsShowAtStartupStrings">
-        <item>Mangadex Recommended</item>
-        <item>Your favourites</item>
-    </string-array>
-    <string name="settingsChooseWhatToShow">Choose default screen</string>
-    <string name="controlsToggle">Toggle controls</string>
-    <string name="continueFromBookmark">Continue reading</string>
     <string name="btndescriptionPrevious">Previous</string>
     <string name="btndescriptionNext">Next</string>
     <string name="btndescriptionFirst">First page</string>
     <string name="btndescriptionLast">Last page</string>
-    <string name="chaptersAndSizesSingle">%1$d chapter - %2$s MB</string>
-    <string name="chaptersAndSizes">%1$d chapters - %2$s MB</string>
     <string name="help">Help</string>
     <string name="downloadedChaptersHelp">Here you\'ll find all the chapters you\'ve downloaded so far, neatly organized. \n\nYou can delete a chapter or an entire manga you downloaded by long tapping it.</string>
-    <string name="downloadedChaptersEmpty">What are you waiting for? Go download something!</string>
-    <string name="serverManteinance">The server seems to be under maintenance. Try again later.</string>
-    <string name="settingsExperimental">Experimental</string>
-    <string name="settingsAdditionalAnim">Enable additional animations</string>
-    <string name="settingsAdditionalAnimDesc">Show additional transition animations when choosing a manga</string>
+    <string name="downloadedChaptersEmpty">You haven\'t downloaded anything yet</string>
     <string name="notificationsExplainationTitle">Hear me out</string>
     <string name="notificationsExplainationDesc">Mangadex Downloader uses notifications to update you on your current downloads.\n\nYou can suppress them if you want, but if you do so, doubt and uncertainty about your downloads will haunt you for the rest of your life.\n\n(You can always change this setting in your phone\'s options).</string>
     <string name="downloadStarted">Download started</string>
@@ -116,7 +61,6 @@
     <string name="settingsReaderRTL">Enable Right-To-Left (RTL)</string>
     <string name="settingsReaderRTLDesc">Reverse page order and scrolling, just like original mangas</string>
     <string name="settingsReaderVolumeButtons">Volume buttons navigation</string>
-    <string name="settingsReaderVolumeButtonsDesc">Enable in-reader page scrolling using volume buttons</string>
 
     <string-array name="settingsVolumeButtonsOptions">
         <item>Disabled</item>
@@ -139,7 +83,6 @@
     <string name="settingsSearch">Search settings</string>
     <string name="settingsSearchContentRatingTitle">Content rating filter</string>
     <string name="settingsSearchContentRatingDesc">Select what categories of manga will show up in searches</string>
-    <string name="searchWarning">Content filters are disabled. Mind what you\'re searching up.</string>
     <string name="dialogAvailableLanguagesTitle">Available languages</string>
     <string name="dialogAvailableLanguagesOriginal">(original language)</string>
     <string name="dialogAvailableLanguagesOpenSettings">Language settings</string>
@@ -226,21 +169,21 @@
 
     <string-array name="related_manga_type">
         <item>Monochrome</item>
-        <item>Main story</item>
-        <item>Adapted from</item>
-        <item>Based on</item>
+        <item>Colored</item>
+        <item>Preserialization</item>
+        <item>Serialization</item>
         <item>Prequel</item>
+        <item>Sequel</item>
+        <item>Main story</item>
         <item>Side story</item>
+        <item>Adapted from</item>
+        <item>Spin-off</item>
+        <item>Based on</item>
         <item>Doujinshi</item>
         <item>Same franchise</item>
         <item>Shared universe</item>
-        <item>Sequel</item>
-        <item>Spin-off</item>
         <item>Alternate story</item>
         <item>Alternate version</item>
-        <item>Preserialization</item>
-        <item>Colored</item>
-        <item>Serialization</item>
     </string-array>
 
     <string name="sectionOverview">Overview</string>
@@ -251,16 +194,13 @@
     <string name="genres">Genres</string>
     <string name="themes">Themes</string>
     <string name="format">Format</string>
+    <string name="publication">Publication</string>
     <string name="contentRating">Content rating</string>
     <string name="demographic">Demographic</string>
-    <string name="valueNotSpecified">Unspecified</string>
-    <string name="valueEmpty">(empty)</string>
     <string name="volume_numbered">Volume %1$s</string>
     <string name="volume_none">No volume</string>
-    <string name="action_change_filters">Change filters</string>
     <string name="noRelatedMangas">No related mangas found</string>
     <string name="activity_view_covers">View covers</string>
-    <string name="volume_null">No volume</string>
     <string name="group_null">No group</string>
     <string name="chapter_oneshot">Oneshot</string>
     <string name="chapter_oneshots">Oneshots</string>
@@ -274,4 +214,46 @@
     <string name="about_josei_body">Josei manga (女性漫画) are targeted towards adult women.\n\nPopularized around the 80s, Josei manga usually focus on topics that range from romance to drama and can even contain adult content.</string>
     <string name="err_no_conn_short">No internet</string>
     <string name="err_no_chapters_short">No chapters</string>
+    <string name="pub_status_completed">Completed</string>
+    <string name="pub_status_hiatus">Hiatus</string>
+    <string name="pub_status_ongoing">Ongoing</string>
+    <string name="pub_status_canceled">Cancelled</string>
+    <string name="err_no_result_sub">Try with something less specific or try searching by the original title.</string>
+    <string name="err_no_results_title">The search didn\'t yield any results</string>
+    <string name="err_no_favs_title">The favourites list is empty</string>
+    <string name="err_no_favs_sub">Add a manga to your favourites to find it quickly and to track your reading progress.</string>
+    <string name="err_no_connection_sub">Sometimes it happens.</string>
+    <string name="favs_label">Your favourites (%1$d)</string>
+
+    <plurals name="chapters">
+        <item quantity="one">%1$d chapter · %2$s MB</item>
+        <item quantity="many">%1$d chapters · %2$s MB</item>
+        <item quantity="other">%1$d chapters · %2$s MB</item>
+    </plurals>
+
+    <plurals name="pages">
+        <item quantity="one">%1$d page · %2$s MB</item>
+        <item quantity="many">%1$d pages · %2$s MB</item>
+        <item quantity="other">%1$d pages · %2$s MB</item>
+    </plurals>
+
+    <string-array name="link_site_names">
+        <item>AniList</item>
+        <item>Anime-Planet</item>
+        <item>BookWalker</item>
+        <item>MangaUpdates</item>
+        <item>Novel Updates</item>
+        <item>Kitsu</item>
+        <item>Amazon</item>
+        <item>eBookJapan</item>
+        <item>MyAnimeList</item>
+        <item>CDJapan</item>
+        <item>Raw</item>
+        <item>English translation</item>
+    </string-array>
+    <string name="buyOrRead">Buy or read</string>
+    <string name="keepTrack">Track</string>
+    <string name="favourites">Favourites</string>
+    <string name="err_server">The server didn\'t respond</string>
+    <string name="err_server_sub">The issue will be fixed soon (hopefully). Try again later.</string>
 </resources>

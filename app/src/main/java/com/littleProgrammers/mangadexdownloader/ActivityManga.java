@@ -10,15 +10,12 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.hardware.display.DisplayManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -56,7 +53,7 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import com.littleProgrammers.mangadexdownloader.apiResults.Chapter;
 import com.littleProgrammers.mangadexdownloader.apiResults.ChapterResults;
 import com.littleProgrammers.mangadexdownloader.apiResults.Manga;
-import com.littleProgrammers.mangadexdownloader.apiResults.MangaAttributes;
+import com.littleProgrammers.mangadexdownloader.utils.ApiUtils;
 import com.littleProgrammers.mangadexdownloader.utils.ChapterUtilities;
 import com.littleProgrammers.mangadexdownloader.utils.CompatUtils;
 import com.littleProgrammers.mangadexdownloader.utils.FavouriteManager;
@@ -70,6 +67,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 import jp.wasabeef.blurry.Blurry;
 import okhttp3.Call;
@@ -132,7 +130,7 @@ public class ActivityManga extends AppCompatActivity
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_download_new);
+        setContentView(R.layout.activity_download);
 
         // Set custom toolbar
         toolbar = findViewById(R.id.home_toolbar);
@@ -146,10 +144,10 @@ public class ActivityManga extends AppCompatActivity
         if (savedInstanceState == null) {
             Bundle bundle = getIntent().getExtras();
             assert bundle != null && bundle.containsKey("MangaData");
-            selectedManga = CompatUtils.GetSerializable(bundle, "MangaData", Manga.class);
+            selectedManga = CompatUtils.GetParcelable(bundle, "MangaData", Manga.class);
         } else {
             assert savedInstanceState.containsKey("MangaData");
-            selectedManga = CompatUtils.GetSerializable(savedInstanceState, "MangaData", Manga.class);
+            selectedManga = CompatUtils.GetParcelable(savedInstanceState, "MangaData", Manga.class);
         }
 
         // Initialize Web client
@@ -162,9 +160,9 @@ public class ActivityManga extends AppCompatActivity
 
         author.setText(selectedManga.getAttributes().getAuthorString());
 
-        title.setText(selectedManga.getAttributes().getTitleS());
+        title.setText(ApiUtils.GetMangaTitleString(selectedManga));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            title.setTooltipText(selectedManga.getAttributes().getTitleS());
+            title.setTooltipText(ApiUtils.GetMangaTitleString(selectedManga));
 
         ViewPager2 pager = findViewById(R.id.fragmentContainer);
         pager.setAdapter(new AdapterFragmentActivityManga(this, selectedManga));
@@ -181,16 +179,15 @@ public class ActivityManga extends AppCompatActivity
 
         model = new ViewModelProvider(this).get(ViewModelChapterList.class);
 
-        if (model.getUiState().getValue() == null || model.getUiState().getValue().isSearchCompleted() != ViewModelChapterList.ChapterListState.SEARCH_COMPLETED)
+        if (model.getUiState().getValue() == null || model.getUiState().getValue().isSearchCompleted() < ViewModelChapterList.ChapterListState.SEARCH_COMPLETED)
             GetMangaChapterList();
 
         createNotificationChannel();
 
-        handleInsets();
+        HandleInsets();
     }
 
-    protected void handleInsets() {
-
+    protected void HandleInsets() {
         // Move actionbar under notch and chapter selection bar over navigation bar
         ViewCompat.setOnApplyWindowInsetsListener(toolbar, (v, insets) -> {
             Insets systemBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
@@ -210,8 +207,8 @@ public class ActivityManga extends AppCompatActivity
                 Insets systemBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
                 ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) v.getLayoutParams();
 
-                params.leftMargin = CompatUtils.convertDpToPixel(16, ActivityManga.this) + systemBarInsets.left;
-                params.bottomMargin = CompatUtils.convertDpToPixel(16, ActivityManga.this) + systemBarInsets.bottom;
+                params.leftMargin = CompatUtils.ConvertDpToPixel(16, ActivityManga.this) + systemBarInsets.left;
+                params.bottomMargin = CompatUtils.ConvertDpToPixel(16, ActivityManga.this) + systemBarInsets.bottom;
 
                 v.post(v::requestLayout);
                 return insets;
@@ -232,7 +229,39 @@ public class ActivityManga extends AppCompatActivity
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putSerializable("MangaData", selectedManga);
+        outState.putParcelable("MangaData", selectedManga);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (model.getUiState().getValue() != null && model.getUiState().getValue().isSearchCompleted() >= ViewModelChapterList.ChapterListState.SEARCH_COMPLETED) {
+            Pair<String, Boolean> savedBookmark = FavouriteManager.GetBookmarkForFavourite(this, selectedManga.getId());
+
+            ArrayList<Chapter> chapters = model.getUiState().getValue().getMangaChapters();
+
+            int bookmarkFavouriteIndex = 0;
+
+            if (savedBookmark != null) {
+                final boolean queueNext = savedBookmark.second;
+                for (int i = 0; i < chapters.size(); i++) {
+                    if (chapters.get(i).getId().equals(savedBookmark.first)) {
+                        if (queueNext && i < chapters.size() - 1)
+                            bookmarkFavouriteIndex = i + 1;
+                        else
+                            bookmarkFavouriteIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            final int index = bookmarkFavouriteIndex;
+
+            // Update only if necessary
+            if (index != model.getUiState().getValue().getBookmarkedIndex())
+                runOnUiThread(() -> model.updateBookmark(index));
+        }
     }
 
     @Override
@@ -259,10 +288,10 @@ public class ActivityManga extends AppCompatActivity
         }
         else if (item.getItemId() == R.id.action_show_languages) {
             StringBuilder b = new StringBuilder();
-            b.append("\n- ").append(MangaAttributes.getLangString(this, selectedManga.getAttributes().getOriginalLanguage())).append(getString(R.string.dialogAvailableLanguagesOriginal));
+            b.append(ApiUtils.GetMangaLangString(this, selectedManga.getAttributes().getOriginalLanguage())).append(getString(R.string.dialogAvailableLanguagesOriginal));
 
             for (String lang : selectedManga.getAttributes().getAvailableTranslatedLanguages())
-                b.append("\n- ").append(MangaAttributes.getLangString(this, lang));
+                b.append("\n").append(ApiUtils.GetMangaLangString(this, lang));
 
             new MaterialAlertDialogBuilder(this)
                     .setIcon(R.drawable.icon_languages)
@@ -328,7 +357,7 @@ public class ActivityManga extends AppCompatActivity
         boolean available = false;
         for (String lang : languages)
         {
-            if (selectedManga.getAttributes().isLanguageAvailable(lang))
+            if (ApiUtils.IsMangaLanguageAvailable(selectedManga, lang))
                 available = true;
 
             langUrl.append("translatedLanguage[]=").append(lang).append("&");
@@ -429,9 +458,10 @@ public class ActivityManga extends AppCompatActivity
                 currentIteration++;
             }
 
+            // Set bookmark to the first non-oneshot chapter available
             if (currentIteration != chapters.size())
                 bookmarkFavouriteIndex = currentIteration;
-
+            // Retrieve bookmark from shared preferences
             if (savedBookmark != null) {
                 final boolean queueNext = savedBookmark.second;
                 for (int i = 0; i < chapters.size(); i++) {
@@ -478,11 +508,11 @@ public class ActivityManga extends AppCompatActivity
                 true,
                 selectedChapter.getId()
         ));
-        String[] chapterNames = new String[dummyChapters.size()];
-        String[] chapterIDs = new String[dummyChapters.size()];
+        ArrayList<String> chapterNames = new ArrayList<>(dummyChapters.size());
+        ArrayList<String> chapterIDs = new ArrayList<>(dummyChapters.size());
         for (int i = 0; i < dummyChapters.size(); i++) {
-            chapterNames[i] = dummyChapters.get(i).getAttributes().getFormattedName();
-            chapterIDs[i] = dummyChapters.get(i).getId();
+            chapterNames.add(dummyChapters.get(i).getAttributes().getFormattedName());
+            chapterIDs.add(dummyChapters.get(i).getId());
         }
 
         Intent intent = new Intent(ActivityManga.this, ActivityOnlineReader.class);
@@ -529,10 +559,18 @@ public class ActivityManga extends AppCompatActivity
 
         Data.Builder data = new Data.Builder();
         data.putString("Chapter", chapterID);
-        data.putString("Manga", selectedManga.getAttributes().getTitleS());
+        data.putString("ScanGroup", selectedChapter.getAttributes().getScanlationGroupString());
+        data.putString("Manga", ApiUtils.GetMangaTitleString(selectedManga));
+        data.putString("Author", selectedManga.getAttributes().getAuthorString());
+        data.putString("Artist", selectedManga.getAttributes().getArtistString());
+        data.putString("MangaID", selectedManga.getId());
         data.putString("Title", selectedChapter.getAttributes().getFormattedName());
+        data.putString("Volume", selectedChapter.getAttributes().getVolume());
+        data.putString("ChapterNumber", selectedChapter.getAttributes().getChapter());
 
         OneTimeWorkRequest downloadWorkRequest = new OneTimeWorkRequest.Builder(WorkerChapterDownload.class)
+                .setId(UUID.fromString(chapterID))
+                .addTag("chapter")
                 .addTag(chapterID)
                 .setInputData(data.build())
                 .build();

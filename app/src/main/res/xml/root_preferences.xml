@@ -1,18 +1,6 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory app:title="@string/settingsShowAtStart">
-
-        <ListPreference
-            app:key="startupView"
-            app:title="@string/settingsChooseWhatToShow"
-            app:icon="@drawable/icon_home"
-            app:defaultValue="__trn"
-            app:entryValues="@array/settingsShowAtStartupValues"
-            app:entries="@array/settingsShowAtStartupStrings"
-            app:useSimpleSummaryProvider="true"/>
-    </PreferenceCategory>
-
     <PreferenceCategory app:title="@string/settingsSearch">
         <MultiSelectListPreference
             app:key="contentFilter"
@@ -33,13 +21,13 @@
             app:title="@string/settingsChapterShowSameChapter"
             app:icon="@drawable/icon_duplicate_chapters"
             app:defaultValue="true"
-            android:widgetLayout="@layout/preference_material_switch"/>
+            android:widgetLayout="@layout/layout_preference_material_switch"/>
         <SwitchPreferenceCompat
             app:key="hideExternal"
             app:title="@string/settingsHideExternal"
             app:summary="@string/settingsHideExternalDescription"
             app:icon="@drawable/icon_disable_external_chapters"
-            android:widgetLayout="@layout/preference_material_switch"/>
+            android:widgetLayout="@layout/layout_preference_material_switch"/>
         <MultiSelectListPreference
             app:key="languagePreference"
             app:title="@string/settingsChapterLanguageTitle"
@@ -59,7 +47,7 @@
             app:title="@string/settingsReaderRTL"
             app:summary="@string/settingsReaderRTLDesc"
             app:icon="@drawable/icon_rtl"
-            android:widgetLayout="@layout/preference_material_switch"/>
+            android:widgetLayout="@layout/layout_preference_material_switch"/>
 
         <ListPreference
             app:key="readerVolumeKeysNavigation"
@@ -80,19 +68,7 @@
             app:summaryOn="@string/settingsDownloadDataSaverOn"
             app:title="@string/settingsDownloadDataSaver"
             app:icon="@drawable/icon_data_saver"
-            android:widgetLayout="@layout/preference_material_switch"/>
-
-    </PreferenceCategory>
-
-    <PreferenceCategory app:title="@string/settingsCoverCategory">
-
-        <SwitchPreferenceCompat
-            app:key="lowQualityCovers"
-            app:summaryOff="@string/settingsLowQualityCoversOff"
-            app:summaryOn="@string/settingsLowQualityCoversOn"
-            app:title="@string/settingsLowQualityCovers"
-            app:icon="@drawable/icon_low_quality_covers"
-            android:widgetLayout="@layout/preference_material_switch"/>
+            android:widgetLayout="@layout/layout_preference_material_switch"/>
 
     </PreferenceCategory>
 

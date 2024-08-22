@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <application
         android:name=".Application"
@@ -44,7 +46,8 @@
         <activity
             android:name=".ActivitySearch"
             android:exported="true"
-            android:theme="@style/Theme.MangadexDownloader">
+            android:theme="@style/Theme.MangadexDownloader"
+            android:windowSoftInputMode="adjustNothing">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -64,12 +67,6 @@
             android:parentActivityName=".ActivitySearch"
             android:theme="@style/Theme.MangadexDownloader" />
 
-        <receiver android:name=".BroadcastReceiverDownloadStop"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.michelelorusso.mangadexdownloader.STOP_DOWNLOAD" />
-            </intent-filter>
-        </receiver>
         <receiver android:name=".BroadcastReceiverDownloadRetry"
             android:exported="false">
             <intent-filter>
@@ -86,6 +83,11 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
     </application>
 
 </manifest>

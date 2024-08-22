@@ -10,8 +10,6 @@ import com.michelelorusso.dnsclient.DNSClient;
 
 import io.noties.markwon.AbstractMarkwonPlugin;
 import io.noties.markwon.Markwon;
-import io.noties.markwon.MarkwonPlugin;
-import io.noties.markwon.core.CorePlugin;
 import io.noties.markwon.core.MarkwonTheme;
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin;
 import io.noties.markwon.ext.tables.TablePlugin;
@@ -39,7 +37,7 @@ public class StaticData {
     }
     public static Markwon getMarkwon(Context context) {
         if (sharedMarkwon == null) {
-            int p = CompatUtils.convertDpToPixel(1, context);
+            int p = CompatUtils.ConvertDpToPixel(1, context);
 
             sharedMarkwon = Markwon.builder(context)
                     .usePlugin(new AbstractMarkwonPlugin() {

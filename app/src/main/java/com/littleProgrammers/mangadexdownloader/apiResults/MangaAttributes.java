@@ -1,96 +1,32 @@
 package com.littleProgrammers.mangadexdownloader.apiResults;
 
 
-import android.content.Context;
-import android.util.Pair;
-
-import com.littleProgrammers.mangadexdownloader.R;
+import android.os.Build;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.io.Serializable;
 import java.util.HashMap;
 
-public class MangaAttributes implements Serializable {
-
-    public static HashMap<String, Pair<Integer, Integer>> contentRatingStrings;
-    public static HashMap<String, String> languages;
-
-    static {
-        contentRatingStrings = new HashMap<>(4);
-        contentRatingStrings.put("safe", Pair.create(R.string.ratingSafe, R.color.rating_safe));
-        contentRatingStrings.put("suggestive", Pair.create(R.string.ratingSuggestive, R.color.rating_suggestive));
-        contentRatingStrings.put("erotica", Pair.create(R.string.ratingErotica, R.color.rating_erotica));
-        contentRatingStrings.put("pornographic", Pair.create(R.string.ratingPornographic, R.color.rating_pornographic));
-    }
-
-    public static Pair<Integer, Integer> getRatingString(String key) {
-        Pair<Integer, Integer> r = contentRatingStrings.get(key);
-        if (r != null) return r;
-        return Pair.create(R.string.errorUnknown, android.R.color.white);
-    }
-
-    public static String getLangString(Context ctx, String key) {
-        if (languages == null) {
-            languages = new HashMap<>();
-            String[] langKeys = ctx.getResources().getStringArray(R.array.languageValues);
-            String[] langStrings = ctx.getResources().getStringArray(R.array.languageEntries);
-
-            for (int i = 0; i < langKeys.length; i++) {
-                languages.put(langKeys[i], langStrings[i]);
-            }
-        }
-
-        String found = languages.get(key);
-        return found != null ? found : key;
-    }
-
+public class MangaAttributes implements Serializable, Parcelable {
     HashMap<String, String> title = new HashMap<>();
     HashMap<String, String> description = new HashMap<>();
+    HashMap<String, String> links = new HashMap<>();
     String originalLanguage;
 
-    public String getPublicationDemographic() {
-        return publicationDemographic;
-    }
-
-    public void setPublicationDemographic(String publicationDemographic) {
-        this.publicationDemographic = publicationDemographic;
-    }
-
     String publicationDemographic;
-    String authorID;
+    String status;
+    Integer year;
+    String contentRating;
+    String[] availableTranslatedLanguages;
+    Tag[] tags;
+
+    // Additional fields for caching purposes
     String authorString = null;
     String artistString = null;
     String coverUrl;
+    String shortDescription;
 
-    public String getCoverUrl() {
-        return coverUrl;
-    }
-
-    public void setCoverUrl(String coverUrl) {
-        this.coverUrl = coverUrl;
-    }
-
-    public String getAuthorID() {
-        return authorID;
-    }
-
-    public void setAuthorID(String authorID) {
-        this.authorID = authorID;
-    }
-
-    public String getAuthorString() {
-        return authorString;
-    }
-
-    public void setAuthorString(String authorString) {
-        this.authorString = authorString;
-    }
-    public String getArtistString() {
-        return artistString;
-    }
-
-    public void setArtistString(String artistString) {
-        this.artistString = artistString;
-    }
 
     public String[] getAvailableTranslatedLanguages() {
         return availableTranslatedLanguages;
@@ -100,17 +36,32 @@ public class MangaAttributes implements Serializable {
         this.availableTranslatedLanguages = availableTranslatedLanguages;
     }
 
-    String[] availableTranslatedLanguages;
+    public String getContentRating() {
+        return contentRating;
+    }
 
-    public boolean isLanguageAvailable(String lang) {
-        if (lang.equals(originalLanguage)) return true;
-        if (availableTranslatedLanguages == null) return false;
-        for (String translatedLanguage : availableTranslatedLanguages) {
-            if (translatedLanguage.equals(lang)) {
-                return true;
-            }
-        }
-        return false;
+    public void setContentRating(String contentRating) {
+        this.contentRating = contentRating;
+    }
+
+    public HashMap<String, String> getDescription() {
+        if (description == null || description.isEmpty()) setDescription(null);
+        return description;
+    }
+
+    public void setDescription(HashMap<String, String> description) {
+        if (description == null)
+            this.description.put("en", "");
+        else
+            this.description = description;
+    }
+
+    public HashMap<String, String> getLinks() {
+        return links;
+    }
+
+    public void setLinks(HashMap<String, String> links) {
+        this.links = links;
     }
 
     public String getOriginalLanguage() {
@@ -121,46 +72,21 @@ public class MangaAttributes implements Serializable {
         this.originalLanguage = originalLanguage;
     }
 
-    Integer year;
-
-    public HashMap<String, String> getTitle() {
-        return title;
-    }
-    public String getTitleS() { return title.entrySet().iterator().next().getValue(); }
-    public void setTitle(HashMap<String, String> title) {
-        this.title = title;
+    public String getPublicationDemographic() {
+        return publicationDemographic;
     }
 
-    public HashMap<String, String> getDescription() {
-        if (description == null || description.isEmpty()) setDescription(null);
-        return description;
-    }
-    public void setDescription(HashMap<String, String> description) {
-        if (description == null)
-            this.description.put("en", "");
-        else
-            this.description = description;
+    public void setPublicationDemographic(String publicationDemographic) {
+        this.publicationDemographic = publicationDemographic;
     }
 
-    public int getYear() {
-        return year;
+    public String getStatus() {
+        return status;
     }
 
-    public void setYear(int year) {
-        this.year = year;
+    public void setStatus(String status) {
+        this.status = status;
     }
-
-    String contentRating;
-
-    public String getContentRating() {
-        return contentRating;
-    }
-
-    public void setContentRating(String contentRating) {
-        this.contentRating = contentRating;
-    }
-
-    Tag[] tags;
 
     public Tag[] getTags() {
         return tags;
@@ -169,5 +95,119 @@ public class MangaAttributes implements Serializable {
     public void setTags(Tag[] tags) {
         this.tags = tags;
     }
+
+    public HashMap<String, String> getTitle() {
+        return title;
+    }
+
+    public void setTitle(HashMap<String, String> title) {
+        this.title = title;
+    }
+
+    public Integer getYear() {
+        return year;
+    }
+
+    public void setYear(Integer year) {
+        this.year = year;
+    }
+
+
+    public String getArtistString() {
+        return artistString;
+    }
+
+    public void setArtistString(String artistString) {
+        this.artistString = artistString;
+    }
+
+    public String getAuthorString() {
+        return authorString;
+    }
+
+    public void setAuthorString(String authorString) {
+        this.authorString = authorString;
+    }
+
+    public String getCoverUrl() {
+        return coverUrl;
+    }
+
+    public void setCoverUrl(String coverUrl) {
+        this.coverUrl = coverUrl;
+    }
+
+    public String getShortDescription() {
+        return shortDescription;
+    }
+
+    public void setShortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
+    }
+
+    public MangaAttributes() {}
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeMap(this.title);
+        dest.writeMap(this.description);
+        dest.writeMap(this.links);
+        dest.writeString(this.originalLanguage);
+        dest.writeString(this.publicationDemographic);
+        dest.writeString(this.status);
+        dest.writeValue(this.year);
+        dest.writeString(this.contentRating);
+        dest.writeStringArray(this.availableTranslatedLanguages);
+        dest.writeTypedArray(this.tags, flags);
+        dest.writeString(this.authorString);
+        dest.writeString(this.artistString);
+        dest.writeString(this.coverUrl);
+        dest.writeString(this.shortDescription);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected MangaAttributes(Parcel in) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            this.title = in.readHashMap(String.class.getClassLoader(), String.class, String.class);
+        else
+            this.title = (HashMap<String, String>) in.readHashMap(String.class.getClassLoader());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            this.description = in.readHashMap(String.class.getClassLoader(), String.class, String.class);
+        else
+            this.description = (HashMap<String, String>) in.readHashMap(String.class.getClassLoader());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            this.links = in.readHashMap(String.class.getClassLoader(), String.class, String.class);
+        else
+            this.links = (HashMap<String, String>) in.readHashMap(String.class.getClassLoader());
+        this.originalLanguage = in.readString();
+        this.publicationDemographic = in.readString();
+        this.status = in.readString();
+        this.year = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.contentRating = in.readString();
+        this.availableTranslatedLanguages = in.createStringArray();
+        this.tags = in.createTypedArray(Tag.CREATOR);
+        this.authorString = in.readString();
+        this.artistString = in.readString();
+        this.coverUrl = in.readString();
+        this.shortDescription = in.readString();
+    }
+
+    public static final Creator<MangaAttributes> CREATOR = new Creator<MangaAttributes>() {
+        @Override
+        public MangaAttributes createFromParcel(Parcel source) {
+            return new MangaAttributes(source);
+        }
+
+        @Override
+        public MangaAttributes[] newArray(int size) {
+            return new MangaAttributes[size];
+        }
+    };
 }
 

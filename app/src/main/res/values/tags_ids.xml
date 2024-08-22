@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string-array name="tag_ids" tools:ignore="TypographyDashes">
+    <string-array name="tag_ids" tools:ignore="TypographyDashes,Typos">
         <item>0234a31e-a729-4e28-9d6a-3f87c4966b9e</item>
         <item>07251805-a27e-4d59-b488-f0bfbec15168</item>
         <item>0a39b5a1-b235-4886-a747-1d05d216532d</item>
@@ -81,20 +81,65 @@
 
     <string-array name="manga_relationships_enum">
         <item>monochrome</item>
-        <item>main_story</item>
-        <item>adapted_from</item>
-        <item>based_on</item>
+        <item>colored</item>
+        <item>preserialization</item>
+        <item>serialization</item>
         <item>prequel</item>
+        <item>sequel</item>
+        <item>main_story</item>
         <item>side_story</item>
+        <item>adapted_from</item>
+        <item>spin_off</item>
+        <item>based_on</item>
         <item>doujinshi</item>
         <item>same_franchise</item>
         <item>shared_universe</item>
-        <item>sequel</item>
-        <item>spin_off</item>
         <item>alternate_story</item>
         <item>alternate_version</item>
-        <item>preserialization</item>
-        <item>colored</item>
-        <item>serialization</item>
     </string-array>
+
+    <string-array name="link_key" translatable="false">
+        <item>al</item>
+        <item>ap</item>
+        <item>bw</item>
+        <item>mu</item>
+        <item>nu</item>
+        <item>kt</item>
+        <item>amz</item>
+        <item>ebj</item>
+        <item>mal</item>
+        <item>cdj</item>
+        <item>raw</item>
+        <item>engtl</item>
+    </string-array>
+
+    <string-array name="link_url_formats" translatable="false">
+        <item>https://anilist.co/manga/%1$s</item>
+        <item>https://www.anime-planet.com/manga/%1$s</item>
+        <item>https://bookwalker.jp/%1$s</item>
+        <item>https://www.mangaupdates.com/series.html?id=%1$s</item>
+        <item>https://www.novelupdates.com/series/%1$s</item>
+        <item>https://kitsu.app/manga/%1$s</item>
+        <item>%1$s</item>
+        <item>%1$s</item>
+        <item>https://myanimelist.net/manga/%1$s</item>
+        <item>%1$s</item>
+        <item>%1$s</item>
+        <item>%1$s</item>
+    </string-array>
+
+    <integer-array name="link_drawables">
+        <item>@drawable/icon_link_anilist</item>
+        <item>@drawable/icon_link_animeplanet</item>
+        <item>@drawable/icon_link_bookwalker</item>
+        <item>@drawable/icon_link_mangaupdates</item>
+        <item>@drawable/icon_link_novelupdates</item>
+        <item>@drawable/icon_link_kitsu</item>
+        <item>@drawable/icon_link_amazon</item>
+        <item>@drawable/icon_link_ebookjp</item>
+        <item>@drawable/icon_link_myanimelist</item>
+        <item>@drawable/icon_link_cdjp</item>
+        <item>0</item>
+        <item>0</item>
+    </integer-array>
 </resources>

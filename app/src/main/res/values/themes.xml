@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.MangadexDownloader" parent="Theme.Material3.Light.NoActionBar">
+    <style name="Base.Theme.MangadexDownloader" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/md_theme_primary</item>
         <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_primaryContainer</item>
@@ -51,62 +51,18 @@
 
         <item name="alertDialogTheme">@style/MangadexDownloader.AlertDialog</item>
 
-        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="o_mr1">always</item>
-
         <item name="android:textColor">?attr/colorOnSurface</item>
+
+        <item name="windowActionModeOverlay">true</item>
     </style>
 
-    <!--style name="Theme.MangadexDownloader2" parent="Theme.Material3.DayNight">
-        <item name="android:colorBackground">@color/very_light_orange</item>
-        <item name="semitransparentBackgroundColor">#7FFFFBFA</item>
-        <item name="colorPrimary">#F3B278</item>
-        <item name="colorOnPrimary">#FFEFEF</item>
-        <item name="colorPrimaryContainer">#FCE4C2</item>
-        <item name="colorOnPrimaryContainer">#FFBFBF</item>
-        <item name="colorSecondary">#F1A750</item>
-        <item name="colorOnSecondary">#FFBFBF</item>
-        <item name="colorSurface">#fffbfa</item>
-        <item name="colorOnSurface">#2F0000</item>
-        <item name="android:statusBarColor">#FCD298</item>
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
-
-        <item name="android:navigationBarColor">?android:attr/colorBackground</item>
-        <item name="customTranslucentToolbarColor">#A0FFFFFF</item>
-        <item name="android:windowContentTransitions">true</item>
-
-        <item name="toolbarStyle">@style/Theme.Custom.Toolbar</item>
-
-        <item name="cardBackgroundColor">#FFFFEFEF</item>
-        <item name="onCardColor">#FFFFDFDF</item>
-        <item name="onCardTextColor">#FF4F3F2F</item>
-
-        <item name="alertDialogTheme">@style/AppTheme.MyOldAlertDialog</item>
-    </style-->
-
-    <style name="Theme.MangadexDownloader.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenAnimatedIcon">@drawable/icon</item>
-        <item name="postSplashScreenTheme">@style/Theme.MangadexDownloader</item>
-        <item name="windowSplashScreenBackground">?android:attr/colorBackground</item>
+    <style name="Theme.MangadexDownloader" parent="Base.Theme.MangadexDownloader">
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="o_mr1">shortEdges</item>
     </style>
 
     <style name="roundedImageView" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">8dp</item>
-    </style>
-
-    <style name="Theme.Custom.Toolbar" parent="Widget.Material3.Toolbar">
-        <item name="android:background">#FCD298</item>
-    </style>
-
-    <style name="Theme.MangadexDownloader.FullscreenColoredStatusBar" parent="Theme.MangadexDownloader.Fullscreen">
-        <item name="android:statusBarColor">#FCD298</item>
-    </style>
-
-    <style name="Theme.MangadexDownloader.Fullscreen" parent="Theme.MangadexDownloader">
-        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="o_mr1">shortEdges</item>
-        <item name="android:statusBarColor">?android:attr/colorBackground</item>
-        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="MangadexDownloader.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">

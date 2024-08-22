@@ -45,33 +45,31 @@ public class FragmentSearchBar extends Fragment {
         progressBar.setShowAnimationBehavior(BaseProgressIndicator.SHOW_OUTWARD);
 
         searchButton.setOnClickListener((v) -> {
+            UpdateUIBeginSearch();
+
             Bundle bundle = new Bundle();
             bundle.putString("type", "query");
             bundle.putString("query", searchBar.getText().toString().trim());
 
             getParentFragmentManager().setFragmentResult("search", bundle);
-
-            UpdateUIBeginSearch();
         });
 
         favoriteButton.setOnClickListener((v) -> {
+            UpdateUIBeginSearch();
+
             Bundle bundle = new Bundle();
             bundle.putString("type", "fav");
 
             getParentFragmentManager().setFragmentResult("search", bundle);
-
-            UpdateUIBeginSearch();
         });
+
+        getParentFragmentManager().setFragmentResultListener("searchStart", this, (requestKey, result) -> UpdateUIBeginSearch());
 
         getParentFragmentManager().setFragmentResultListener("searchEnd", this, (requestKey, result) -> {
             progressBar.hide();
             searchButton.setEnabled(true);
             favoriteButton.setEnabled(true);
             searchBar.setEnabled(true);
-        });
-
-        getParentFragmentManager().setFragmentResultListener("searchStart", this, (requestKey, result) -> {
-            UpdateUIBeginSearch();
         });
 
         searchBar.setOnEditorActionListener((v, actionId, event) -> {

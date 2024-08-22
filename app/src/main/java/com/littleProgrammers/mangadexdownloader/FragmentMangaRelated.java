@@ -1,16 +1,20 @@
 package com.littleProgrammers.mangadexdownloader;
 
+import static com.littleProgrammers.mangadexdownloader.FragmentMangaResults.ComputeAndSetSpanCount;
+
 import android.app.Activity;
 import android.content.res.Configuration;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.graphics.Insets;
+import androidx.core.util.Pair;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -20,10 +24,13 @@ import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.littleProgrammers.mangadexdownloader.apiResults.Manga;
 import com.littleProgrammers.mangadexdownloader.apiResults.MangaResults;
+import com.littleProgrammers.mangadexdownloader.apiResults.Relationship;
+import com.littleProgrammers.mangadexdownloader.utils.ApiUtils;
 import com.littleProgrammers.mangadexdownloader.utils.CompatUtils;
 import com.littleProgrammers.mangadexdownloader.utils.StaticData;
 import com.michelelorusso.dnsclient.DNSClient;
@@ -31,6 +38,7 @@ import com.michelelorusso.dnsclient.DNSClient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
@@ -42,15 +50,23 @@ import okhttp3.Response;
 public class FragmentMangaRelated extends Fragment {
     DNSClient client;
     Activity context;
+
     private RecyclerView recyclerView;
     private AdapterRecyclerMangas adapter;
+    private GridLayoutManager manager;
+
     private TextView emoticonView;
     private TextView errorView;
     private View progressBar;
 
-    HashMap<String, String> relatedMangas;
-    ArrayList<String> relatedMangaIDs;
-    ArrayList<String> relationTypes;
+    ArrayList<Relationship> relatedMangasList;
+    HashMap<String, Pair<Integer, String>> idToPositionAndType;
+    boolean sorted;
+    int searchOffset;
+
+    RecyclerView.OnScrollListener onScrollListener;
+    RecyclerViewPreloader<String> preloader;
+
     ViewModelMangaList model;
 
     public FragmentMangaRelated() {}
@@ -67,24 +83,38 @@ public class FragmentMangaRelated extends Fragment {
 
         assert savedInstanceState != null;
 
-        relatedMangas = new HashMap<>();
+        relatedMangasList = CompatUtils.GetParcelableArrayList(savedInstanceState, "relatedMangas", Relationship.class);
+        sorted = savedInstanceState.getBoolean("sorted", false);
 
-        relatedMangaIDs = savedInstanceState.getStringArrayList("relatedMangaIDs");
-        relationTypes = savedInstanceState.getStringArrayList("relationTypes");
+        if (!sorted) {
+            String[] relatedTypes = getResources().getStringArray(R.array.manga_relationships_enum);
+            HashMap<String, Integer> relatedTypeToValueSort = new HashMap<>(relatedTypes.length);
+            for (int i = 0; i < relatedTypes.length; i++)
+                relatedTypeToValueSort.put(relatedTypes[i], i);
 
-        if (relatedMangaIDs != null && relationTypes != null) {
-            for (int i = 0; i < relatedMangaIDs.size(); i++) {
-                relatedMangas.put(relatedMangaIDs.get(i), relationTypes.get(i));
-            }
+            relatedMangasList.sort(Comparator.comparingInt(r -> {
+                Integer i = relatedTypeToValueSort.get(r.getRelated());
+                assert i != null;
+                return i;
+            }));
         }
+
+        idToPositionAndType = new HashMap<>(relatedMangasList.size());
+
+        for (int i = 0; i < relatedMangasList.size(); i++) {
+            Relationship relationship = relatedMangasList.get(i);
+            idToPositionAndType.put(relationship.getId(), Pair.create(i, relationship.getRelated()));
+        }
+
+        searchOffset = 0;
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putStringArrayList("relatedMangaIDs", relatedMangaIDs);
-        outState.putStringArrayList("relationTypes", relationTypes);
+        outState.putParcelableArrayList("relatedMangas", relatedMangasList);
+        outState.putBoolean("sorted", sorted);
     }
 
     @Override
@@ -92,15 +122,27 @@ public class FragmentMangaRelated extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_manga_item_list, container, false);
 
-        boolean landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-        int columns = landscape ? 2 : 1;
-
         recyclerView = view.findViewById(R.id.resultsList);
+        recyclerView.setHasFixedSize(true);
+
+        final boolean landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+        manager = new GridLayoutManager(context, ComputeAndSetSpanCount(context, landscape ? 0.75f : 1));
+
+        ((FrameLayout) view.findViewById(R.id.container)).addView(new View(context) {
+            @Override
+            protected void onConfigurationChanged(Configuration newConfig) {
+                super.onConfigurationChanged(newConfig);
+                int col = ComputeAndSetSpanCount(context, landscape ? 0.75f : 1);
+                if (manager.getSpanCount() != col)
+                    manager.setSpanCount(col);
+            }
+        });
+        recyclerView.setLayoutManager(manager);
+
         adapter = new AdapterRecyclerMangas(context);
         adapter.setHasStableIds(true);
         recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new GridLayoutManager(context, columns));
-        recyclerView.setHasFixedSize(true);
+        manager.setSpanSizeLookup(adapter.GetSpanLookup(manager));
 
         emoticonView = view.findViewById(R.id.emoticonView);
         errorView = view.findViewById(R.id.errorDescription);
@@ -110,35 +152,45 @@ public class FragmentMangaRelated extends Fragment {
 
         model = new ViewModelProvider(this).get(ViewModelMangaList.class);
 
-        if (model.getUiState().getValue() == null || model.getUiState().getValue().isSearchCompleted() != ViewModelChapterList.ChapterListState.SEARCH_COMPLETED)
+        if (!model.HasData())
             SearchRelatedMangas();
 
         model.getUiState().observe(getViewLifecycleOwner(), mangaListState -> {
-            int state = mangaListState.isSearchCompleted();
-            if (state == ViewModelChapterList.ChapterListState.SEARCH_COMPLETED) {
+            int state = mangaListState.getLastSearchState();
+            if (state >= ViewModelMangaList.MangaListState.SEARCH_COMPLETED) {
                 if (mangaListState.getMangas() == null || mangaListState.getMangas().isEmpty()) {
                     SetChapterRetrieveState(STATE_EMPTY);
                     return;
                 }
-                adapter.AddMangas(mangaListState.getMangas(), mangaListState.getSectionMap(), false);
 
-                GridLayoutManager manager = (GridLayoutManager) recyclerView.getLayoutManager();
-                assert manager != null;
+                boolean hasMoreToLoad = state == ViewModelMangaList.MangaListState.SEARCH_COMPLETED_HAS_MORE;
 
-                if (manager.getSpanCount() != 1) {
-                    manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-                        @Override
-                        public int getSpanSize(int position) {
-                            return adapter.getAdapterPositionToArrayMap().get(position).first == AdapterRecyclerMangas.ITEM_MANGA ? 1 : 2;
-                        }
-                    });
-                }
+                if (adapter.IsEmpty())
+                    adapter.ReplaceMangas(mangaListState.getMangas(), mangaListState.getSectionMap(), hasMoreToLoad);
+                else
+                    adapter.AddMangas(mangaListState.getMangaDiff(), mangaListState.getSectionsDiff(), hasMoreToLoad);
+
+                if (hasMoreToLoad && onScrollListener != null)
+                    recyclerView.addOnScrollListener(onScrollListener);
+
                 SetChapterRetrieveState(STATE_COMPLETE);
             }
             else if (state == ViewModelChapterList.ChapterListState.SEARCH_ERROR) {
-                SetChapterRetrieveState(STATE_FAIL);
+                if (!mangaListState.getMangas().isEmpty())
+                    adapter.SetError();
+                else
+                    SetChapterRetrieveState(STATE_FAIL);
             }
         });
+
+        adapter.SetOnRetry(this::SearchRelatedMangas);
+
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         ViewCompat.setOnApplyWindowInsetsListener(recyclerView, new OnApplyWindowInsetsListener() {
             @NonNull
@@ -151,17 +203,50 @@ public class FragmentMangaRelated extends Fragment {
                 return insets;
             }
         });
+    }
 
-        return view;
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (onScrollListener == null) {
+            onScrollListener = new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+
+                    if (manager.findLastCompletelyVisibleItemPosition() >= adapter.getItemCount() - 5) {
+                        searchOffset += 20;
+                        SearchRelatedMangas();
+                    }
+                }
+            };
+        }
+        if (adapter.hasInfiniteScrolling)
+            recyclerView.addOnScrollListener(onScrollListener);
+
+        if (preloader == null) {
+            preloader = new RecyclerViewPreloader<>(context, adapter, adapter.getPreloadSizeProvider(), manager.getSpanCount() * 20);
+        }
+
+        recyclerView.addOnScrollListener(preloader);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        recyclerView.clearOnScrollListeners();
     }
 
     private void SearchRelatedMangas() {
-        if (relatedMangaIDs.isEmpty()) {
-            model.updateMangaList(null, ViewModelMangaList.MangaListState.SEARCH_COMPLETED);
+        recyclerView.removeOnScrollListener(onScrollListener);
+
+        if (relatedMangasList.isEmpty()) {
+            model.UpdateMangaList(null, ViewModelMangaList.MangaListState.SEARCH_COMPLETED);
             return;
         }
 
-        StringBuilder urlString = new StringBuilder("https://api.mangadex.org/manga?&limit=20" + "&includes[]=cover_art&includes[]=author&includes[]=artist");
+        StringBuilder urlString = new StringBuilder("https://api.mangadex.org/manga?&limit=20&includes[]=cover_art&includes[]=author&includes[]=artist");
 
         Set<String> ratings = PreferenceManager.getDefaultSharedPreferences(context).getStringSet("contentFilter", null);
         if (ratings != null) {
@@ -170,14 +255,16 @@ public class FragmentMangaRelated extends Fragment {
             }
         }
 
-        for (String id : relatedMangas.keySet()) {
-            urlString.append("&ids[]=").append(id);
+        for (int i = searchOffset; i < Math.min(relatedMangasList.size(), searchOffset + 20); i++) {
+            Relationship related = relatedMangasList.get(i);
+            urlString.append("&ids[]=").append(related.getId());
         }
 
         client.HttpRequestAsync(urlString.toString(), new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                context.runOnUiThread(() -> model.updateMangaList(null, ViewModelMangaList.MangaListState.SEARCH_ERROR));
+                e.printStackTrace();
+                context.runOnUiThread(() -> model.UpdateMangaList(null, ViewModelMangaList.MangaListState.SEARCH_ERROR));
             }
 
             @Override
@@ -189,31 +276,44 @@ public class FragmentMangaRelated extends Fragment {
                 try {
                     _mResults = StaticData.getMapper().readValue(bodyString, MangaResults.class);
                 } catch (JsonParseException | JsonMappingException e) {
-                    context.runOnUiThread(() -> model.updateMangaList(null, ViewModelMangaList.MangaListState.SEARCH_ERROR));
+                    context.runOnUiThread(() -> model.UpdateMangaList(null, ViewModelMangaList.MangaListState.SEARCH_ERROR));
                     return;
                 }
                 final MangaResults mResults = _mResults;
 
-                String[] stringArray = getResources().getStringArray(R.array.manga_relationships_enum);
-                ArrayList<Manga> data = new ArrayList<>();
+                mResults.getData().sort((m1, m2) -> {
+                    Pair<Integer, String> pos1 = idToPositionAndType.get(m1.getId());
+                    Pair<Integer, String> pos2 = idToPositionAndType.get(m2.getId());
+                    assert pos1 != null && pos2 != null;
 
-                HashMap<Integer, String> map = new HashMap<>();
+                    return Integer.compare(pos1.first, pos2.first);
+                });
 
-                for (String s : getResources().getStringArray(R.array.manga_relationships_enum)) {
-                    int index = data.size();
-                    boolean mangaInserted = false;
-                    for (Manga m : mResults.getData()) {
-                        if (s.equals(relatedMangas.get(m.getId()))) {
-                            mangaInserted = true;
-                            m.autofillInformation();
-                            data.add(m);
-                        }
+                HashMap<Integer, String> positionToTitle = new HashMap<>();
+
+                for (int i = 0; i < mResults.getData().size(); i++) {
+                    Manga current = mResults.getData().get(i);
+                    Pair<Integer, String> type = idToPositionAndType.get(current.getId());
+                    assert type != null;
+
+                    ApiUtils.SetMangaAttributes(current);
+
+                    if (i == 0) {
+                        if (searchOffset == 0 || !relatedMangasList.get(type.first - 1).getRelated().contentEquals(type.second))
+                            positionToTitle.put(i, type.second);
                     }
-                    if (mangaInserted)
-                        map.put(index, s);
+                    else {
+                        Manga previous = mResults.getData().get(i - 1);
+                        Pair<Integer, String> typePrev = idToPositionAndType.get(previous.getId());
+                        assert typePrev != null;
+
+                        if (!type.second.contentEquals(typePrev.second))
+                            positionToTitle.put(i, type.second);
+                    }
                 }
 
-                context.runOnUiThread(() -> model.updateMangaList(data, map, ViewModelMangaList.MangaListState.SEARCH_COMPLETED));
+                model.UpdateMangaList(mResults.getData(), positionToTitle,
+                        relatedMangasList.size() > searchOffset + 20 ? ViewModelMangaList.MangaListState.SEARCH_COMPLETED_HAS_MORE : ViewModelMangaList.MangaListState.SEARCH_COMPLETED);
             }
         }, false);
     }
@@ -243,7 +343,7 @@ public class FragmentMangaRelated extends Fragment {
                 progressBar.setVisibility(View.GONE);
 
                 errorView.setText(R.string.errNoConnection);
-                emoticonView.setText(CompatUtils.getRandomStringFromStringArray(context, R.array.emoticons_angry));
+                emoticonView.setText(CompatUtils.GetRandomStringFromStringArray(context, R.array.emoticons_angry));
                 break;
             case STATE_EMPTY:
                 recyclerView.setVisibility(View.GONE);
@@ -252,7 +352,7 @@ public class FragmentMangaRelated extends Fragment {
                 progressBar.setVisibility(View.GONE);
 
                 errorView.setText(R.string.noRelatedMangas);
-                emoticonView.setText(CompatUtils.getRandomStringFromStringArray(context, R.array.emoticons_confused));
+                emoticonView.setText(CompatUtils.GetRandomStringFromStringArray(context, R.array.emoticons_confused));
                 break;
         }
     }

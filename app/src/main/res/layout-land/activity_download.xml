@@ -1,231 +1,180 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ActivityManga">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/coverBackground"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:alpha="0.6"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:scaleType="centerCrop"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.3"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/backgrounds/scenic"
-        tools:ignore="ContentDescription" />
+        <ImageView
+            android:id="@+id/coverBackground"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5"
+            android:alpha="1"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:foreground="@drawable/gradient"
+            android:scaleType="centerCrop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription"
+            tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
-    <ImageView
-        android:id="@+id/filter"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:scaleType="centerCrop"
-        android:tintMode="add"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHeight_percent="0.3"
-        app:srcCompat="@drawable/gradient"
-        tools:ignore="ContentDescription" />
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5" />
 
-    <ProgressBar
-        android:id="@+id/coverPlaceholder"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="137dp"
-        android:layout_marginBottom="113dp"
-        app:layout_constraintBottom_toBottomOf="@+id/cover"
-        app:layout_constraintEnd_toEndOf="@+id/cover"
-        app:layout_constraintStart_toStartOf="@+id/cover"
-        app:layout_constraintTop_toTopOf="@+id/cover" />
+    </LinearLayout>
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/cover"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:scaleType="centerCrop"
-        android:transitionName="cover"
-        app:layout_constraintBottom_toBottomOf="@+id/linearLayout"
-        app:layout_constraintDimensionRatio="H,3:2"
-        app:layout_constraintStart_toStartOf="@+id/home_toolbar"
-        app:layout_constraintTop_toBottomOf="@+id/home_toolbar"
-        app:shapeAppearanceOverlay="@style/roundedImageView"
-        tools:ignore="ImageContrastCheck" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <ScrollView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:fadingEdge="vertical"
-        android:fadingEdgeLength="8dp"
-        android:requiresFadingEdge="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintEnd_toEndOf="@+id/home_toolbar"
-        app:layout_constraintStart_toEndOf="@+id/cover"
-        app:layout_constraintTop_toBottomOf="@+id/home_toolbar">
-
-        <LinearLayout
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/home_toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:background="@android:color/transparent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/coverContainer"
+            style="@style/MangadexDownloader.CardView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="H,3:2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/home_toolbar">
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/coverPlaceholder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:indeterminate="true"
+                app:trackCornerRadius="4dp" />
+
+            <ImageView
+                android:id="@+id/cover"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:importantForAccessibility="no"
+                android:scaleType="centerCrop"
+                android:transitionName="cover"
+                tools:ignore="ImageContrastCheck" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:id="@+id/content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/coverContainer"
+            app:layout_constraintTop_toBottomOf="@+id/home_toolbar">
             <TextView
                 android:id="@+id/mangaTitle"
-                style="@style/Widget.AppCompat.TextView.SpinnerItem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:ellipsize="end"
                 android:gravity="bottom|start"
-                android:maxLines="2"
+                android:maxLines="1"
                 android:text="@string/noMangaSelected"
                 android:textAlignment="gravity"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="48sp"
                 android:textStyle="bold"
-                app:autoSizeMinTextSize="10sp"
-                app:autoSizeTextType="uniform" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/coverContainer"
+                app:layout_constraintTop_toBottomOf="@+id/home_toolbar" />
 
             <TextView
                 android:id="@+id/authorView"
-                style="@style/Widget.AppCompat.TextView.SpinnerItem"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:ellipsize="end"
+                android:maxLines="2"
                 android:textAlignment="viewStart"
-                android:textSize="24sp" />
+                android:textSize="24sp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/coverContainer"
+                app:layout_constraintTop_toBottomOf="@+id/mangaTitle" />
 
-            <HorizontalScrollView
-                android:id="@+id/tagsContainer"
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabSelection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:fadingEdge="horizontal"
-                android:fadingEdgeLength="8dp"
-                android:requiresFadingEdge="horizontal"
-                android:scrollbarSize="0dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:background="@android:color/transparent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cover">
+                app:layout_constraintStart_toEndOf="@+id/coverContainer"
+                app:layout_constraintTop_toBottomOf="@+id/authorView"
+                app:tabUnboundedRipple="true">
 
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/tags"
+                <com.google.android.material.tabs.TabItem
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp"
-                    app:singleLine="true" />
-            </HorizontalScrollView>
+                    android:icon="@drawable/icon_description"
+                    android:text="@string/sectionOverview" />
 
-            <TextView
-                android:id="@+id/mangaDescription"
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:icon="@drawable/icon_chapter_list"
+                    android:text="@string/sectionChapters" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:icon="@drawable/icon_related"
+                    android:text="@string/sectionRelated" />
+            </com.google.android.material.tabs.TabLayout>
+
+            <com.google.android.material.divider.MaterialDivider
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="24dp"
-                android:fadingEdge="vertical"
-                android:fadingEdgeLength="32dp"
-                android:gravity="start"
-                android:isScrollContainer="false"
-                android:overScrollMode="never"
-                android:requiresFadingEdge="vertical"
-                android:scrollbars="vertical"
-                android:text="@string/defaultDescription"
-                android:textAlignment="gravity"
-                android:textSize="18sp" />
+                android:layout_marginHorizontal="16dp" />
 
-        </LinearLayout>
-    </ScrollView>
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/linearLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="15dp"
-        android:layout_marginBottom="16dp"
-        android:gravity="center_vertical"
-        app:cardBackgroundColor="?attr/cardBackgroundColor"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/home_toolbar"
-        app:layout_constraintStart_toEndOf="@+id/cover">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/continueReading"
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/fragmentContainer"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:alpha="0.5"
-                android:text="@string/continueFromBookmark"
-                android:textSize="16sp"
-                android:visibility="gone"
-                tools:ignore="TextContrastCheck" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="8dp">
-
-                <Spinner
-                    android:id="@+id/chapterSelection"
-                    android:layout_width="0dp"
-                    android:layout_height="56dp"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical"
-                    android:spinnerMode="dialog"
-                    tools:ignore="SpeakableTextPresentCheck" />
-
-                <ImageButton
-                    android:id="@+id/buttonDownload"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/ripple_button_24"
-                    android:contentDescription="@string/settingsDownloadDataSaverOn"
-                    android:src="@drawable/icon_download"
-                    tools:ignore="ButtonStyle" />
-
-                <ImageButton
-                    android:id="@+id/buttonRead"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/ripple_button_24"
-                    android:contentDescription="@string/errAlreadyDownloading"
-                    android:src="@drawable/icon_read"
-                    tools:ignore="ButtonStyle" />
-            </LinearLayout>
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/coverContainer"
+                app:layout_constraintTop_toBottomOf="@+id/tabSelection"/>
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/home_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@android:color/transparent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+</merge>

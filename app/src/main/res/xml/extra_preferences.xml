@@ -7,7 +7,7 @@
             app:title="@string/cat"
             app:summary="@string/cat"
             app:icon="@drawable/icon_cat"
-            android:widgetLayout="@layout/preference_material_switch"/>
+            android:widgetLayout="@layout/layout_preference_material_switch"/>
 
     </PreferenceCategory>
 

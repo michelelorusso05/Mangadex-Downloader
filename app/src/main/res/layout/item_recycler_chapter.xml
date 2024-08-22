@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/MangadexDownloader.CardView"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="8dp"
+    app:cardCornerRadius="0dp">
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/dividerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:id="@+id/rowLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:layout_marginEnd="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/chapterTitle"
+                android:layout_width="match_parent"
+                android:layout_height="28dp"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
+                android:maxLines="1"
+                android:textAlignment="gravity"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/scanlationGroup"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.button.MaterialButton
+                style="@style/Widget.Material3.Button.IconButton"
+                android:id="@+id/buttonDownload"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/icon_download" />
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:visibility="invisible"
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                app:trackCornerRadius="2dp"
+                app:trackThickness="3dp" />
+        </FrameLayout>
+
+        <com.google.android.material.button.MaterialButton
+            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+            android:id="@+id/buttonRead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/icon_read" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

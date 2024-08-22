@@ -28,11 +28,13 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
+/** @noinspection FieldCanBeLocal, FieldCanBeLocal , FieldCanBeLocal */
 public abstract class AdapterViewPagerReaderPages extends RecyclerView.Adapter<AdapterViewPagerReaderPages.PageViewHolder> {
-    Activity context;
-    String baseUrl;
-    String[] urls;
+    final Activity context;
+    final String baseUrl;
+    final String[] urls;
     final ArrayList<Pair<Integer, Integer>> indexes;
 
     private final int navigationMode;
@@ -47,9 +49,9 @@ public abstract class AdapterViewPagerReaderPages extends RecyclerView.Adapter<A
 
     final Queue<Boolean> isLandscape = new ConcurrentLinkedQueue<>();
 
-    private final int VIEW_TYPE_PAGE = R.layout.view_pager_image_layout;
-    private final int VIEW_TYPE_PREVIOUS_CHAPTER = R.layout.view_pager_previous_layout;
-    private final int VIEW_TYPE_NEXT_CHAPTER = R.layout.view_pager_next_layout;
+    private final int VIEW_TYPE_PAGE = R.layout.item_pager_image;
+    private final int VIEW_TYPE_PREVIOUS_CHAPTER = R.layout.item_pager_previous;
+    private final int VIEW_TYPE_NEXT_CHAPTER = R.layout.item_pager_next;
     public static final int NAVIGATION_LEFT = 1;
     public static final int NAVIGATION_RIGHT = 1 << 1;
     public static final int NAVIGATION_ONESHOT = 0;
@@ -106,11 +108,11 @@ public abstract class AdapterViewPagerReaderPages extends RecyclerView.Adapter<A
         View view;
 
         if (viewType == VIEW_TYPE_PREVIOUS_CHAPTER)
-            view = inflater.inflate(R.layout.view_pager_previous_layout, parent, false);
+            view = inflater.inflate(R.layout.item_pager_previous, parent, false);
         else if (viewType == VIEW_TYPE_NEXT_CHAPTER)
-            view = inflater.inflate(R.layout.view_pager_next_layout, parent, false);
+            view = inflater.inflate(R.layout.item_pager_next, parent, false);
         else
-            view = inflater.inflate(R.layout.view_pager_image_layout, parent, false);
+            view = inflater.inflate(R.layout.item_pager_image, parent, false);
 
         view.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         PageViewHolder holder = new PageViewHolder(view);
@@ -149,18 +151,16 @@ public abstract class AdapterViewPagerReaderPages extends RecyclerView.Adapter<A
         Integer key = position;
         holder.progressBar.setTag(key);
 
-        position = rawPositionToChapterPosition(holder.getAdapterPosition());
+        position = rawPositionToChapterPosition(holder.getBindingAdapterPosition());
 
-        Dispatcher<Bitmap> dispatcher = new Dispatcher<>(2, (ArrayList<Bitmap> bitmaps) -> {
-            new Thread(() -> {
-                Bitmap combined = BitmapUtilities.combineBitmaps(bitmaps.get(0), bitmaps.get(1), rtl);
+        Dispatcher<Bitmap> dispatcher = new Dispatcher<>(2, (ArrayList<Bitmap> bitmaps) -> new Thread(() -> {
+            Bitmap combined = BitmapUtilities.combineBitmaps(bitmaps.get(0), bitmaps.get(1), rtl);
 
-                context.runOnUiThread(() -> {
-                    holder.progressBar.setVisibility(View.INVISIBLE);
-                    holder.image.setImageBitmap(combined);
-                });
-            }).start();
-        });
+            context.runOnUiThread(() -> {
+                holder.progressBar.setVisibility(View.INVISIBLE);
+                holder.image.setImageBitmap(combined);
+            });
+        }).start());
 
 
         synchronized (indexes) {
@@ -174,7 +174,7 @@ public abstract class AdapterViewPagerReaderPages extends RecyclerView.Adapter<A
     }
     @Override
     public void onBindViewHolder(@NonNull PageViewHolder holder, int position, @NonNull List<Object> payloads) {
-        position = holder.getAdapterPosition();
+        position = holder.getBindingAdapterPosition();
         if (payloads.isEmpty() || indexes.get(position).second != null) {
             onBindViewHolder(holder, position);
         }
@@ -189,7 +189,7 @@ public abstract class AdapterViewPagerReaderPages extends RecyclerView.Adapter<A
     protected abstract void preloadImageAtPosition(int pos, Consumer<Boolean> callback);
 
     static final int IMAGE_PRELOAD_BLOCK = 4;
-    private int counter = 0;
+    private final AtomicInteger counter = new AtomicInteger();
     private final AtomicBoolean shouldPushUpdates = new AtomicBoolean(true);
     private boolean firstPage = true;
 
@@ -203,25 +203,26 @@ public abstract class AdapterViewPagerReaderPages extends RecyclerView.Adapter<A
 
             if (firstPage || cur) {
                 firstPage = false;
-                counter++;
+                counter.getAndIncrement();
             } else {
                 Boolean next = isLandscape.peek();
                 if (next == null) {
                     if (more) break;
-                    counter++;
+                    counter.getAndIncrement();
                     break;
                 }
 
                 if (next) {
-                    counter++;
+                    counter.getAndIncrement();
                 } else {
-                    notifyItemChanged(counter, "ChangeToDouble");
+                    notifyItemChanged(counter.get(), "ChangeToDouble");
 
-                    indexes.set(counter, new Pair<>(indexes.get(counter).first, indexes.get(counter + 1).first));
-                    removedIndexes.add(indexes.get(counter));
-                    counter++;
-                    notifyItemRemoved(counter);
-                    indexes.remove(counter);
+                    final int c = counter.getAndIncrement();
+
+                    indexes.set(c, new Pair<>(indexes.get(c).first, indexes.get(c + 1).first));
+                    removedIndexes.add(indexes.get(c));
+                    notifyItemRemoved(c + 1);
+                    indexes.remove(c + 1);
                     isLandscape.remove();
                 }
             }
@@ -354,8 +355,8 @@ public abstract class AdapterViewPagerReaderPages extends RecyclerView.Adapter<A
     }
 
     public static class PageViewHolder extends RecyclerView.ViewHolder {
-        public ZoomageView image;
-        public View progressBar;
+        public final ZoomageView image;
+        public final View progressBar;
         public PageViewHolder(@NonNull View itemView) {
             super(itemView);
             image = itemView.findViewById(R.id.image);

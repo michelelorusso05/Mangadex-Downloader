@@ -5,18 +5,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
-import android.util.Log;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
@@ -24,7 +20,6 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +32,6 @@ import okhttp3.Cache;
 import okhttp3.CacheControl;
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.ConnectionPool;
 import okhttp3.Dispatcher;
 import okhttp3.Dns;
 import okhttp3.HttpUrl;
@@ -68,9 +62,9 @@ class DNSPreset {
         primary = _p;
         secondary = _s;
     }
-    public String resolver;
-    public String primary;
-    public String secondary;
+    public final String resolver;
+    public final String primary;
+    public final String secondary;
 }
 
 
@@ -374,6 +368,11 @@ public class DNSClient {
         response.close();
     }
 
+    public interface DownloadCallback {
+        void onFailure(@NonNull Call call, @NonNull IOException e);
+        void onResponse(@NonNull Call call, @NonNull Response response, long bytes);
+    }
+
     /**
      * Downloads a file in the background.
      * @param url The file URL.
@@ -382,7 +381,7 @@ public class DNSClient {
      * @see File
      * @see Callback
      */
-    public void DownloadFileAsync(String url, File destination, Callback onDownloadEnd) {
+    public void DownloadFileAsync(String url, File destination, DownloadCallback onDownloadEnd) {
         HttpRequestAsync(url, new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -395,9 +394,9 @@ public class DNSClient {
                     try {
                         BufferedSink sink = Okio.buffer(Okio.sink(destination));
                         ResponseBody body = Objects.requireNonNull(response.body());
-                        sink.writeAll(body.source());
+                        long size = sink.writeAll(body.source());
                         sink.close();
-                        onDownloadEnd.onResponse(call, response);
+                        onDownloadEnd.onResponse(call, response, size);
                     } catch (Exception e) {
                         e.printStackTrace();
                         onDownloadEnd.onFailure(call, new IOException());

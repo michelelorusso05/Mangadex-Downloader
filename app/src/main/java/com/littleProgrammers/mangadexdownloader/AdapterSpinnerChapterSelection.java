@@ -16,43 +16,16 @@ import com.littleProgrammers.mangadexdownloader.apiResults.Chapter;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class AdapterSpinnerChapterSelection extends ArrayAdapter<Pair<String, String>> {
-    boolean ignoreSecond;
-    public AdapterSpinnerChapterSelection(@NonNull Context context, ArrayList<Pair<String, String>> data, boolean ignoreSecond) {
-        super(context, R.layout.chapter_spinner_item, R.id.chapterTitle, data);
-        this.ignoreSecond = ignoreSecond;
-    }
-    public AdapterSpinnerChapterSelection(@NonNull Context context, ArrayList<Pair<String, String>> data) {
-        this(context, data, false);
-    }
-    public AdapterSpinnerChapterSelection(@NonNull Context context, Pair<String, String> singleton) {
-        this(context, new ArrayList<>(Collections.singletonList(singleton)));
-    }
-    public AdapterSpinnerChapterSelection(@NonNull Context context, Chapter[] data) {
-        this(context, ChapterToStringPairArray(data));
-    }
-    public AdapterSpinnerChapterSelection(@NonNull Context context, String[] names) {
-        this(context, ChapterToStringPairArray(names), true);
-    }
+public class AdapterSpinnerChapterSelection extends ArrayAdapter<String> {
+    ArrayList<String> titles;
+    ArrayList<String> scanlationGroups;
 
-    @NonNull
-    private static ArrayList<Pair<String, String>> ChapterToStringPairArray(@NonNull Chapter[] data) {
-        ArrayList<Pair<String, String>> returnData = new ArrayList<>();
-        for (Chapter c : data)
-            returnData.add(new Pair<>(c.getAttributes().getFormattedName(), c.getAttributes().getScanlationGroupString()));
+    public AdapterSpinnerChapterSelection(@NonNull Context context, ArrayList<String> t, ArrayList<String> s) {
+        super(context, R.layout.item_spinner_chapter, R.id.chapterTitle, t);
 
-        return returnData;
+        titles = t;
+        scanlationGroups = s;
     }
-    @NonNull
-    private static ArrayList<Pair<String, String>> ChapterToStringPairArray(@NonNull String[] data) {
-        ArrayList<Pair<String, String>> returnData = new ArrayList<>();
-        for (String c : data)
-            returnData.add(new Pair<>(c, null));
-
-        return returnData;
-    }
-
-
 
     @NonNull
     @Override
@@ -60,17 +33,16 @@ public class AdapterSpinnerChapterSelection extends ArrayAdapter<Pair<String, St
         View currentItemView = convertView;
 
         if (currentItemView == null) {
-            currentItemView = LayoutInflater.from(getContext()).inflate(R.layout.chapter_spinner_item, parent, false);
+            currentItemView = LayoutInflater.from(getContext()).inflate(R.layout.item_spinner_chapter, parent, false);
         }
 
-        Pair<String, String> currentObjectPosition = getItem(position);
-
         TextView name = currentItemView.findViewById(R.id.chapterTitle);
-        name.setText(currentObjectPosition.first);
+        name.setText(titles.get(position));
 
         TextView group = currentItemView.findViewById(R.id.scanlationGroup);
-        if (!ignoreSecond && currentObjectPosition.second != null)
-            group.setText(currentObjectPosition.second);
+
+        if (scanlationGroups != null)
+            group.setText(scanlationGroups.get(position));
         else
             group.setVisibility(View.GONE);
 

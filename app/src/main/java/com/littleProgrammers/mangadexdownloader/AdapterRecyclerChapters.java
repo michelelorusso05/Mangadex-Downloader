@@ -7,7 +7,6 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -15,19 +14,20 @@ import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.shape.ShapeAppearanceModel;
 import com.littleProgrammers.mangadexdownloader.apiResults.Chapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 public class AdapterRecyclerChapters extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    Context ct;
-    ArrayList<Chapter> chapters;
+    final Context ct;
+    final ArrayList<Chapter> chapters;
     ShapeAppearanceModel topCard;
     ShapeAppearanceModel bottomCard;
     ShapeAppearanceModel singleCard;
@@ -36,6 +36,9 @@ public class AdapterRecyclerChapters extends RecyclerView.Adapter<RecyclerView.V
     private final float PIXELS_TO_DP;
     private final ArrayList<Integer> indexMap;
     private final HashMap<Integer, String> volumeStartIndex;
+    private final HashMap<String, ChapterDownloadProgressWrapper> downloadProgressMap;
+
+    private static final String UPDATE_PAYLOAD = "update_payload";
 
     private static final int ROW_CHAPTER = 0;
     private static final int ROW_VOLUME_LABEL = 1;
@@ -61,6 +64,7 @@ public class AdapterRecyclerChapters extends RecyclerView.Adapter<RecyclerView.V
 
         volumeStartIndex = new HashMap<>();
         indexMap = new ArrayList<>(chapters.size());
+        downloadProgressMap = new HashMap<>(chapters.size());
 
         for (int i = 0; i < chapters.size(); i++) {
             String volume = chapters.get(i).getAttributes().getVolume();
@@ -69,6 +73,8 @@ public class AdapterRecyclerChapters extends RecyclerView.Adapter<RecyclerView.V
                 indexMap.add(-1);
                 volumeStartIndex.put(indexMap.size() - 1, volume);
             }
+
+            downloadProgressMap.put(chapters.get(i).getId(), new ChapterDownloadProgressWrapper(indexMap.size()));
             indexMap.add(i);
         }
     }
@@ -93,7 +99,7 @@ public class AdapterRecyclerChapters extends RecyclerView.Adapter<RecyclerView.V
 
         switch (viewType) {
             case ROW_CHAPTER: {
-                View view = inflater.inflate(R.layout.recyclerviewitem_chapter, parent, false);
+                View view = inflater.inflate(R.layout.item_recycler_chapter, parent, false);
                 ChapterViewHolder chapterViewHolder = new ChapterViewHolder(view);
 
                 chapterViewHolder.downloadButton.setOnClickListener((v) ->
@@ -134,7 +140,7 @@ public class AdapterRecyclerChapters extends RecyclerView.Adapter<RecyclerView.V
                 break;
             }
             case ROW_VOLUME_LABEL: {
-                View view = inflater.inflate(R.layout.recyclerviewitem_volume_label, parent, false);
+                View view = inflater.inflate(R.layout.item_recycler_label, parent, false);
                 holder = new LabelViewHolder(view);
                 break;
             }
@@ -172,6 +178,47 @@ public class AdapterRecyclerChapters extends RecyclerView.Adapter<RecyclerView.V
 
             chapterViewHolder.downloadButton.setVisibility(chapter.getAttributes().getExternalUrl() != null ? View.GONE : View.VISIBLE);
 
+            ChapterDownloadProgressWrapper progress = downloadProgressMap.get(chapter.getId());
+            assert progress != null;
+
+            switch (progress.state) {
+                case -1:
+                    chapterViewHolder.downloadButton.setEnabled(true);
+                    chapterViewHolder.downloadButton.setIconResource(R.drawable.icon_download);
+                    chapterViewHolder.progressIndicator.setVisibility(View.INVISIBLE);
+                    break;
+                case WorkerChapterDownload.PROGRESS_ONGOING:
+                    chapterViewHolder.downloadButton.setEnabled(false);
+                    chapterViewHolder.downloadButton.setIconResource(R.drawable.icon_download);
+                    chapterViewHolder.progressIndicator.setVisibility(View.VISIBLE);
+                    if (progress.progress < 0) {
+                        chapterViewHolder.progressIndicator.setProgress(0, false);
+                        chapterViewHolder.progressIndicator.setIndeterminate(true);
+                    }
+                    else {
+                        chapterViewHolder.progressIndicator.setIndeterminate(false);
+                        chapterViewHolder.progressIndicator.setProgress((int) progress.progress, false);
+                    }
+                    break;
+                case WorkerChapterDownload.PROGRESS_SUCCESS:
+                    chapterViewHolder.downloadButton.setEnabled(true);
+                    chapterViewHolder.downloadButton.setIconResource(R.drawable.icon_download_completed);
+                    chapterViewHolder.progressIndicator.setVisibility(View.INVISIBLE);
+                    break;
+                case WorkerChapterDownload.PROGRESS_FAILURE:
+                    chapterViewHolder.downloadButton.setEnabled(true);
+                    chapterViewHolder.progressIndicator.setIndeterminate(false);
+                    chapterViewHolder.progressIndicator.setVisibility(View.VISIBLE);
+                    chapterViewHolder.progressIndicator.setProgress((int) progress.progress, false);
+                    break;
+                case WorkerChapterDownload.PROGRESS_ENQUEUED:
+                    chapterViewHolder.downloadButton.setEnabled(false);
+                    chapterViewHolder.downloadButton.setIconResource(R.drawable.icon_pending);
+                    chapterViewHolder.progressIndicator.setVisibility(View.VISIBLE);
+                    chapterViewHolder.progressIndicator.setIndeterminate(true);
+                    break;
+            }
+
             boolean startOfVolume = indexMap.get(position - 1) == -1;
             boolean endOfVolume = (position == indexMap.size() - 1) || indexMap.get(position + 1) == -1;
 
@@ -191,27 +238,65 @@ public class AdapterRecyclerChapters extends RecyclerView.Adapter<RecyclerView.V
                 chapterViewHolder.cardView.setShapeAppearanceModel(middleCard);
                 chapterViewHolder.divider.setVisibility(View.VISIBLE);
             }
-
-            /*
-            String externalURL = chapter.getAttributes().getExternalUrl();
-            if (externalURL != null) {
-                chapterViewHolder.downloadButton.setVisibility(View.GONE);
-                chapterViewHolder.readButton.setOnClickListener((v) -> {
-                    openURL.accept(externalURL);
-                });
-            }
-            else {
-                chapterViewHolder.downloadButton.setVisibility(View.VISIBLE);
-                chapterViewHolder.readButton.setOnClickListener((v) -> {
-                    read.accept(mappedChapter);
-                });
-                chapterViewHolder.downloadButton.setOnClickListener((v) -> {
-                    download.accept(mappedChapter);
-                });
-            }
-
-             */
         }
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads) {
+        int mappedChapter = indexMap.get(position);
+
+        if (payloads.contains(UPDATE_PAYLOAD) && mappedChapter != -1) {
+            ChapterViewHolder chapterViewHolder = (ChapterViewHolder) holder;
+
+            Chapter chapter = chapters.get(mappedChapter);
+
+            ChapterDownloadProgressWrapper progress = downloadProgressMap.get(chapter.getId());
+            assert progress != null;
+
+            switch (progress.state) {
+                case -1:
+                case WorkerChapterDownload.PROGRESS_CANCELED:
+                    chapterViewHolder.downloadButton.setEnabled(true);
+                    chapterViewHolder.downloadButton.setIconResource(R.drawable.icon_download);
+                    chapterViewHolder.progressIndicator.setVisibility(View.INVISIBLE);
+                    break;
+                case WorkerChapterDownload.PROGRESS_ONGOING:
+                    chapterViewHolder.downloadButton.setEnabled(false);
+                    chapterViewHolder.downloadButton.setIconResource(R.drawable.icon_download);
+                    chapterViewHolder.progressIndicator.show();
+                    if (progress.progress < 0) {
+                        chapterViewHolder.progressIndicator.setProgress(0, false);
+                        chapterViewHolder.progressIndicator.setIndeterminate(true);
+                    }
+                    else {
+                        chapterViewHolder.progressIndicator.setIndeterminate(false);
+                        chapterViewHolder.progressIndicator.setProgress((int) progress.progress, true);
+                    }
+                    break;
+                case WorkerChapterDownload.PROGRESS_SUCCESS:
+                    chapterViewHolder.downloadButton.setEnabled(true);
+                    chapterViewHolder.downloadButton.setIconResource(R.drawable.icon_download_completed);
+                    chapterViewHolder.progressIndicator.hide();
+                    break;
+                case WorkerChapterDownload.PROGRESS_FAILURE:
+                    chapterViewHolder.downloadButton.setEnabled(true);
+                    chapterViewHolder.downloadButton.setIconResource(R.drawable.icon_retry);
+                    chapterViewHolder.downloadButton.setIconTintResource(R.color.md_theme_error);
+                    chapterViewHolder.progressIndicator.setIndeterminate(false);
+                    chapterViewHolder.progressIndicator.setVisibility(View.VISIBLE);
+                    chapterViewHolder.progressIndicator.setProgress((int) progress.progress, false);
+                    chapterViewHolder.progressIndicator.setIndicatorColor(ct.getColor(R.color.md_theme_error));
+                    break;
+                case WorkerChapterDownload.PROGRESS_ENQUEUED:
+                    chapterViewHolder.downloadButton.setEnabled(false);
+                    chapterViewHolder.downloadButton.setIconResource(R.drawable.icon_pending);
+                    chapterViewHolder.progressIndicator.show();
+                    chapterViewHolder.progressIndicator.setIndeterminate(true);
+                    break;
+            }
+        }
+        else
+            onBindViewHolder(holder, position);
     }
 
     @Override
@@ -219,14 +304,32 @@ public class AdapterRecyclerChapters extends RecyclerView.Adapter<RecyclerView.V
         return indexMap.size();
     }
 
+    public boolean HasChapter(String id) {
+        return downloadProgressMap.containsKey(id);
+    }
+
+    public void UpdateProgress(String chapterId, int state, float progress) {
+        ChapterDownloadProgressWrapper p = downloadProgressMap.get(chapterId);
+
+        if (p == null) return;
+
+        p.state = state;
+
+        if (progress != -2)
+            p.progress = progress;
+
+        notifyItemChanged(p.pos, UPDATE_PAYLOAD);
+    }
+
     public static class ChapterViewHolder extends RecyclerView.ViewHolder {
-        TextView chapterName;
-        TextView group;
-        LinearLayout rowLayout;
-        View divider;
-        MaterialCardView cardView;
-        MaterialButton downloadButton;
-        MaterialButton readButton;
+        final TextView chapterName;
+        final TextView group;
+        final LinearLayout rowLayout;
+        final View divider;
+        final MaterialCardView cardView;
+        final MaterialButton downloadButton;
+        final MaterialButton readButton;
+        final CircularProgressIndicator progressIndicator;
 
         public ChapterViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -238,14 +341,29 @@ public class AdapterRecyclerChapters extends RecyclerView.Adapter<RecyclerView.V
 
             downloadButton = itemView.findViewById(R.id.buttonDownload);
             readButton = itemView.findViewById(R.id.buttonRead);
+            progressIndicator = itemView.findViewById(R.id.progressBar);
+
+            progressIndicator.setShowAnimationBehavior(CircularProgressIndicator.SHOW_OUTWARD);
+            progressIndicator.setHideAnimationBehavior(CircularProgressIndicator.HIDE_ESCAPE);
         }
     }
 
     public static class LabelViewHolder extends RecyclerView.ViewHolder {
-        TextView volume;
+        final TextView volume;
         public LabelViewHolder(@NonNull View itemView) {
             super(itemView);
             volume = itemView.findViewById(R.id.volume);
+        }
+    }
+
+    private static class ChapterDownloadProgressWrapper {
+        final int pos;
+        int state;
+        float progress;
+
+        ChapterDownloadProgressWrapper(int pos) {
+            this.pos = pos;
+            state = -1;
         }
     }
 }

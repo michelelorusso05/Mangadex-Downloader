@@ -44,7 +44,7 @@ public class FormattingUtilities {
         // Matches every instance of [...](...)
         StringBuilder spannedString = new StringBuilder(s);
 
-        Pattern pattern = Pattern.compile("\\[[^\\]]+\\]\\([^\\)]+\\)");
+        Pattern pattern = Pattern.compile("\\[[^]]+]\\([^)]+\\)");
         Matcher matcher = pattern.matcher(s);
 
         int charDifference = 0;

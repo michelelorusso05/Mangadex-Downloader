@@ -1,7 +1,6 @@
 package com.littleProgrammers.mangadexdownloader.utils;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import com.bumptech.glide.Glide;

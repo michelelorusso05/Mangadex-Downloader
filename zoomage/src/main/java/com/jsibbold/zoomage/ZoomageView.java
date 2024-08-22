@@ -52,10 +52,10 @@ public class ZoomageView extends AppCompatImageView implements OnScaleGestureLis
     private ScaleType startScaleType;
 
     // These matrices will be used to move and zoom image
-    private Matrix matrix = new Matrix();
+    private final Matrix matrix = new Matrix();
     private Matrix startMatrix = new Matrix();
 
-    private float[] matrixValues = new float[9];
+    private final float[] matrixValues = new float[9];
     private float[] startValues = null;
 
     private float minScale = MIN_SCALE;
@@ -76,7 +76,7 @@ public class ZoomageView extends AppCompatImageView implements OnScaleGestureLis
     private float doubleTapToZoomScaleFactor;
     @AutoResetMode private int autoResetMode;
 
-    private PointF last = new PointF(0, 0);
+    private final PointF last = new PointF(0, 0);
     private float startScale = 1f;
     private float scaleBy = 1f;
     private float currentScaleFactor = 1f;
@@ -719,7 +719,7 @@ public class ZoomageView extends AppCompatImageView implements OnScaleGestureLis
         animator.addUpdateListener(new AnimatorUpdateListener() {
 
             final float[] values = new float[9];
-            Matrix current = new Matrix();
+            final Matrix current = new Matrix();
 
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {

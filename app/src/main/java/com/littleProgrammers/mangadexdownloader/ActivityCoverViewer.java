@@ -8,6 +8,7 @@ import androidx.preference.PreferenceManager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.littleProgrammers.mangadexdownloader.apiResults.CoverResults;
+import com.littleProgrammers.mangadexdownloader.utils.ApiUtils;
 import com.littleProgrammers.mangadexdownloader.utils.StaticData;
 import com.michelelorusso.dnsclient.DNSClient;
 
@@ -26,7 +27,7 @@ public class ActivityCoverViewer extends ActivityReader {
     String mangaID;
     String[] coverIDs;
 
-    AtomicInteger targetPage = new AtomicInteger(-1);
+    final AtomicInteger targetPage = new AtomicInteger(-1);
 
     AdapterViewPagerReaderPages adapter;
     ArrayAdapter<String> indexAdapter;
@@ -132,8 +133,16 @@ public class ActivityCoverViewer extends ActivityReader {
 
                     int l = urls.length;
                     final ArrayList<String> pages = new ArrayList<>(l);
-                    for (int i = 0; i < l; i++)
-                        pages.add("Volume " + cResults.getData()[i].getAttributes().getVolume());
+                    for (int i = 0; i < l; i++) {
+                        String volume = cResults.getData()[i].getAttributes().getVolume();
+                        String locale = cResults.getData()[i].getAttributes().getLocale();
+                        String s = volume != null ? "Vol. " + volume : "Cover";
+
+                        if (locale != null)
+                            s = ApiUtils.GetMangaLangString(ActivityCoverViewer.this, locale).substring(0, 4) + " " + s;
+
+                        pages.add(s);
+                    }
 
                     indexAdapter = new AdapterSpinnerIndexes(ActivityCoverViewer.this, pages);
                     pageSelection.setAdapter(indexAdapter);

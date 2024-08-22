@@ -14,7 +14,7 @@ public class Dispatcher<T> {
 
     public Dispatcher(int target, Consumer<ArrayList<T>> onEnd) {
         this.target = target;
-        objs = new ArrayList<T>(target);
+        objs = new ArrayList<>(target);
         for (int i = 0; i < target; i++)
             objs.add(null);
 

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/MangadexDownloader.CardView"
+    android:id="@+id/rowLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginBottom="16dp"
+    android:descendantFocusability="blocksDescendants">
+
+    <com.littleProgrammers.mangadexdownloader.ViewFixedAspectRatioSlottedLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        app:aspectRatio="w,11:20"
+        app:orientation="horizontal"
+        app:gap="16dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/cover"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:adjustViewBounds="false"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/roundedImageView"
+            app:srcCompat="@drawable/cover_placeholder"
+            app:slotSizePercent="0.37"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            app:slotSizePercent="0.63">
+
+            <TextView
+                android:id="@+id/cardTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:gravity="start|bottom"
+                android:maxLines="2"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/cardAuthor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:gravity="start"
+                android:minLines="1"
+                android:maxLines="1"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="16sp" />
+
+            <com.littleProgrammers.mangadexdownloader.ViewSingleLineChipGroup
+                android:id="@+id/chipGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="8dp"
+                app:singleLine="true"
+                app:chipSpacing="0dp">
+
+                <com.google.android.material.chip.Chip
+                    style="@style/SmallChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <com.google.android.material.chip.Chip
+                    style="@style/SmallChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <com.google.android.material.chip.Chip
+                    style="@style/SmallChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </com.littleProgrammers.mangadexdownloader.ViewSingleLineChipGroup>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/description"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:alpha="0.8"
+                    android:clickable="false"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="32dp"
+                    android:background="@drawable/vertical_gradient"
+                    android:backgroundTint="?attr/colorSurfaceContainerLow"
+                    android:backgroundTintMode="multiply"
+                    android:layout_gravity="bottom"/>
+
+            </FrameLayout>
+
+
+        </LinearLayout>
+    </com.littleProgrammers.mangadexdownloader.ViewFixedAspectRatioSlottedLayout>
+
+</com.google.android.material.card.MaterialCardView>

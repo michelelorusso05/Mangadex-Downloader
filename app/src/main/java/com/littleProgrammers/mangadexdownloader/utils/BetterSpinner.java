@@ -1,6 +1,5 @@
 package com.littleProgrammers.mangadexdownloader.utils;
 
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;

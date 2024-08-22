@@ -11,9 +11,12 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.littleProgrammers.mangadexdownloader.apiResults.Manga;
 import com.littleProgrammers.mangadexdownloader.apiResults.Relationship;
+import com.littleProgrammers.mangadexdownloader.utils.ApiUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 public class AdapterFragmentActivityManga extends FragmentStateAdapter {
@@ -27,8 +30,8 @@ public class AdapterFragmentActivityManga extends FragmentStateAdapter {
             R.string.sectionChapters,
             R.string.sectionRelated
     };
-    Context context;
-    Manga manga;
+    final Context context;
+    final Manga manga;
     FragmentMangaDescription fragmentMangaDescription;
     FragmentMangaChapters fragmentMangaChapters;
     public AdapterFragmentActivityManga(FragmentActivity ctx, Manga m) {
@@ -45,8 +48,8 @@ public class AdapterFragmentActivityManga extends FragmentStateAdapter {
             case 0: {
                 fragmentMangaDescription = new FragmentMangaDescription();
                 Bundle args = new Bundle();
-                args.putSerializable("Manga", manga);
-                args.putBoolean("AreChaptersAvailableHint", areChaptersAvailable());
+                args.putParcelable("Manga", manga);
+                args.putBoolean("AreChaptersAvailableHint", AreChaptersAvailable());
                 fragmentMangaDescription.setArguments(args);
                 return fragmentMangaDescription;
             }
@@ -54,8 +57,8 @@ public class AdapterFragmentActivityManga extends FragmentStateAdapter {
                 fragmentMangaChapters = new FragmentMangaChapters();
                 Bundle args = new Bundle();
                 args.putString("MangaID", manga.getId());
-                args.putString("MangaTitle", manga.getAttributes().getTitleS());
-                args.putBoolean("AreChaptersAvailableHint", areChaptersAvailable());
+                args.putString("MangaTitle", ApiUtils.GetMangaTitleString(manga));
+                args.putBoolean("AreChaptersAvailableHint", AreChaptersAvailable());
                 fragmentMangaChapters.setArguments(args);
                 return fragmentMangaChapters;
             }
@@ -63,17 +66,12 @@ public class AdapterFragmentActivityManga extends FragmentStateAdapter {
                 FragmentMangaRelated fragment = new FragmentMangaRelated();
                 Bundle args = new Bundle();
 
-                ArrayList<String> relatedMangaIDs = new ArrayList<>();
-                ArrayList<String> relationTypes = new ArrayList<>();
-                for (Relationship r : manga.getRelationships()) {
-                    if ("manga".equals(r.getType())) {
-                        relatedMangaIDs.add(r.getId());
-                        relationTypes.add(r.getRelated());
-                    }
-                }
-
-                args.putStringArrayList("relatedMangaIDs", relatedMangaIDs);
-                args.putStringArrayList("relationTypes", relationTypes);
+                ArrayList<Relationship> relatedMangas =
+                        Arrays.stream(manga.getRelationships())
+                        .filter(relationship -> "manga".equals(relationship.getType()))
+                        .collect(Collectors.toCollection(ArrayList::new));
+                
+                args.putParcelableArrayList("relatedMangas", relatedMangas);
 
                 fragment.setArguments(args);
                 return fragment;
@@ -83,11 +81,11 @@ public class AdapterFragmentActivityManga extends FragmentStateAdapter {
         throw new IllegalStateException("There are only three fragments in this ViewPager2.");
     }
 
-    private boolean areChaptersAvailable() {
+    private boolean AreChaptersAvailable() {
         Set<String> languages = PreferenceManager.getDefaultSharedPreferences(context).getStringSet("languagePreference", Set.of("en"));
 
         for (String lang : languages) {
-            if (manga.getAttributes().isLanguageAvailable(lang))
+            if (ApiUtils.IsMangaLanguageAvailable(manga, lang))
                 return true;
         }
         return false;

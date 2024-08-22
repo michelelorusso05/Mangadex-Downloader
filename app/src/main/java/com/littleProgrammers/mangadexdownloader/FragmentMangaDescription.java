@@ -2,19 +2,18 @@ package com.littleProgrammers.mangadexdownloader;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -28,9 +27,6 @@ import androidx.lifecycle.ViewModelStoreOwner;
 
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
-import com.google.android.material.color.HarmonizedColors;
-import com.google.android.material.color.HarmonizedColorsOptions;
-import com.google.android.material.color.MaterialColors;
 import com.google.android.material.color.utilities.Blend;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
@@ -38,8 +34,8 @@ import com.google.android.material.progressindicator.CircularProgressIndicatorSp
 import com.google.android.material.progressindicator.IndeterminateDrawable;
 import com.littleProgrammers.mangadexdownloader.apiResults.Chapter;
 import com.littleProgrammers.mangadexdownloader.apiResults.Manga;
-import com.littleProgrammers.mangadexdownloader.apiResults.MangaAttributes;
 import com.littleProgrammers.mangadexdownloader.apiResults.Tag;
+import com.littleProgrammers.mangadexdownloader.utils.ApiUtils;
 import com.littleProgrammers.mangadexdownloader.utils.CompatUtils;
 import com.littleProgrammers.mangadexdownloader.utils.StaticData;
 
@@ -50,10 +46,8 @@ public class FragmentMangaDescription extends Fragment {
     private Manga manga;
     private ExtendedFloatingActionButton readButton;
     IndeterminateDrawable<CircularProgressIndicatorSpec> progressIndicatorDrawable;
-    ExtendedFloatingActionButton.OnChangedCallback changedCallback;
     NestedScrollView scrollView;
     boolean isSearching;
-    boolean isAnimating;
     float oldY = 0;
     boolean fabExpanded;
     private boolean chaptersAvailableHint;
@@ -73,7 +67,7 @@ public class FragmentMangaDescription extends Fragment {
 
         assert savedInstanceState != null;
 
-        Manga m = CompatUtils.GetSerializable(savedInstanceState, "Manga", Manga.class);
+        Manga m = CompatUtils.GetParcelable(savedInstanceState, "Manga", Manga.class);
 
         if (m != null)
             manga = m;
@@ -87,7 +81,7 @@ public class FragmentMangaDescription extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putSerializable("Manga", manga);
+        outState.putParcelable("Manga", manga);
     }
 
     @SuppressLint({"RestrictedApi", "PrivateResource"})
@@ -99,10 +93,12 @@ public class FragmentMangaDescription extends Fragment {
 
         TextView description = view.findViewById(R.id.mangaDescription);
 
-        if (manga.getDescription() != null && !manga.getDescription().isEmpty()) {
-            markwon.setMarkdown(description, manga.getDescription());
+        String desc = ApiUtils.GetMangaDescription(manga);
+        if (desc != null && !desc.isEmpty()) {
+            markwon.setMarkdown(description, desc);
         }
-
+        else
+            description.setVisibility(View.GONE);
 
         TextView author = view.findViewById(R.id.authorNameView);
         author.setText(manga.getAttributes().getAuthorString());
@@ -110,9 +106,41 @@ public class FragmentMangaDescription extends Fragment {
         TextView artist = view.findViewById(R.id.artistNameView);
         artist.setText(manga.getAttributes().getArtistString());
 
+        Chip pubYear = view.findViewById(R.id.pubYearChip);
+
+        if (manga.getAttributes().getYear() != null && manga.getAttributes().getYear() != 0) {
+            pubYear.setText(String.valueOf(manga.getAttributes().getYear()));
+            setChipAttributes(pubYear);
+        }
+        else
+            pubYear.setVisibility(View.GONE);
+
+        Chip pubStatus = view.findViewById(R.id.pubStatusChip);
+        setChipAttributes(pubStatus);
+
+        pubStatus.setChipIconVisible(true);
+        switch (manga.getAttributes().getStatus()) {
+            case "completed":
+                pubStatus.setChipIconResource(R.drawable.icon_completed);
+                pubStatus.setText(R.string.pub_status_completed);
+                break;
+            case "hiatus":
+                pubStatus.setChipIconResource(R.drawable.icon_pending);
+                pubStatus.setText(R.string.pub_status_hiatus);
+                break;
+            case "ongoing":
+                pubStatus.setChipIconResource(R.drawable.icon_ongoing);
+                pubStatus.setText(R.string.pub_status_ongoing);
+                break;
+            case "cancelled":
+                pubStatus.setChipIconResource(R.drawable.icon_canceled);
+                pubStatus.setText(R.string.pub_status_canceled);
+                break;
+        }
+
         // Content rating
         Chip contentRating = view.findViewById(R.id.contentRatingChip);
-        Pair<Integer, Integer> rating = MangaAttributes.getRatingString(manga.getAttributes().getContentRating());
+        Pair<Integer, Integer> rating = ApiUtils.GetMangaRatingString(manga.getAttributes().getContentRating());
         contentRating.setText(rating.first);
         setChipAttributes(contentRating);
 
@@ -125,7 +153,6 @@ public class FragmentMangaDescription extends Fragment {
         );
 
         contentRating.setChipIconTint(ColorStateList.valueOf(color));
-        // contentRating.setTextColor(color);
 
         ChipGroup genres = view.findViewById(R.id.genresChipGroup);
         ChipGroup themes = view.findViewById(R.id.themesChipGroup);
@@ -137,8 +164,10 @@ public class FragmentMangaDescription extends Fragment {
 
         setChipAttributes(demographicChip);
 
-        if (publicationDemographic == null || publicationDemographic.isEmpty() || publicationDemographic.equals("null"))
-            demographicChip.setText(R.string.valueNotSpecified);
+        if (publicationDemographic == null || publicationDemographic.isEmpty() || publicationDemographic.equals("null")) {
+            view.findViewById(R.id.demographicChipLabel).setVisibility(View.GONE);
+            demographicChip.setVisibility(View.GONE);
+        }
         else {
             switch (publicationDemographic) {
                 case "shounen":
@@ -192,41 +221,95 @@ public class FragmentMangaDescription extends Fragment {
             switch (tag.getAttributes().getGroup())
             {
                 case "genre":
-                    tagChip = (Chip) getLayoutInflater().inflate(R.layout.tag_chip, genres, false);
-                    tagChip.setText(tag.getTranslatedName(requireContext()));
+                    tagChip = (Chip) getLayoutInflater().inflate(R.layout.layout_tag_chip, genres, false);
+                    tagChip.setText(ApiUtils.GetTagTranslatedName(requireContext(), tag));
                     setChipAttributes(tagChip);
                     genres.addView(tagChip);
                     break;
                 case "theme":
-                    tagChip = (Chip) getLayoutInflater().inflate(R.layout.tag_chip, themes, false);
-                    tagChip.setText(tag.getTranslatedName(requireContext()));
+                    tagChip = (Chip) getLayoutInflater().inflate(R.layout.layout_tag_chip, themes, false);
+                    tagChip.setText(ApiUtils.GetTagTranslatedName(requireContext(), tag));
                     setChipAttributes(tagChip);
                     themes.addView(tagChip);
                     break;
                 case "format":
                     formatSet = true;
-                    formatChip.setText(tag.getTranslatedName(requireContext()));
+                    formatChip.setText(ApiUtils.GetTagTranslatedName(requireContext(), tag));
                     break;
             }
         }
 
-        if (!formatSet)
-            formatChip.setText(R.string.valueNotSpecified);
+        if (!formatSet) {
+            view.findViewById(R.id.formatChipLabel).setVisibility(View.GONE);
+            formatChip.setVisibility(View.GONE);
+        }
 
         setChipAttributes(formatChip);
 
         if (genres.getChildCount() == 0) {
-            Chip tagChip = (Chip) getLayoutInflater().inflate(R.layout.tag_chip, genres, false);
-            tagChip.setText(R.string.valueEmpty);
-            setChipAttributes(tagChip);
-            genres.addView(tagChip);
+            view.findViewById(R.id.genresChipGenresLabel).setVisibility(View.GONE);
+            genres.setVisibility(View.GONE);
         }
         if (themes.getChildCount() == 0) {
-            Chip tagChip = (Chip) getLayoutInflater().inflate(R.layout.tag_chip, themes, false);
-            tagChip.setText(R.string.valueEmpty);
-            setChipAttributes(tagChip);
-            themes.addView(tagChip);
+            view.findViewById(R.id.themesChipGroupLabel).setVisibility(View.GONE);
+            themes.setVisibility(View.GONE);
         }
+
+        final TextView[] linkGroupsLabels = {
+                view.findViewById(R.id.readChipGroupLabel),
+                view.findViewById(R.id.trackChipGroupLabel)
+        };
+        final ChipGroup[] linkGroups = {
+            view.findViewById(R.id.readChipGroup),
+            view.findViewById(R.id.trackChipGroup)
+        };
+
+        final String[][] sortedLinkIds = {
+                { "raw", "engtl", "bw", "amz", "ebj", "cdj" },
+                { "mu", "ap", "al", "kt", "mal", "nu" }
+        };
+
+        for (int i = 0; i < 2; i++) {
+            boolean set = false;
+
+            for (int j = 0; j < sortedLinkIds[i].length; j++) {
+                String key = sortedLinkIds[i][j];
+                String slug = manga.getAttributes().getLinks().get(key);
+
+                if (slug == null) continue;
+
+                set = true;
+
+                Chip linkChip = (Chip) getLayoutInflater().inflate(R.layout.layout_tag_chip, linkGroups[i], false);
+                setChipAttributes(linkChip);
+
+                ApiUtils.LinkInfo resources = ApiUtils.GetLinkResources(context, key);
+
+                linkChip.setText(resources.name);
+                if (resources.icon != null) {
+                    linkChip.setChipIconVisible(true);
+                    linkChip.setChipIcon(resources.icon);
+                }
+
+                final String url = String.format(resources.urlFormat, slug);
+
+                linkChip.setOnClickListener((v) -> {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse(url));
+                    context.startActivity(intent);
+                });
+
+                linkChip.setRippleColor(context.getColorStateList(com.google.android.material.R.color.m3_chip_ripple_color));
+
+                linkGroups[i].addView(linkChip);
+            }
+
+            if (!set) {
+                linkGroupsLabels[i].setVisibility(View.GONE);
+                linkGroups[i].setVisibility(View.GONE);
+            }
+        }
+
 
         readButton = view.findViewById(R.id.readButton);
 
@@ -286,7 +369,7 @@ public class FragmentMangaDescription extends Fragment {
         scrollView = view.findViewById(R.id.scrollView);
 
         scrollView.setOnScrollChangeListener((NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
-            if (scrollView.getScrollY() < oldY) {
+            if (scrollView.getScrollY() < oldY || scrollView.getChildAt(0).getHeight() == scrollView.getScrollY() + scrollView.getHeight()) {
                 readButton.extend();
             }
             else if (scrollView.getScrollY() > oldY) {
@@ -304,7 +387,7 @@ public class FragmentMangaDescription extends Fragment {
             public WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat insets) {
                 Insets i = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
 
-                v.setPadding(0, 0, 0, i.bottom + CompatUtils.convertDpToPixel(16, context));
+                v.setPadding(0, 0, 0, i.bottom + CompatUtils.ConvertDpToPixel(16, context));
 
                 return insets;
             }
@@ -318,7 +401,7 @@ public class FragmentMangaDescription extends Fragment {
 
                 ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
 
-                params.setMargins(0, 0, params.rightMargin, i.bottom + CompatUtils.convertDpToPixel(16, context));
+                params.setMargins(0, 0, params.rightMargin, i.bottom + CompatUtils.ConvertDpToPixel(16, context));
 
                 return insets;
             }

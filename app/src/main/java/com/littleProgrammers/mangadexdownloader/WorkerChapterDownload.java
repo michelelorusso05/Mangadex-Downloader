@@ -3,10 +3,12 @@ package com.littleProgrammers.mangadexdownloader;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.util.Log;
 
@@ -16,10 +18,16 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.preference.PreferenceManager;
 import androidx.work.Data;
+import androidx.work.ForegroundInfo;
+import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.littleProgrammers.mangadexdownloader.apiResults.AtHomeResults;
+import com.littleProgrammers.mangadexdownloader.db.DbChapter;
+import com.littleProgrammers.mangadexdownloader.db.DbManga;
+import com.littleProgrammers.mangadexdownloader.db.DbMangaDAO;
+import com.littleProgrammers.mangadexdownloader.db.MangaDatabase;
 import com.littleProgrammers.mangadexdownloader.utils.FolderUtilities;
 import com.littleProgrammers.mangadexdownloader.utils.MultipleFileDownloader;
 import com.littleProgrammers.mangadexdownloader.utils.StaticData;
@@ -36,12 +44,28 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class WorkerChapterDownload extends Worker {
+    public static final int PROGRESS_ONGOING = 0;
+    public static final int PROGRESS_SUCCESS = 1;
+    public static final int PROGRESS_FAILURE = 2;
+    public static final int PROGRESS_CANCELED = 3;
+    public static final int PROGRESS_ENQUEUED = 4;
+
     private static final int NOTIFICATION_ID = 6271;
+
     private final DNSClient client;
     private final String selectedChapterID;
+    private final String selectedChapterScanGroup;
+    private final String selectedMangaID;
     private final String selectedMangaName;
+    private final String selectedMangaAuthor;
+    private final String selectedMangaArtist;
     private final String formattedTitle;
+    private final String volume;
+    private final String chapter;
+    private long downloadedBytes;
 
+    private final NotificationCompat.Builder notificationBuilder;
+    private final NotificationManagerCompat notificationManager;
     private final Context context;
     private final int uniqueID;
     private final Semaphore mutex;
@@ -50,7 +74,11 @@ public class WorkerChapterDownload extends Worker {
     private int failedDownloads;
     private static final int MAX_FAILED_ATTEMPTS = 5;
     private final boolean hasNotificationPermissions;
+    private boolean hasExceededQuota;
     private MultipleFileDownloader downloader;
+    private long lastNotificationMillis;
+
+    private final Data.Builder progressData;
 
     @Override
     public void onStopped() {
@@ -66,6 +94,8 @@ public class WorkerChapterDownload extends Worker {
         client.CancelAllPendingRequests();
         DeleteTempFolder();
 
+        progressData.putInt("state", PROGRESS_CANCELED);
+
         mutex.release();
     }
 
@@ -77,8 +107,15 @@ public class WorkerChapterDownload extends Worker {
         Data data = getInputData();
 
         selectedChapterID = data.getString("Chapter");
+        selectedChapterScanGroup = data.getString("ScanGroup");
+        selectedMangaID = data.getString("MangaID");
         selectedMangaName = data.getString("Manga");
+        selectedMangaAuthor = data.getString("Author");
+        selectedMangaArtist = data.getString("Artist");
         formattedTitle = data.getString("Title");
+        volume = data.getString("Volume");
+        chapter = data.getString("ChapterNumber");
+
         this.context = context;
 
         client = new DNSClient(DNSClient.PresetDNS.CLOUDFLARE, context, false, 64, false);
@@ -87,8 +124,29 @@ public class WorkerChapterDownload extends Worker {
         uniqueID = selectedChapterID.hashCode();
         mutex = new Semaphore(0);
 
+        notificationManager = NotificationManagerCompat.from(context);
+
+        PendingIntent stopDownload = WorkManager.getInstance(context).createCancelPendingIntent(getId());
+
+        notificationBuilder = new NotificationCompat.Builder(context, String.valueOf(NOTIFICATION_ID))
+                .setSilent(true)
+                .setSmallIcon(R.drawable.ic_stat_name)
+                .setContentTitle(formattedTitle)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setOngoing(true)
+                .setGroup(selectedMangaID)
+                .setProgress(0, 0, true)
+                .setCategory(NotificationCompat.CATEGORY_PROGRESS)
+                .addAction(R.drawable.icon_stop, context.getString(R.string.stopDownload), stopDownload);
+
+        // Display notification as soon as possible (call needed for Android >= 12)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            notificationBuilder.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE);
+
         hasNotificationPermissions = (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) ||
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
+
+        progressData = new Data.Builder();
     }
 
     @NonNull
@@ -100,7 +158,7 @@ public class WorkerChapterDownload extends Worker {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return success ? Result.success() : Result.failure();
+        return success ? Result.success(progressData.build()) : Result.failure(progressData.build());
     }
 
     @SuppressLint({"MissingPermission", "InlinedApi"})
@@ -117,26 +175,14 @@ public class WorkerChapterDownload extends Worker {
             if (!mangaFolder.mkdir()) Log.d("Error", "Unable to create folder");
         }
 
-        Intent i = new Intent(context, BroadcastReceiverDownloadStop.class);
-        i.setAction("com.michelelorusso.mangadexdownloader.STOP_DOWNLOAD");
-        i.putExtra("workID", selectedChapterID);
+        progressData
+                .putString("id", selectedChapterID)
+                .putFloat("progress", -1)
+                .putInt("state", PROGRESS_ONGOING);
 
-        PendingIntent stopDownload;
-        stopDownload = PendingIntent.getBroadcast(context, uniqueID, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        setProgressAsync(progressData.build());
 
-        // Create notification
-        final NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), String.valueOf(NOTIFICATION_ID))
-                .setSilent(true)
-                .setSmallIcon(R.drawable.ic_stat_name)
-                .setContentTitle(formattedTitle)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setOngoing(true)
-                .setProgress(0, 0, true)
-                .addAction(R.drawable.icon_stop, context.getString(R.string.stopDownload), stopDownload);
-
-        final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
-        if (hasNotificationPermissions)
-            notificationManager.notify(uniqueID, builder.build());
+        SendNotificationCompat();
 
         client.HttpRequestAsync("https://api.mangadex.org/at-home/server/" + selectedChapterID, new Callback() {
             @Override
@@ -145,8 +191,7 @@ public class WorkerChapterDownload extends Worker {
                     call.clone().enqueue(this);
                     Log.w("Richiesta non riuscita", "Tentativi effettuati: " + failedDownloads + "/5");
                     failedDownloads++;
-                }
-                else {
+                } else {
                     OnDownloadFail();
                 }
             }
@@ -164,7 +209,7 @@ public class WorkerChapterDownload extends Worker {
                 response.close();
 
                 // Clean temporary directory
-                File dir = new File(context.getExternalFilesDir(null) +"/mangadexDownloaderTemp/" + selectedChapterID + "/");
+                File dir = new File(context.getExternalFilesDir(null) + "/mangadexDownloaderTemp/" + selectedChapterID + "/");
                 FolderUtilities.DeleteFolderContents(dir);
 
                 String baseUrl;
@@ -173,18 +218,22 @@ public class WorkerChapterDownload extends Worker {
                 if (HQ) {
                     baseUrl = hResults.getBaseUrl() + "/data/";
                     images = hResults.getChapter().getData();
-                }
-                else {
+                } else {
                     baseUrl = hResults.getBaseUrl() + "/data-saver/";
                     images = hResults.getChapter().getDataSaver();
                 }
 
                 // Create notification
-                builder
+                notificationBuilder
                         .setContentText("0%")
                         .setProgress(images.length, 0, false);
-                if (hasNotificationPermissions)
-                    notificationManager.notify(uniqueID, builder.build());
+
+                SendNotificationCompat();
+
+                progressData.putFloat("progress", 0);
+                setProgressAsync(progressData.build());
+
+                lastNotificationMillis = System.currentTimeMillis();
 
                 String[] urls = new String[images.length];
                 for (int i = 0; i < urls.length; i++)
@@ -195,26 +244,35 @@ public class WorkerChapterDownload extends Worker {
                 downloader.setOnDownloadCompleted(() -> OnDownloadEnd());
                 downloader.setOnDownloadFailCallback(() -> OnDownloadFail());
                 downloader.setOnProgressUpdate((progress, total) -> {
+                    progressData.putFloat("progress", Math.round((float) (progress) / total * 100));
+                    setProgressAsync(progressData.build());
+
+                    // Manually cap the notification update limit to avoid Android's own rate limits
+                    if (System.currentTimeMillis() - lastNotificationMillis < 1000)
+                        return;
+
+                    lastNotificationMillis = System.currentTimeMillis();
+
                     // Update notification
-                    builder
+                    notificationBuilder
                             .setContentText(Math.round((float) (progress) / total * 100) + "%")
                             .setProgress(total, progress, false);
-                    if (hasNotificationPermissions)
-                        notificationManager.notify(uniqueID, builder.build());
+
+                    SendNotificationCompat();
                 });
                 downloader.start();
             }
         });
     }
+
     @SuppressLint("MissingPermission")
     private void OnDownloadEnd() {
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
         notificationManager.cancel(uniqueID);
 
         // Create download folder
-        boolean HQ = !PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("dataSaver", false);
-        File targetFolder = new File(context.getExternalFilesDir(null) + "/Manga/" + selectedMangaName + "/" + formattedTitle + (HQ ? ".hq" : ".lq") + "/");
-        File tempFolder = new File(context.getExternalFilesDir(null) +"/mangadexDownloaderTemp/" + selectedChapterID + "/");
+        final boolean HQ = !PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("dataSaver", false);
+        File targetFolder = new File(context.getExternalFilesDir(null) + "/Manga/" + selectedMangaID + "/" + selectedChapterID + "/");
+        File tempFolder = new File(context.getExternalFilesDir(null) + "/mangadexDownloaderTemp/" + selectedChapterID + "/");
 
         String[] files = tempFolder.list();
         if (!targetFolder.exists() && !targetFolder.mkdirs()) {
@@ -239,31 +297,63 @@ public class WorkerChapterDownload extends Worker {
         @SuppressLint("InlinedApi")
         PendingIntent pendingIntent = PendingIntent.getActivity(context, uniqueID, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        NotificationCompat.Builder builderCompleted = new NotificationCompat.Builder(getApplicationContext(), String.valueOf(NOTIFICATION_ID))
+        notificationBuilder
                 .setSmallIcon(R.drawable.ic_stat_name)
                 .setContentTitle(context.getString(R.string.downloadCompleted))
                 .setContentText(formattedTitle)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setAutoCancel(true)
+                .setOngoing(false)
+                .setProgress(0, 0, false)
+                .clearActions()
                 .setContentIntent(pendingIntent);
+
         if (hasNotificationPermissions)
-            notificationManager.notify(uniqueID, builderCompleted.build());
+            notificationManager.notify(uniqueID + 1, notificationBuilder.build());
+
+        // Update is sent through WorkResult
+        progressData
+                .putFloat("progress", 100)
+                .putInt("state", PROGRESS_SUCCESS);
 
         client.shutdown();
         DeleteTempFolder();
         success = true;
+
+        DbMangaDAO dao = MangaDatabase.GetDatabase(getApplicationContext()).MangaDAO();
+
+        final int length = images.length;
+        final long folderSize = FolderUtilities.SizeOfFolder(targetFolder);
+
+        MangaDatabase.databaseWriteExecutor.execute(() ->
+                dao.InsertMangas(new DbManga(selectedMangaArtist, selectedMangaAuthor, selectedMangaID, selectedMangaName)));
+
+        MangaDatabase.databaseWriteExecutor.execute(() ->
+                dao.InsertChapters(new DbChapter(
+                        selectedChapterID,
+                        selectedMangaID,
+                        formattedTitle,
+                        selectedChapterScanGroup,
+                        length,
+                        folderSize,
+                        HQ,
+                        volume,
+                        chapter
+                )));
+
         mutex.release();
     }
+
     @SuppressLint({"MissingPermission", "InlinedApi"})
     private void OnDownloadFail() {
-        // ALl of the cleanup is already taken care of in the overrided onStopped
-        if (interrupted) return;
+        // All of the cleanup is already taken care of in the overrided onStopped
+        if (interrupted)
+            return;
+
         interrupted = true;
 
         client.CancelAllPendingRequests();
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
 
-        Context context = getApplicationContext();
         notificationManager.cancel(uniqueID);
 
         Intent i = new Intent(context, BroadcastReceiverDownloadRetry.class);
@@ -273,18 +363,23 @@ public class WorkerChapterDownload extends Worker {
         i.putExtra("Manga", selectedMangaName);
         i.putExtra("Title", formattedTitle);
 
-        PendingIntent retryDownload;
-        retryDownload = PendingIntent.getBroadcast(context, uniqueID, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent retryDownload = PendingIntent.getBroadcast(context, uniqueID, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        NotificationCompat.Builder builderCompleted = new NotificationCompat.Builder(getApplicationContext(), String.valueOf(NOTIFICATION_ID))
+        notificationBuilder
                 .setSmallIcon(R.drawable.ic_stat_name)
                 .setContentTitle(context.getString(R.string.downloadFailed))
                 .setContentText(context.getString(R.string.downloadMoreInfo))
                 .setSubText(formattedTitle)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setProgress(0, 0, false)
+                .setOngoing(false)
+                .clearActions()
                 .addAction(R.drawable.icon_download, context.getString(R.string.downloadRetry), retryDownload);
+
         if (hasNotificationPermissions)
-            notificationManager.notify(uniqueID, builderCompleted.build());
+            notificationManager.notify(uniqueID + 1, notificationBuilder.build());
+
+        progressData.putInt("state", PROGRESS_FAILURE);
 
         client.shutdown();
         DeleteTempFolder();
@@ -292,7 +387,23 @@ public class WorkerChapterDownload extends Worker {
     }
 
     private void DeleteTempFolder() {
-        File tempFolder = new File( context.getExternalFilesDir(null) + "/mangadexDownloaderTemp/" + selectedChapterID + "/");
+        File tempFolder = new File(context.getExternalFilesDir(null) + "/mangadexDownloaderTemp/" + selectedChapterID + "/");
         FolderUtilities.DeleteFolder(tempFolder);
+    }
+
+    private void SendNotificationCompat() {
+        if (hasExceededQuota && ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+            notificationManager.notify(uniqueID, notificationBuilder.build());
+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                setForegroundAsync(new ForegroundInfo(uniqueID, notificationBuilder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC));
+            }
+            else {
+                setForegroundAsync(new ForegroundInfo(uniqueID, notificationBuilder.build()));
+            }
+        } catch (IllegalStateException e) {
+            hasExceededQuota = true;
+        }
     }
 }

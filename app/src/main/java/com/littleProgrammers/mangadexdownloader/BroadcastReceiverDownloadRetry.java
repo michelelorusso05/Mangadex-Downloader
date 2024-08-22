@@ -11,6 +11,8 @@ import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
+import java.util.UUID;
+
 public class BroadcastReceiverDownloadRetry extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, @NonNull Intent intent) {
@@ -30,6 +32,8 @@ public class BroadcastReceiverDownloadRetry extends BroadcastReceiver {
 
         assert chapterID != null;
         OneTimeWorkRequest downloadWorkRequest = new OneTimeWorkRequest.Builder(WorkerChapterDownload.class)
+                .setId(UUID.fromString(chapterID))
+                .addTag("chapter")
                 .addTag(chapterID)
                 .setInputData(data.build())
                 .build();

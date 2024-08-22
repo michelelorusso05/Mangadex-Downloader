@@ -10,9 +10,9 @@ import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.Response;
 
 public class MultipleFileDownloader {
@@ -22,6 +22,7 @@ public class MultipleFileDownloader {
     private final File dst;
     private final AtomicInteger failedAttempts;
     private final AtomicInteger progress;
+    private final AtomicLong totalDownloaded;
     private final int total;
     private Runnable onDownloadFail;
     @FunctionalInterface
@@ -38,6 +39,7 @@ public class MultipleFileDownloader {
         this.failedAttempts = new AtomicInteger(0);
         this.total = urls.length;
         this.progress = new AtomicInteger(0);
+        this.totalDownloaded = new AtomicLong(0);
         this.concurrentDownloads = concurrentDownloads;
     }
     public MultipleFileDownloader(DNSClient client, String[] urls, File dst) {
@@ -69,16 +71,21 @@ public class MultipleFileDownloader {
             url = urls.poll();
         }
         if (url == null) return;
+
+        final String fUrl = url;
+        final File fDest = new File(dst, nameFromPosition(url, pos, total));
+
         synchronized (client) {
-            client.DownloadFileAsync(url, new File(dst, nameFromPosition(url, pos, total)), new Callback() {
+            client.DownloadFileAsync(fUrl, fDest, new DNSClient.DownloadCallback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     e.printStackTrace();
 
                     if (stopped) return;
 
+                    // Retry download if we haven't reached the maxmum failed attempts
                     if (failedAttempts.incrementAndGet() <= MAX_FAILED_ATTEMPTS) {
-                        call.clone().enqueue(this);
+                        client.DownloadFileAsync(fUrl, fDest, this);
                     }
                     else {
                         if (onDownloadFail != null) onDownloadFail.run();
@@ -86,7 +93,7 @@ public class MultipleFileDownloader {
                 }
 
                 @Override
-                public void onResponse(@NonNull Call call, @NonNull Response response) {
+                public void onResponse(@NonNull Call call, @NonNull Response response, long bytes) {
                     if (stopped) return;
 
                     int curProgress = progress.incrementAndGet();
@@ -94,8 +101,10 @@ public class MultipleFileDownloader {
                     if (curProgress == total) {
                         if (onDownloadCompleted != null) onDownloadCompleted.run();
                     }
-                    else
+                    else {
                         execute();
+                        totalDownloaded.addAndGet(bytes);
+                    }
                 }
             });
         }

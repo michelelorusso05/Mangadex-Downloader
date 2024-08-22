@@ -43,6 +43,9 @@ public abstract class ActivityReader extends AppCompatActivity {
     protected Toolbar toolbar;
     protected View controls;
 
+    BetterSpinner chapterSelection;
+    MaterialButton chapterNext, chapterPrevious;
+
     // Bitmap configuration (applies to this class, all methods)
     public static final BitmapFactory.Options opt;
 
@@ -164,6 +167,10 @@ public abstract class ActivityReader extends AppCompatActivity {
         first = findViewById(R.id.firstButton);
         last = findViewById(R.id.lastButton);
 
+        chapterPrevious = findViewById(R.id.previousChapterButton);
+        chapterNext = findViewById(R.id.nextChapterButton);
+        chapterSelection = new BetterSpinner(findViewById(R.id.chapterSelection));
+
         previous.setOnClickListener(this::PreviousPage);
         next.setOnClickListener(this::NextPage);
         first.setOnClickListener(this::FirstPage);
@@ -236,7 +243,7 @@ public abstract class ActivityReader extends AppCompatActivity {
         for (int i = 0; i < l; i++)
             pages[i] = UpdatePageIndicator(i);
 
-        pageSelection.setAdapter(new ArrayAdapter<>(this, R.layout.page_indicator_spinner_item, pages));
+        pageSelection.setAdapter(new ArrayAdapter<>(this, R.layout.item_spinner_page_indicator, pages));
     }
 
     protected String UpdatePageIndicator(int index) {

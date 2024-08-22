@@ -2,7 +2,7 @@
 
 # Mangadex-Downloader
 
-A free and open source downloader and reader app for [Mangadex](mangadex.org).
+A free and open source downloader and reader app for [Mangadex](https://mangadex.org).
 
 ### Features
 

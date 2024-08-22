@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ViewFixedAspectRatioSlottedLayout">
+        <attr name="aspectRatio" format="string" />
+        <attr name="gap" format="dimension" />
+        <attr name="orientation" format="enum">
+            <enum name="horizontal" value="0"/>
+            <enum name="vertical" value="1"/>
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="ViewFixedAspectRatioSlottedLayout_Layout">
+        <attr name="slotSizePercent" format="float" />
+    </declare-styleable>
+</resources>

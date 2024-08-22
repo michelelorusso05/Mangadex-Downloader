@@ -5,16 +5,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ActivityDownloadedFiles"
-    android:fitsSystemWindows="true">
+    tools:context=".ActivityDownloadedFiles">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbarlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
         app:liftOnScroll="true"
-        app:liftOnScrollTargetViewId="@+id/downloadedMangas">
+        app:liftOnScrollTargetViewId="@+id/downloadedMangas"
+        android:fitsSystemWindows="true">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/home_toolbar"
@@ -23,20 +22,42 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <TextView
+    <LinearLayout
+        android:layout_gravity="center"
         android:id="@+id/emptyView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="@string/downloadedChaptersEmpty"
-        android:textSize="20sp"
-        android:visibility="gone" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/emoticonView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="48sp" />
+
+        <TextView
+            android:id="@+id/errorDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="16sp"
+            android:text="@string/downloadedChaptersEmpty"/>
+    </LinearLayout>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/downloadedMangas"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:paddingBottom="16dp"
+        android:clipToPadding="false" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

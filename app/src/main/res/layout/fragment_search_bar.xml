@@ -19,7 +19,6 @@
         app:cardCornerRadius="24dp">
 
         <LinearLayout
-            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -56,7 +55,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:indeterminate="true"
-                    app:trackCornerRadius="4dp" />
+                    app:trackCornerRadius="2dp"
+                    app:trackThickness="3dp"
+                    android:visibility="invisible" />
             </FrameLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
@@ -66,13 +67,12 @@
         style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:icon="@drawable/icon_bookmarks"
+        app:icon="@drawable/icon_filters"
         android:layout_margin="0dp"
         android:insetRight="0dp"/>
 
     <com.google.android.material.button.MaterialButton
         android:visibility="gone"
-        android:id="@+id/randomButton"
         style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

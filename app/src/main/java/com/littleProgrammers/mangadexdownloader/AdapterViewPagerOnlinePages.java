@@ -20,7 +20,7 @@ import okhttp3.ResponseBody;
 
 public class AdapterViewPagerOnlinePages extends AdapterViewPagerReaderPages {
 
-    DNSClient client;
+    final DNSClient client;
 
     public AdapterViewPagerOnlinePages(Activity ctx, String baseUrl, String[] urls, DNSClient sharedClient, int navigationMode, boolean landscape, Runnable onTouch) {
         super(ctx, baseUrl, urls, navigationMode, landscape, onTouch);

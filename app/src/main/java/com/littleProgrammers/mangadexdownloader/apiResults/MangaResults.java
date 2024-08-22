@@ -3,6 +3,13 @@ package com.littleProgrammers.mangadexdownloader.apiResults;
 import java.util.ArrayList;
 
 public class MangaResults {
+    String result;
+    String response;
+    ArrayList<Manga> data;
+    int limit;
+    int offset;
+    int total;
+
     public String getResult() {
         return result;
     }
@@ -50,11 +57,4 @@ public class MangaResults {
     public void setTotal(int total) {
         this.total = total;
     }
-
-    String result;
-    String response;
-    ArrayList<Manga> data;
-    int limit;
-    int offset;
-    int total;
 }

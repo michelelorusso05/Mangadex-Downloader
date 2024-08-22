@@ -20,15 +20,22 @@ public class ViewModelChapterList extends ViewModel {
         uiState.setValue(new ChapterListState(chapters, state, bookmark));
     }
 
+    public void updateBookmark(int bookmark) {
+        assert uiState.getValue() != null;
+
+        uiState.setValue(new ChapterListState(uiState.getValue().getMangaChapters(), ChapterListState.SEARCH_COMPLETED_UPDATE_BOOKMARK, bookmark));
+    }
+
     public static class ChapterListState {
-        public ChapterListState(ArrayList<Chapter> chapters, int alreadySearched, int bookmark) {
+        public ChapterListState(ArrayList<Chapter> chapters, int state, int bookmark) {
             mangaChapters = chapters;
-            searchState = alreadySearched;
+            searchState = state;
             bookmarkedIndex = bookmark;
         }
         public static final int SEARCH_NOT_COMPLETED = 0;
-        public static final int SEARCH_COMPLETED = 1;
-        public static final int SEARCH_ERROR = 2;
+        public static final int SEARCH_ERROR = 1;
+        public static final int SEARCH_COMPLETED = 2;
+        public static final int SEARCH_COMPLETED_UPDATE_BOOKMARK = 2;
 
         private final ArrayList<Chapter> mangaChapters;
         private final int searchState;

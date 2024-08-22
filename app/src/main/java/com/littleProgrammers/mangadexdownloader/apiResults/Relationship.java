@@ -1,15 +1,19 @@
 package com.littleProgrammers.mangadexdownloader.apiResults;
 
-import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.littleProgrammers.mangadexdownloader.R;
+import com.littleProgrammers.mangadexdownloader.utils.CompatUtils;
 
 import java.io.Serializable;
-import java.util.HashMap;
 
-public class Relationship implements Serializable
+public class Relationship implements Serializable, Parcelable
 {
+    String id;
+    String type;
+    String related;
+    RelationshipAttributes attributes;
+
     public String getId() {
         return id;
     }
@@ -33,39 +37,45 @@ public class Relationship implements Serializable
         this.related = related;
     }
 
-    String id;
-    String type;
-    String related;
-
-    JsonNode attributes;
-
-    public JsonNode getAttributes() {
+    public RelationshipAttributes getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(JsonNode attributes) {
+    public void setAttributes(RelationshipAttributes attributes) {
         this.attributes = attributes;
     }
 
-    static HashMap<String, Integer> idToStringResourceIndex;
-
-    private static void initLUP(Context context) {
-        String[] arr = context.getResources().getStringArray(R.array.manga_relationships_enum);
-
-        idToStringResourceIndex = new HashMap<>(arr.length);
-
-        for (int i = 0; i < arr.length; i++)
-            idToStringResourceIndex.put(arr[i], i);
+    @Override
+    public int describeContents() {
+        return 0;
     }
-    public static String getTranslatedRelationship(Context context, String key) {
-        if (idToStringResourceIndex == null)
-            initLUP(context);
 
-        Integer index = idToStringResourceIndex.get(key);
-
-        if (index == null)
-            return key;
-
-        return context.getResources().getStringArray(R.array.related_manga_type)[index];
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.id);
+        dest.writeString(this.type);
+        dest.writeString(this.related);
+        dest.writeParcelable(this.attributes, flags);
     }
+
+    public Relationship() {}
+
+    protected Relationship(Parcel in) {
+        this.id = in.readString();
+        this.type = in.readString();
+        this.related = in.readString();
+        this.attributes = CompatUtils.GetParcelableFromParcel(in, RelationshipAttributes.class);
+    }
+
+    public static final Creator<Relationship> CREATOR = new Creator<Relationship>() {
+        @Override
+        public Relationship createFromParcel(Parcel source) {
+            return new Relationship(source);
+        }
+
+        @Override
+        public Relationship[] newArray(int size) {
+            return new Relationship[size];
+        }
+    };
 }

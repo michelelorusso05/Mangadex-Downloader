@@ -3,7 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".FragmentMangaDescription">
@@ -26,17 +25,16 @@
                 android:id="@+id/mangaDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/defaultDescription"
                 android:textAlignment="viewStart"
                 android:textSize="16sp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="32dp"
+                android:layout_marginVertical="16dp"
                 android:textColor="?attr/colorOnSurfaceVariant"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:baselineAligned="false"
+                android:layout_marginVertical="16dp"
                 android:orientation="horizontal">
 
                 <LinearLayout
@@ -60,7 +58,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="Araki Hirohiko"
                         android:textColor="?attr/colorOnSurfaceVariant" />
                 </LinearLayout>
 
@@ -85,15 +82,43 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="Araki Hirohiko"
                         android:textColor="?attr/colorOnSurfaceVariant"/>
                 </LinearLayout>
 
             </LinearLayout>
 
-            <Space
+            <TextView
                 android:layout_width="match_parent"
-                android:layout_height="32dp" />
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:paddingBottom="4dp"
+                android:text="@string/publication"
+                android:textAlignment="viewStart"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"/>
+
+            <com.google.android.material.chip.ChipGroup
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginVertical="2dp"
+                app:chipSpacing="0dp"
+                app:lineSpacing="2dp">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/pubYearChip"
+                    style="@style/TagChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/pubStatusChip"
+                    style="@style/TagChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </com.google.android.material.chip.ChipGroup>
 
             <TextView
                 android:layout_width="match_parent"
@@ -104,7 +129,8 @@
                 android:text="@string/contentRating"
                 android:textAlignment="viewStart"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_marginTop="16dp" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/contentRatingChip"
@@ -112,17 +138,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="16dp" />
-
             <TextView
+                android:id="@+id/genresChipGenresLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="4dp"
                 android:text="@string/genres"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_marginTop="16dp" />
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/genresChipGroup"
@@ -130,36 +154,27 @@
                 android:layout_height="match_parent"
                 android:layout_marginVertical="2dp"
                 app:chipSpacing="0dp"
-                app:lineSpacing="2dp">
-
-            </com.google.android.material.chip.ChipGroup>
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="16dp" />
+                app:lineSpacing="2dp" />
 
             <TextView
+                android:id="@+id/themesChipGroupLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="4dp"
                 android:text="@string/themes"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_marginTop="16dp" />
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/themesChipGroup"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginVertical="2dp"
-                app:chipSpacing="0dp">
-
-            </com.google.android.material.chip.ChipGroup>
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="16dp" />
+                app:chipSpacing="0dp" />
 
             <TextView
+                android:id="@+id/formatChipLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
@@ -168,7 +183,8 @@
                 android:text="@string/format"
                 android:textAlignment="viewStart"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"/>
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/formatChip"
@@ -176,11 +192,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="16dp" />
-
             <TextView
+                android:id="@+id/demographicChipLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
@@ -189,13 +202,58 @@
                 android:text="@string/demographic"
                 android:textAlignment="viewStart"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_marginTop="16dp" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/demographicChip"
                 style="@style/TagChip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/readChipGroupLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="4dp"
+                android:text="@string/buyOrRead"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                app:drawableStartCompat="@drawable/icon_link"
+                app:drawableTint="?attr/colorPrimary"
+                android:drawablePadding="4dp" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/readChipGroup"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginVertical="2dp"
+                app:chipSpacing="0dp" />
+
+            <TextView
+                android:id="@+id/trackChipGroupLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="4dp"
+                android:text="@string/keepTrack"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                app:drawableStartCompat="@drawable/icon_link"
+                app:drawableTint="?attr/colorPrimary"
+                android:drawablePadding="4dp" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/trackChipGroup"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginVertical="2dp"
+                app:chipSpacing="0dp" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="80dp" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
@@ -208,6 +266,5 @@
         app:icon="@drawable/icon_no_chapters"
         app:layout_anchor="@id/scrollView"
         app:layout_anchorGravity="end|bottom|right"/>
-
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

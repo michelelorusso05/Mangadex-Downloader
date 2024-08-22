@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.MangadexDownloader" parent="Base.Theme.MangadexDownloader">
+        <item name="android:windowLayoutInDisplayCutoutMode">always</item>
+    </style>
+</resources>

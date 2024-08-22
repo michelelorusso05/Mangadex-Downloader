@@ -43,7 +43,7 @@ public class ActivitySettings extends AppCompatActivity {
         Bundle args = new Bundle();
         args.putString("params", extraParameters);
         fragment.setArguments(args);
-        setContentView(R.layout.settings_activity);
+        setContentView(R.layout.activity_settings);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager()

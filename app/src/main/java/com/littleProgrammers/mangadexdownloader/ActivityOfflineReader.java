@@ -3,11 +3,9 @@ package com.littleProgrammers.mangadexdownloader;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,6 +34,10 @@ public class ActivityOfflineReader extends ActivityReader {
     View progressView;
     CircularProgressIndicator progressIndicator;
 
+    String mangaID;
+    ArrayList<String> chapterNames;
+    ArrayList<String> chapterIDs;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +47,11 @@ public class ActivityOfflineReader extends ActivityReader {
         baseUrl = extras.getString("baseUrl");
         urls = extras.getStringArray("urls");
         if (urls == null) urls = new String[0];
+
+        chapterNames = getIntent().getStringArrayListExtra("chapterNames");
+        chapterIDs = getIntent().getStringArrayListExtra("chapterIDs");
+        mangaID = getIntent().getStringExtra("mangaID");
+        String targetChapter = getIntent().getStringExtra("targetChapter");
 
         launchShareForResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -64,16 +71,15 @@ public class ActivityOfflineReader extends ActivityReader {
         pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
+            int pos = adapter.rawPositionToChapterPosition(position);
+            if (pager.getTag() != null) {
+                pager.setTag(null);
+            }
+            else {
+                pageSelection.setVisualSelection(pos);
+            }
 
-                int pos = adapter.rawPositionToChapterPosition(position);
-                if (pager.getTag() != null) {
-                    pager.setTag(null);
-                }
-                else {
-                    pageSelection.setVisualSelection(pos);
-                }
-
-                pageProgressIndicator.setProgressCompat((int) ((100f / adapter.getTotalElements()) * (pos + 1)), true);
+            pageProgressIndicator.setProgressCompat((int) ((100f / adapter.getTotalElements()) * (pos + 1)), true);
             }
         });
 
@@ -130,7 +136,7 @@ public class ActivityOfflineReader extends ActivityReader {
 
                 final int savedPage = pageToSet;
                 runOnUiThread(() -> {
-                    pageSelection.setAdapter(new ArrayAdapter<>(ActivityOfflineReader.this, R.layout.page_indicator_spinner_item, pages));
+                    pageSelection.setAdapter(new ArrayAdapter<>(ActivityOfflineReader.this, R.layout.item_spinner_page_indicator, pages));
                     pager.setCurrentItem(savedPage, false);
                 });
             }).start();
@@ -166,7 +172,6 @@ public class ActivityOfflineReader extends ActivityReader {
     }
 
     private void CreateAndSharePDF() {
-
         runOnUiThread(() -> {
             progressView.setAlpha(0);
             ObjectAnimator animation = ObjectAnimator.ofFloat(progressView, "alpha", 1f);

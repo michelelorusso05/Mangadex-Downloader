@@ -3,7 +3,6 @@ package com.littleProgrammers.mangadexdownloader;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
@@ -30,16 +29,14 @@ public class ActivityOnlineReader extends ActivityReader {
     DNSClient client;
 
     String mangaID;
-    String[] chapterNames;
-    String[] chapterIDs;
-    BetterSpinner chapterSelection;
-    MaterialButton chapterNext, chapterPrevious;
+    ArrayList<String> chapterNames;
+    ArrayList<String> chapterIDs;
 
     boolean bookmarkingEnabled;
     int indexToBookmark;
 
     boolean setLastPage;
-    AtomicInteger targetPage = new AtomicInteger(-1);
+    final AtomicInteger targetPage = new AtomicInteger(-1);
 
     AdapterViewPagerReaderPages adapter;
     ArrayAdapter<String> indexAdapter;
@@ -48,10 +45,6 @@ public class ActivityOnlineReader extends ActivityReader {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        chapterPrevious = findViewById(R.id.previousChapterButton);
-        chapterNext = findViewById(R.id.nextChapterButton);
-        chapterSelection = new BetterSpinner(findViewById(R.id.chapterSelection));
-
         chapterPrevious.setOnClickListener(this::ChapterPrevious);
         chapterNext.setOnClickListener(this::ChapterNext);
 
@@ -59,27 +52,27 @@ public class ActivityOnlineReader extends ActivityReader {
 
         client = StaticData.getClient(getApplicationContext());
 
-        chapterNames = getIntent().getStringArrayExtra("chapterNames");
-        chapterIDs = getIntent().getStringArrayExtra("chapterIDs");
+        chapterNames = getIntent().getStringArrayListExtra("chapterNames");
+        chapterIDs = getIntent().getStringArrayListExtra("chapterIDs");
         mangaID = getIntent().getStringExtra("mangaID");
+        String targetChapter = getIntent().getStringExtra("targetChapter");
+
 
         bookmarkingEnabled = FavouriteManager.IsFavourite(this, mangaID);
         if (savedInstanceState != null)
             targetPage.set(savedInstanceState.getInt("currentPage", -1) - 1);
 
-        chapterSelection.setAdapter(new AdapterSpinnerChapterSelection(this, chapterNames));
+        chapterSelection.setAdapter(new AdapterSpinnerChapterSelection(this, chapterNames, null));
         chapterSelection.setOnItemSelectedListener((pos) -> {
             if (adapter != null) adapter.detach();
             FetchAtHome(pos);
         });
 
-        String targetChapter = getIntent().getStringExtra("targetChapter");
-
         if (targetChapter == null)
             chapterSelection.setSelection(0);
         else {
-            for (int i = 0; i < chapterIDs.length; i++) {
-                if (chapterIDs[i].equals(targetChapter)) {
+            for (int i = 0; i < chapterIDs.size(); i++) {
+                if (chapterIDs.get(i).equals(targetChapter)) {
                     chapterSelection.setSelection(i);
                     break;
                 }
@@ -97,7 +90,7 @@ public class ActivityOnlineReader extends ActivityReader {
             // Update bookmark
             if (bookmarkingEnabled && pos >= pageSelection.getCount() - 2) {
                 FavouriteManager.SetBookmarkForFavourite(ActivityOnlineReader.this, mangaID,
-                        chapterIDs[indexToBookmark == chapterSelection.getCount() - 1 ? indexToBookmark : indexToBookmark + 1],
+                        chapterIDs.get(indexToBookmark == chapterSelection.getCount() - 1 ? indexToBookmark : indexToBookmark + 1),
                         indexToBookmark == chapterSelection.getCount() - 1);
             }
         });
@@ -146,7 +139,7 @@ public class ActivityOnlineReader extends ActivityReader {
         SetChapterControlsEnabled(false);
         SetPageControlsEnabled(false);
         pageProgressIndicator.setIndeterminate(true);
-        client.HttpRequestAsync("https://api.mangadex.org/at-home/server/" + chapterIDs[position], new Callback() {
+        client.HttpRequestAsync("https://api.mangadex.org/at-home/server/" + chapterIDs.get(position), new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 runOnUiThread(() -> {
@@ -253,8 +246,8 @@ public class ActivityOnlineReader extends ActivityReader {
                 });
                 if (bookmarkingEnabled) {
                     indexToBookmark = position;
-                    FavouriteManager.SetBookmarkForFavourite(ActivityOnlineReader.this, mangaID, chapterIDs[position],
-                            position == chapterIDs.length - 1);
+                    FavouriteManager.SetBookmarkForFavourite(ActivityOnlineReader.this, mangaID, chapterIDs.get(position),
+                            position == chapterIDs.size() - 1);
                 }
 
                 setLastPage = false;
@@ -275,13 +268,24 @@ public class ActivityOnlineReader extends ActivityReader {
         last.setEnabled(e);
     }
 
+    private void SetChapterRelative(int delta) {
+        if (chapterSelection.getSelectedItemPosition() + delta < chapterSelection.getCount() &&
+            chapterSelection.getSelectedItemPosition() + delta >= 0) {
+            // If a spinner (or any of its parent) has its visibility set to GONE the onItemSelected event won't execute
+            if (!chapterSelection.spinner.isShown()) {
+                FetchAtHome(chapterSelection.getSelectedItemPosition() + delta);
+                chapterSelection.setVisualSelection(chapterSelection.getSelectedItemPosition() + delta);
+            }
+            else
+                chapterSelection.setSelection(chapterSelection.getSelectedItemPosition() + delta);
+        }
+    }
+
     public void ChapterNext(View v) {
-        if (chapterSelection.getSelectedItemPosition() < chapterSelection.getCount() - 1)
-            chapterSelection.setSelection(chapterSelection.getSelectedItemPosition() + 1);
+        SetChapterRelative(1);
     }
     public void ChapterPrevious(View v) {
-        if (chapterSelection.getSelectedItemPosition() > 0)
-            chapterSelection.setSelection(chapterSelection.getSelectedItemPosition() - 1);
+        SetChapterRelative(-1);
     }
 }
 

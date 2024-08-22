@@ -92,7 +92,7 @@ public class ChapterUtilities {
         for (Relationship r : current.getRelationships()) {
             if (r.getType().equals("scanlation_group")) {
                 current.getAttributes().setScanlationGroupID(r.getId());
-                current.getAttributes().setScanlationGroupString(r.getAttributes().get("name").textValue());
+                current.getAttributes().setScanlationGroupString(r.getAttributes().getName());
                 break;
             }
         }
@@ -112,9 +112,9 @@ public class ChapterUtilities {
     }
 
     public static class FormattingOptions {
-        public boolean allowDuplicate;
-        public boolean hideExternal;
-        public String keepThisForMe;
+        public final boolean allowDuplicate;
+        public final boolean hideExternal;
+        public final String keepThisForMe;
         public FormattingOptions(boolean allowDuplicate, boolean hideExternal, String keepThisForMe) {
             this.allowDuplicate = allowDuplicate;
             this.hideExternal = hideExternal;
